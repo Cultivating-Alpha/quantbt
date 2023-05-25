@@ -19,6 +19,8 @@ mplfinance = "^0.12.9b7"
 pandas-ta = "^0.3.14b0"
 dask = {extras = ["distributed"], version = "^2023.5.0"}
 tqdm = "^4.65.0"
+pynvim = "^0.4.3"
+python-binance = "^1.0.17"
 
 
 [build-system]

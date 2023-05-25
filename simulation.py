@@ -24,7 +24,7 @@ def simulation(data, entries, exists, sl):
         sl.values,
         size,
         initial_capital=10000,
-        transaction_cost=0.0005,
+        transaction_cost=0.0002,
     )
 
     return final_value, equity, orders_array, trades_array
@@ -48,7 +48,10 @@ def get_signals(data, long, short, cutoff=5, atr_distance=2):
 
 
 ####
-data = pd.read_parquet("./sample-data.parquet")
+# data = pd.read_parquet("./data/WBNB-BUSD-h4.parquet")
+# data = pd.read_parquet("./data/uniswap-v3-WETH-USDC-h4.parquet")
+data = pd.read_parquet("./data/binance-ETHUSDT.parquet")
+data = pd.read_parquet("./data/binance-BTCUSDT.parquet")
 # data = data[350:850]
 
 
@@ -148,22 +151,22 @@ df.to_parquet("./optimisation.parquet")
 print(df)
 #
 # # |%%--%%| <3jmGlLWKSo|NUhC9KfUv2>
-# qs.extend_pandas()
-# annual_rf_rate = 0.05
-# rf_rate = (1 + annual_rf_rate) ** (1 / (252 * 60)) - 1
-# # show sharpe ratio
-# prices = data.close
-# returns = pd.Series(equity, index=data.index).pct_change()
-# returns.sharpe(rf=rf_rate)
-# # pf.stats(settings=dict(risk_free=rf_rate))
-# # qs.stats.sharpe(returns, rf=rf_rate)
-# # pf.plot().show()
-# # qs.plots.snapshot(stock, title="Facebook Performance")
-# # # or using extend_pandas() :)
-#
-# qs.reports.metrics(returns=returns, benchmark=prices, rf=rf_rate)
-# # (7528.5 - 7545.75) * 2
-# # qs.reports.html(
-# #     returns, mode="full", benchmark=prices, output="my_report.html", rf=rf_rate
-# # )
-# # final_value
+qs.extend_pandas()
+annual_rf_rate = 0.05
+rf_rate = (1 + annual_rf_rate) ** (1 / (252 * 60)) - 1
+# show sharpe ratio
+prices = data.close
+returns = pd.Series(equity, index=data.index).pct_change()
+returns.sharpe(rf=rf_rate)
+# pf.stats(settings=dict(risk_free=rf_rate))
+# qs.stats.sharpe(returns, rf=rf_rate)
+# pf.plot().show()
+# qs.plots.snapshot(stock, title="Facebook Performance")
+# # or using extend_pandas() :)
+
+qs.reports.metrics(returns=returns, benchmark=prices, rf=rf_rate)
+# (7528.5 - 7545.75) * 2
+# qs.reports.html(
+#     returns, mode="full", benchmark=prices, output="my_report.html", rf=rf_rate
+# )
+# final_value
