@@ -23,7 +23,7 @@ def close_position(
     orders[order_idx, :] = [i, -1, exit_price, entry_size, cash]
     order_idx += 1
 
-    pnl = (exit_price - entry_price) * entry_size
+    pnl = (exit_price - entry_price) * entry_size - transaction_cost
     total_pnl += pnl
 
     trades[trade_idx, :] = [
@@ -72,6 +72,7 @@ def backtest(
 
     for i in range(1, len(prices)):
         fee = calculate_fees(prices[i], size[i], transaction_cost)
+        print(fee)
         if entry_signals[i] == 1:
             if not in_position:
                 # Use all available cash to buy
@@ -148,4 +149,5 @@ def backtest(
         #     print(cash)
         #     print(positions[i])
         final_value = equity[i]
+        print(total_pnl)
     return final_value, total_pnl, equity, orders[:order_idx, :], trades[:trade_idx, :]
