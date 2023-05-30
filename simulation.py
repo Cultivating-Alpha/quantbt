@@ -5,7 +5,7 @@ from backtester import backtest
 import quantstats as qs
 import talib
 
-from helpers import SMA, print_trades, plot_equity, calculate_metrics
+from temp import SMA, print_trades, plot_equity, calculate_metrics
 from plot_ohlc import plot_ohlc
 
 
@@ -49,16 +49,16 @@ def get_signals(data, long, short, cutoff=5, atr_distance=2):
 
 ####
 # data = pd.read_parquet("./data/WBNB-BUSD-h4.parquet")
-# data = pd.read_parquet("./data/uniswap-v3-WETH-USDC-h4.parquet")
-data = pd.read_parquet("./data/binance-ETHUSDT.parquet")
-data = pd.read_parquet("./data/binance-BTCUSDT.parquet")
+data = pd.read_parquet("./data/uniswap-v3-WETH-USDC-h4.parquet")
+# data = pd.read_parquet("./data/binance-ETHUSDT.parquet")
+# data = pd.read_parquet("./data/binance-BTCUSDT.parquet")
 # data = data[350:850]
 
 
 import time
 
 start = time.time()
-entries, exits, ma_long, ma_short, rsi, atr, sl = get_signals(data, 211, 7, 13, 2)
+entries, exits, ma_long, ma_short, rsi, atr, sl = get_signals(data, 216, 9, 13, 2)
 (final_value, equity, orders_arr, trades_arr) = simulation(data, entries, exits, sl)
 end = time.time()
 
@@ -74,10 +74,23 @@ newdf = pd.DataFrame(
     },
     index=[0],
 )
+
 print(newdf)
-# print_trades(trades_arr)
+print_trades(trades_arr)
 # plot_equity(equity, data)
-# plot_ohlc(data, equity, entries, exits, ma_long, ma_short, rsi, data.low - atr * 2)
+plot_ohlc(data, equity, entries, exits, ma_long, ma_short, rsi, data.low - atr * 2)
+
+from Helpers import Helpers
+
+data.reset_index(inplace=True)
+data.rename(columns={"timestamp": "Date"}, inplace=True)
+data.set_index("Date", inplace=True)
+data.rename(
+    columns={"close": "Close", "high": "High", "low": "Low", "open": "Open"},
+    inplace=True,
+)
+
+Helpers.save_to_csv(data, ma_long, ma_short, entries, equity, "")
 
 # |%%--%%| <9WGKo4wgwY|3jmGlLWKSo>
 
@@ -148,7 +161,7 @@ df.sort_values("ratio", ascending=False, inplace=True)
 df
 df.tail(50)
 df.to_parquet("./optimisation.parquet")
-print(df)
+# print(df)
 #
 # # |%%--%%| <3jmGlLWKSo|NUhC9KfUv2>
 qs.extend_pandas()
