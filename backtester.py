@@ -72,7 +72,6 @@ def backtest(
 
     for i in range(1, len(prices)):
         fee = calculate_fees(prices[i], size[i], transaction_cost)
-        print(fee)
         if entry_signals[i] == 1:
             if not in_position:
                 # Use all available cash to buy
@@ -149,5 +148,5 @@ def backtest(
         #     print(cash)
         #     print(positions[i])
         final_value = equity[i]
-        print(total_pnl)
+        # print(total_pnl)
     return final_value, total_pnl, equity, orders[:order_idx, :], trades[:trade_idx, :]
