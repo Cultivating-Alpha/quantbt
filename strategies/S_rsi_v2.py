@@ -7,9 +7,10 @@ from Helpers import Helpers
 import talib
 
 from temp import EMA, SMA, print_trades, plot_equity, calculate_metrics
+from numba.typed import List as NumbaList
 
 
-class S_rsi:
+class S_rsi_v2:
     def __init__(self, data, offset=0):
         data = pd.read_parquet(data)
         data = data[offset:]
@@ -27,22 +28,25 @@ class S_rsi:
         size = size * multiplier
         # fees = np.full_like(prices, 2.2)
 
-        final_value, total_pnl, equity, orders_array, trades_array = backtest(
-            close.values,
-            self.data.Low.values,
-            self.data.Open.values,
-            self.data.index.values.astype(np.int64),
-            self.entries.values,
-            self.exits.values,
-            self.sl.values,
-            size,
-            initial_capital=10000,
-            transaction_cost=0.0005,
-            mode=mode,
-            use_sl=use_sl,
-        )
+        df = self.data
+        open = df.Open.to_numpy(dtype=np.float32)
+        high = df.High.to_numpy(dtype=np.float32)
+        low = df.Low.to_numpy(dtype=np.float32)
+        close = df.Close.to_numpy(dtype=np.float32)
+        index = df.index.astype(int) // 10**9
+        index = index.to_numpy(dtype=np.int32)
+        # index = df.index.to_numpy(dtype=np.int32)
 
-        return final_value, equity, orders_array, trades_array
+        bt = Backtester(commissions=0.0005)
+        bt.set_data(open, high, low, close, index)
+        bt.backtest(self.entries.values, self.exits.values, self.sl.values)
+
+        return (
+            bt.final_value,
+            bt.equity,
+            bt.orders[: bt.order_idx, :],
+            bt.trades[: bt.trade_idx, :],
+        )
 
     def get_signals(self, params):
         long, short, cutoff, atr_distance = params
@@ -62,6 +66,7 @@ class S_rsi:
 
     def backtest(self, params):
         self.get_signals(params)
+        self.simulation(mode=1, use_sl=True)
         (final_value, equity, orders_arr, trades_arr) = self.simulation(
             mode=1, use_sl=True
         )
@@ -102,8 +107,20 @@ class S_rsi:
         print_trades(self.trades_arr)
 
     def plot_equity(self):
+        self.data.index = pd.to_datetime(self.data.index, unit="s")
         plot_equity(self.equity, self.data)
 
+    def plot_ohlc(self, offset=50):
+        plot_ohlc(
+            self.data[offset:],
+            self.equity[offset:],
+            self.entries[offset:],
+            self.exits[offset:],
+            self.ma_long[offset:],
+            self.ma_short[offset:],
+            self.rsi[offset:],
+            self.sl[offset:],
+        )
 
     def save_to_csv(self):
         data = self.data.copy()
