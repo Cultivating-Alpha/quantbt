@@ -4,9 +4,10 @@ import pandas as pd
 
 def plot_ohlc(data, equity, entries, exits, ma_long, ma_short, rsi, atr):
     entry_data = pd.DataFrame(
-        {"entry": data.close[entries], "value": 1}, index=entries.index
+        {"entry": data.Close[entries], "value": 1}, index=entries.index
     )
-    exit_data = pd.DataFrame({"exit": data.close[exits], "value": 1}, index=exits.index)
+    exit_data = pd.DataFrame({"exit": data.Close[exits], "value": 1}, index=exits.index)
+
 
     mpf.plot(
         data,
