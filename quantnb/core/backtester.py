@@ -1,15 +1,9 @@
 import numba as nb
 import numpy as np
 from numba import float32, int32
+from quantnb.core.enums import OrderType
 
 from typing import List
-
-from enum import Enum, IntEnum
-
-
-class OrderType(IntEnum):
-    LONG = 1
-    SHORT = 2
 
 
 @nb.experimental.jitclass()
@@ -34,6 +28,7 @@ class Backtester:
     entry_size: float32
     entry_price: float32
     commissions: float32
+    current_trade_type: int32
 
     # MISC
     order_idx: int32
@@ -73,11 +68,20 @@ class Backtester:
 
         # MISC
         self.orders = np.zeros((len(self.close), 5), dtype=float32)
-        self.trades = np.zeros((len(self.close), 6), dtype=float32)
+        self.trades = np.zeros((len(self.close), 7), dtype=float32)
+
+    # ===================================================================================== #
+    #                                       HELPERS                                         #
+    # ===================================================================================== #
 
     @staticmethod
     def calculate_fees(price, size, commissions):
         return price * size * commissions
+
+    # ===================================================================================== #
+
+    #                                POSITION MANAGEMENT                                    #
+    # ===================================================================================== #
 
     def new_order(self, i, order_type, close):
         self.orders[self.order_idx, :] = [
@@ -104,13 +108,35 @@ class Backtester:
         self.entry_price = close
         self.in_position = True
 
+        self.current_trade_type = OrderType.LONG.value
+
+    def go_short(self, i):
+        close = self.close[i]
+
+        self.entry_size = self.cash / self.close[i]
+
+        fee = self.calculate_fees(close, self.entry_size, self.commissions)
+        self.cash -= self.entry_size * close - fee
+
+        self.new_order(i, OrderType.SHORT, close)
+
+        self.entry_time = self.date[i]
+        # print(f"Entry time: {self.entry_time}")
+        self.entry_price = close
+        self.in_position = True
+
+        self.current_trade_type = OrderType.LONG.value
+
     def close_position(self, i, exit_price):
         close = self.close[i]
 
         fee = self.calculate_fees(close, self.entry_size, self.commissions)
         self.cash = self.entry_size * exit_price - fee
 
-        self.new_order(i, OrderType.SHORT, close)
+        order_type = OrderType.LONG
+        if self.current_trade_type == OrderType.LONG.value:
+            order_type = OrderType.SHORT
+        self.new_order(i, order_type, close)
 
         pnl = (exit_price - self.entry_price) * self.entry_size - fee
         self.total_pnl += pnl
@@ -122,10 +148,15 @@ class Backtester:
             exit_price,
             pnl,
             self.entry_size,
+            self.current_trade_type,
         ]
         self.trade_idx += 1
         self.entry_size = 0
         self.in_position = False
+
+    # ===================================================================================== #
+    #                                       CORE BACKTESTER                                 #
+    # ===================================================================================== #
 
     def backtest(
         self, entry_signals, exit_signals, sl, use_sl=True, mode=1, debug=False
