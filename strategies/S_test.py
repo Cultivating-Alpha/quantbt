@@ -1,10 +1,11 @@
 from strategies.S_base import Base
-from temp import EMA, SMA, print_trades, plot_equity, calculate_metrics
+from indicators import SMA
 import mplfinance as mpf
 import pandas as pd
 
 import talib
 import numpy as np
+
 
 class S_Test(Base):
     def get_signals(self, params):
@@ -23,9 +24,7 @@ class S_Test(Base):
 
         self.sl = self.data.Low - self.atr * atr_distance
 
-
-
-    def plot_ohlc(self, offset=50):
+    def plot_ohlc(self, offset=0):
         data = self.data[offset:]
         data.index = pd.to_datetime(data.index, unit="s")
         equity = self.equity[offset:]
@@ -42,8 +41,9 @@ class S_Test(Base):
         entry_data = pd.DataFrame(
             {"entry": data.Close[entries], "value": 1}, index=entries.index
         )
-        exit_data = pd.DataFrame({"exit": data.Close[exits], "value": 1}, index=exits.index)
-
+        exit_data = pd.DataFrame(
+            {"exit": data.Close[exits], "value": 1}, index=exits.index
+        )
 
         mpf.plot(
             data,

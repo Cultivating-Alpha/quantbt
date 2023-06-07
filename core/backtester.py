@@ -59,7 +59,7 @@ class Backtester:
         self.order_idx = 0
         self.trade_idx = 0
 
-    def set_data( self, open, high, low, close, date):
+    def set_data(self, open, high, low, close, date):
         # DATA
         self.open = open
         self.high = high
@@ -127,7 +127,9 @@ class Backtester:
         self.entry_size = 0
         self.in_position = False
 
-    def backtest(self, entry_signals, exit_signals, sl, use_sl=True, mode=1, debug=False):
+    def backtest(
+        self, entry_signals, exit_signals, sl, use_sl=True, mode=1, debug=False
+    ):
         close = self.close
         stop_loss = 0
 
@@ -158,88 +160,3 @@ class Backtester:
             self.equity[i] = self.cash + self.entry_size * close[i] - fee
 
         self.final_value = self.equity[-1]
-
-
-# import pandas as pd
-# from numba.typed import List as NumbaList
-#
-# data = pd.read_parquet("./data/uniswap-v3-WETH-USDC-h4.parquet")
-# data.index = data.index.astype(int) // 10**9
-# # data = data[0:400]
-# # data
-#
-# # bt.orders
-#
-#
-# def simulation(data, entries, exits, sl, mode, use_sl):
-#     close = data.close
-#     size = np.full_like(close, 1)
-#     multiplier = 1
-#     size = size * multiplier
-#     # fees = np.full_like(prices, 2.2)
-#     bt = Backtester(
-#         NumbaList(data.open),
-#         NumbaList(data.high),
-#         NumbaList(data.low),
-#         NumbaList(data.close),
-#         NumbaList(data.index),
-#         commissions=0.0005,
-#     )
-#     bt.backtest(entries.values, exits.values, sl.values)
-#
-#     return (
-#         bt.final_value,
-#         bt.equity,
-#         bt.orders[: bt.order_idx, :],
-#         bt.trades[: bt.trade_idx, :],
-#     )
-#
-#
-# from temp import SMA, print_trades, plot_equity, calculate_metrics
-# import talib
-#
-#
-# def get_signals(data, long, short, cutoff=5, atr_distance=2):
-#     close = data.close
-#     ma_long = SMA(close, long)
-#     ma_short = SMA(close, short)
-#     rsi = talib.RSI(close, timeperiod=2)
-#     atr = talib.ATR(data.high, data.low, close, 14)
-#
-#     # entry_signals = ma_long.vbt.crossed_below(ma_short)
-#     # exit_signals = ma_long.vbt.crossed_above(ma_short)
-#     # entries = np.logical_and(close >= ma_long, rsi <= cutoff)
-#     entries = np.logical_and(
-#         close <= ma_short, np.logical_and(close >= ma_long, rsi <= cutoff)
-#     )
-#     exits = close > ma_short
-#     # exits = rsi > 70
-#
-#     sl = data.low - atr * atr_distance
-#     return entries, exits, ma_long, ma_short, rsi, atr, sl
-#
-#
-# # entries, exits, ma_long, ma_short, rsi, atr, sl = get_signals(data, 200, 11, 9, 2.5)
-#
-# # |%%--%%| <nzZ8LJSl7P|8TjcgBdqvP>
-# entries, exits, ma_long, ma_short, rsi, atr, sl = get_signals(data, 295, 11, 9, 2.5)
-# # entries, exits, ma_long, ma_short, rsi, atr, sl = get_signals(data, 216, 9, 13, 2)
-# # entries, exits, ma_long, ma_short, rsi, atr, sl = get_signals(data, 216, 50, 20, 2)
-# (final_value, equity, orders_arr, trades_arr) = simulation(
-#     data, entries, exits, sl, mode=1, use_sl=True
-# )
-# print_trades(trades_arr)
-#
-# dd, total_return, ratio = calculate_metrics(equity, data, final_value)
-#
-# newdf = pd.DataFrame(
-#     {
-#         "final_value": final_value,
-#         "dd": dd,
-#         "total_return": total_return,
-#         "ratio": ratio,
-#     },
-#     index=[0],
-# )
-#
-# print(newdf)
