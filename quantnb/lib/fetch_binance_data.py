@@ -1,8 +1,8 @@
 from binance.client import Client
 import pandas as pd
 import mplfinance as mpf
-from lib.multiprocess import multiprocess
-from lib.create_binance_dataframe import create_binance_dataframe
+from .multiprocess import multiprocess
+from .create_binance_dataframe import create_binance_dataframe
 
 
 def get_data(asset, tf=Client.KLINE_INTERVAL_1HOUR, days="3000 day ago UTC"):
@@ -38,5 +38,3 @@ def fetch_binance_data(
     assets=assets, tf=Client.KLINE_INTERVAL_15MINUTE, days="3000 day ago UTC"
 ):
     multiprocess(assets, get_data, tf, days)
-
-

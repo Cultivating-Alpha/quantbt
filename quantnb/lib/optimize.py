@@ -1,7 +1,7 @@
 import pandas as pd
 import itertools
 from tqdm import tqdm
-from lib import find_files, multiprocess
+from . import find_files, multiprocess
 
 
 def optimize(data, strategy, **kwargs):
