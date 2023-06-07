@@ -1,13 +1,9 @@
 import numpy as np
 import pandas as pd
-from backtester import backtest
-from bt_v2 import Backtester
-from Helpers import Helpers
+from core.backtester import Backtester
+import matplotlib.pyplot as plt
 
-import talib
-
-from helpers import save_to_csv
-from temp import EMA, SMA, plot_equity, calculate_metrics
+from helpers import save_to_csv, print_orders, print_trades, calculate_metrics
 
 
 class Base:
@@ -95,7 +91,7 @@ class Base:
             "",
         )
 
-    def plot_equity(equity, data):
-        returns = pd.Series(equity, index=data.index)
+    def plot_equity(self):
+        returns = pd.Series(self.equity, index=self.data.index)
         returns.plot()
         plt.show()

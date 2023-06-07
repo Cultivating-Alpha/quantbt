@@ -24,5 +24,5 @@ def combine_files(asset):
     return df
 
 
-df = combine_files("WETH-USDC")
-df = combine_files("WMATIC-USDC")
+# df = combine_files("WETH-USDC")
+# df = combine_files("WMATIC-USDC")
