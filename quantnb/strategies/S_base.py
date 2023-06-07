@@ -1,12 +1,12 @@
 import numpy as np
 import pandas as pd
-from core.backtester import Backtester
+from quantnb.core.backtester import Backtester
 import matplotlib.pyplot as plt
 
-from helpers import save_to_csv, print_orders, print_trades, calculate_metrics
+from quantnb.helpers import save_to_csv, print_orders, print_trades, calculate_metrics
 
 
-class Base:
+class S_Base:
     def __init__(self, data, offset=0):
         data = data[offset:]
 
