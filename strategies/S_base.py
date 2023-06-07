@@ -6,18 +6,19 @@ from Helpers import Helpers
 
 import talib
 
-from temp import EMA, SMA, print_trades, plot_equity, calculate_metrics
+from helpers import save_to_csv
+from temp import EMA, SMA, plot_equity, calculate_metrics
 
 
-class S_rsi:
+class Base:
     def __init__(self, data, offset=0):
-        data = pd.read_parquet(data)
         data = data[offset:]
 
         data.rename(
             columns={"close": "Close", "high": "High", "low": "Low", "open": "Open"},
             inplace=True,
         )
+        data.index = data.index.astype(int) // 10**9
         self.data = data
 
     def simulation(self, mode, use_sl):
@@ -25,43 +26,29 @@ class S_rsi:
         size = np.full_like(close, 1)
         multiplier = 1
         size = size * multiplier
-        # fees = np.full_like(prices, 2.2)
 
-        final_value, total_pnl, equity, orders_array, trades_array = backtest(
-            close.values,
-            self.data.Low.values,
-            self.data.Open.values,
-            self.data.index.values.astype(np.int64),
-            self.entries.values,
-            self.exits.values,
-            self.sl.values,
-            size,
-            initial_capital=10000,
-            transaction_cost=0.0005,
-            mode=mode,
-            use_sl=use_sl,
+        df = self.data
+        open = df.Open.to_numpy(dtype=np.float32)
+        high = df.High.to_numpy(dtype=np.float32)
+        low = df.Low.to_numpy(dtype=np.float32)
+        close = df.Close.to_numpy(dtype=np.float32)
+        index = df.index.to_numpy(dtype=np.int32)
+
+        bt = Backtester(commissions=0.0005)
+        bt.set_data(open, high, low, close, index)
+        bt.backtest(self.entries.values, self.exits.values, self.sl.values)
+
+        return (
+            bt.final_value,
+            bt.equity,
+            bt.orders[: bt.order_idx, :],
+            bt.trades[: bt.trade_idx, :],
         )
-
-        return final_value, equity, orders_array, trades_array
-
-    def get_signals(self, params):
-        long, short, cutoff, atr_distance = params
-        close = self.data.Close
-        self.ma_long = SMA(close, long)
-        self.ma_short = SMA(close, short)
-        self.rsi = talib.RSI(close, timeperiod=2)
-        self.atr = talib.ATR(self.data.High, self.data.Low, close, 14)
-
-        self.entries = np.logical_and(
-            close <= self.ma_short,
-            np.logical_and(close >= self.ma_long, self.rsi <= cutoff),
-        )
-        self.exits = close > self.ma_short
-
-        self.sl = self.data.Low - self.atr * atr_distance
 
     def backtest(self, params):
         self.get_signals(params)
+        self.simulation(mode=1, use_sl=True)
+
         (final_value, equity, orders_arr, trades_arr) = self.simulation(
             mode=1, use_sl=True
         )
@@ -86,24 +73,9 @@ class S_rsi:
         self.equity = equity
         # print(self.stats)
 
-        long, short, cutoff, atr_distance = params
-        return {
-            "long": long,
-            "short": short,
-            "rsi": cutoff,
-            "atr": atr_distance,
-            "final_value": final_value,
-            "dd": dd,
-            "total_return": total_return,
-            "ratio": ratio,
-        }
-
+    # HELPERS
     def print_trades(self):
         print_trades(self.trades_arr)
-
-    def plot_equity(self):
-        plot_equity(self.equity, self.data)
-
 
     def save_to_csv(self):
         data = self.data.copy()
@@ -111,7 +83,7 @@ class S_rsi:
         data.rename(columns={"timestamp": "Date"}, inplace=True)
         data.set_index("Date", inplace=True)
 
-        Helpers.save_to_csv(
+        save_to_csv(
             data,
             self.ma_long,
             self.ma_short,
@@ -122,3 +94,8 @@ class S_rsi:
             self.equity,
             "",
         )
+
+    def plot_equity(equity, data):
+        returns = pd.Series(equity, index=data.index)
+        returns.plot()
+        plt.show()

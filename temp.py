@@ -65,7 +65,9 @@ def calculate_metrics(equity, data, final_value):
     total_return = ((final_value / 10000) - 1) * 100
     ratio = total_return / abs(dd)
 
-    buy_and_hold = ((data.Close[-1] / data.Close[0]) - 1) * 100
+
+    close = data.Close.values
+    buy_and_hold = ((close[-1] / close[0]) - 1) * 100
     # print("Buy and hold: ", buy_and_hold)
     # initial_investment = 10000  # Example initial investment amount
     #

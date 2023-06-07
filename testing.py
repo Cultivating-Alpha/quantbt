@@ -1,143 +1,41 @@
-import numpy as np
-import pandas as pd
-import mplfinance as mpf
+from strategies.S_test import S_Test
 
-from strategies.S_rsi import S_rsi
+from lib import np, timeit, pd
+from lib import find_files, optimize
 
-from lib.find_files import find_files
+assets = find_files("./data/", "WBNB-BUSD")
+data = pd.read_parquet(assets[0])
 
-assets = find_files("./data", "binance")
-# assets = find_files("./data/time", "3min")
-
-
-from temp import EMA, SMA, print_trades, plot_equity, calculate_metrics
-
-
-values = []
-
-# for asset in [assets[7]]:
-for asset in assets:
-    symbol = asset.split("binance-")[1].split("-")[0]
-    bt = S_rsi(asset)
-    # Resample OHLC data to 4-hour intervals
-    bt.data = (
-        bt.data.resample("1H")
-        .agg(
-            {
-                "Open": "first",
-                "High": "max",
-                "Low": "min",
-                "Close": "last",
-                "volume": "sum",
-            }
-        )
-        .fillna(method="ffill")
-    )
-
-    bt.backtest((295, 4, 9, 2.5))
-    # print(bt.data)
-    # bt.backtest((200, 20, 10, 0))
-    # mpf.plot(bt.data, type="candle")
-    # bt.plot_equity()
-    # print()
-    # print(symbol)
-    # print(bt.stats)
-    values.append(
-        [
-            symbol,
-            bt.data.index[0],
-            len(bt.data),
-            bt.stats["total_return"][0],
-            bt.stats["buy_and_hold"][0],
-        ]
-    )
-
-df = pd.DataFrame(
-    values,
-    columns=[
-        "symbol",
-        "Start Date",
-        "Candles",
-        "Strategy Return [%]",
-        "Buy and Hold [%]",
-    ],
+optimisation = optimize(
+    data,
+    S_Test,
+    long=range(200, 300, 10),
+    short=range(5, 55, 5),
+    rsi=range(3, 15, 1),
+    atr_distance=np.arange(0.5, 10.5, 0.5),
 )
 
-df = df.sort_values(by=["Start Date"], ascending=True)
-df.set_index("symbol", inplace=True)
-df
+optimisation.sort_values("ratio", ascending=False).head(10)
+
+# |%%--%%| <VxNjYXtfcf|iGQ2RvriLW>
+
+# assets = find_files("./data/@ENQ.steps", "ENQ-10.")
+# assets = find_files("./data/@ENQ.time", "3min")
+# assets = find_files("./data/", "WMATIC-USDC-4h")
+assets = find_files("./data/", "WBNB-BUSD")
+assets
+data = pd.read_parquet(assets[0])
 
 
-# |%%--%%| <efC7fqOhPg|Wr8ViS0Nsy>
-
-# df = pd.DataFrame(bt_matic.equity, index=bt_matic.data.index)
-# df.resample("1M").last()
-# plt.bar(df.index, df[0])
-import quantstats as qs
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
+def single():
+    bt = S_Test(data)
+    bt.backtest((210, 10, 12, 6))
+    return bt
 
 
-import matplotlib.colors as mcolors
+pf = single()
+pf.stats
 
-
-qs.extend_pandas()
-
-
-def report(bt):
-    data = bt.data.copy()
-    equity = bt.equity
-
-    qs.extend_pandas()
-    annual_rf_rate = 0.05
-    rf_rate = (1 + annual_rf_rate) ** (1 / (252 * 60)) - 1
-    # show sharpe ratio
-    prices = data.Close
-    data.reset_index(inplace=True)
-    eq = pd.Series(equity, index=data["Date"])
-    eq.plot()
-    returns = pd.Series(equity, index=data["Date"])
-
-    monthly_returns = returns.resample("M").ffill().pct_change()
-    print(monthly_returns)
-
-    # Convert the series to a dataframe with a single column
-    monthly_returns_df = pd.DataFrame({"Returns": monthly_returns})
-
-    # Extract the year and month from the index
-    monthly_returns_df["Year"] = monthly_returns_df.index.year
-    monthly_returns_df["Month"] = monthly_returns_df.index.month
-
-    # Pivot the data to create a grid of monthly returns
-    monthly_returns_grid = monthly_returns_df.pivot(
-        index="Year", columns="Month", values="Returns"
-    )
-
-    sns.set(font_scale=0.3)
-    # Create a custom color palette from light orange to green
-    # Define custom color values for the colormap
-    color_list = ["#C2DFFF", "#006400"]  # Light blue to dark green
-
-    # Create a custom colormap using LinearSegmentedColormap
-    seagreen_cmap = mcolors.LinearSegmentedColormap.from_list("seagreen", color_list)
-
-    # Create a heatmap of monthly returns
-    plt.figure(figsize=(10, 6))
-    sns.heatmap(monthly_returns_grid, cmap=seagreen_cmap, annot=True, fmt=".2%")
-    plt.xlabel("Month")
-    plt.ylabel("Year")
-    plt.title("Heatmap of Monthly Returns")
-    plt.show()
-
-
-# report(bt_matic)
-# report(bt_eth)
-
-
-df1 = pd.Series(bt_matic.equity, index=bt_matic.data.index)
-df2 = pd.Series(bt_eth.equity, index=bt_eth.data.index)
-df1 = df1.reindex(df2.index)
-df1.plot()
-df2.plot()
-plt.show()
+count = 30
+execution_time = timeit.timeit(single, number=count)
+print(f"Average execution time: {execution_time / count} seconds")
