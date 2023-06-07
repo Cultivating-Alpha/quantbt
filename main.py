@@ -1,7 +1,7 @@
-from strategies.S_test import S_Test
+from quantnb.strategies.S_test import S_Test
 
-from lib import np, timeit, pd
-from lib import find_files, optimize
+from quantnb.lib import np, timeit, pd
+from quantnb.lib import find_files, optimize
 
 # df = pd.read_parquet("./binance-BTCUSDT-1h-RSI.parquet")
 # df
