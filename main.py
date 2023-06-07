@@ -1,36 +1,48 @@
-from strategies.S_rsi import S_rsi
-import pandas as pd
+from strategies.S_test import S_Test
+
+from lib import np, timeit, pd
+from lib import find_files, optimize
 
 
-bt = S_rsi("./data/uniswap_v3-ethereum-WETH-USDC-4h.parquet")
-# bt.backtest((200, 10, 10, 1))
-bt.backtest((200, 11, 9, 2.5))
+# |%%--%%| <VxNjYXtfcf|iGQ2RvriLW>
 
-bt2 = S_rsi("./data/uniswap_v3-ethereum-WMATIC-USDC-4h.parquet")
-# bt2.backtest((200, 10, 10, 1))
-bt2.backtest((200, 11, 9, 2.5))
+# assets = find_files("./data/@ENQ.steps", "ENQ-10.")
+# assets = find_files("./data/@ENQ.time", "3min")
+# assets = find_files("./data/", "WMATIC-USDC-4h")
+assets = find_files("./data/", "WBNB-BUSD")
+assets
+data = pd.read_parquet(assets[0])
 
 
-# final_equity = bt.equity + bt2.equity
+def single():
+    bt = S_Test(data)
+    bt.backtest((210, 10, 12, 6))
+    return bt
 
-df = pd.DataFrame(
-    {
-        "pair": ["WETH-USDC", "WMATIC-USDC"],
-        "dd": ["-32.2%", "-12%"],
-        "total_return": ["-14%", "110%"],
-    }
+
+pf = single()
+pf.stats
+# pf.plot_equity()
+# pf.plot_ohlc()
+
+# |%%--%%| <iGQ2RvriLW|78WOAWW02I>
+
+count = 30
+execution_time = timeit.timeit(single, number=count)
+print(f"Average execution time: {execution_time / count} seconds")
+
+# |%%--%%| <78WOAWW02I|o5y8KFNmnb>
+
+assets = find_files("./data/", "WBNB-BUSD")
+data = pd.read_parquet(assets[0])
+
+optimisation = optimize(
+    data,
+    S_Test,
+    long=range(200, 300, 10),
+    short=range(5, 55, 5),
+    rsi=range(3, 15, 1),
+    atr_distance=np.arange(0.5, 10.5, 0.5),
 )
-df2 = pd.DataFrame(
-    {
-        "pair": ["WETH-USDC", "WMATIC-USDC"],
-        "dd": ["-23.5.2%", "-22%"],
-        "total_return": ["66%", "42%"],
-    }
-)
-print()
-print()
-print(df)
-print()
-print()
-print(df2)
-# df2
+
+optimisation.sort_values("ratio", ascending=False).head(10)
