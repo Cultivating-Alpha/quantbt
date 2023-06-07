@@ -1,68 +1,46 @@
 from binance.client import Client
 import pandas as pd
 import mplfinance as mpf
+from lib.create_binance_dataframe import create_binance_dataframe
 
 
-def binanceDataFrame(klines):
-    df = pd.DataFrame(
-        klines,
-        dtype=float,
-        columns=(
-            "Open Time",
-            "Open",
-            "High",
-            "Low",
-            "Close",
-            "Volume",
-            "Close time",
-            "Quote asset volume",
-            "Number of trades",
-            "Taker buy base asset volume",
-            "Taker buy quote asset volume",
-            "Ignore",
-        ),
+def get_data(asset):
+    print(f"Getting data for {asset}")
+    client = Client()
+    klines = client.get_historical_klines(
+        asset,
+        Client.KLINE_INTERVAL_1HOUR,
+        "3000 day ago UTC",
     )
 
-    df["Open Time"] = pd.to_datetime(df["Open Time"], unit="ms")
-    df.drop(
-        columns=[
-            "Close time",
-            "Quote asset volume",
-            "Number of trades",
-            "Taker buy base asset volume",
-            "Taker buy quote asset volume",
-            "Ignore",
-        ],
-        inplace=True,
-    )
-    # Rename columns using a dictionary
-    new_column_names = {
-        "Open Time": "Date",
-        "Open": "open",
-        "High": "high",
-        "Low": "low",
-        "Close": "close",
-        "Volume": "volume",
-    }
-    df = df.rename(columns=new_column_names)
-    df.set_index("Date", inplace=True)
-
-    return df
+    df = create_binance_dataframe(klines)
+    df.to_parquet(f"data/binance-{asset}-1h.parquet")
+    df
+    # mpf.plot(
+    #     df,
+    #     type="candle",
+    #     volume=False,
+    # )
 
 
-client = Client()
-klines = client.get_historical_klines(
-    # klines = client.get_futures_historical_klines(
+from lib.multiprocess import multiprocess
+
+assets = [
+    "BTCUSDT",
     "ETHUSDT",
-    Client.KLINE_INTERVAL_4HOUR,
-    "3000 day ago UTC",
-)
+    "DOGEUSDT",
+    "BNBUSDT",
+    "ATOMUSDT",
+    "NEOUSDT",
+    "NEOUSDT",
+    "XRPUSDT",
+    "LTCUSDT",
+    "TRXUSDT",
+    "AVAXUSDT",
+    "SHIBUSDT",
+    "ATOMUSDT",
+    "LINKUSDT",
+    "UNIUSDT",
+]
 
-df = binanceDataFrame(klines)
-df.to_parquet("data/binance-ETHUSDT.parquet")
-df
-# mpf.plot(
-#     df,
-#     type="candle",
-#     volume=False,
-# )
+multiprocess(assets, get_data)
