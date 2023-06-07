@@ -36,11 +36,23 @@ class Helpers:
 
         save_to_csv(pf, df, signal, indicators, "")
 
-    def save_to_csv(data, i, i2, signal, equity, strategy, name="TEST"):
+    def save_to_csv(
+        data,
+        i,
+        i2,
+        rsi,
+        atr,
+        signal,
+        orders_arr,
+        equity,
+        name="TEST",
+    ):
         df = data.copy()
         df["i"] = i
         df["i2"] = i2
         df["dd"] = signal
+        df["rsi"] = rsi
+        df["atr"] = atr
 
         df["e"] = equity
         # short_orders = np.full_like(pf.orders.mask, 0, dtype=float)
@@ -52,10 +64,21 @@ class Helpers:
         #         short_orders[row] = order[6]
         #     else:
         #         long_orders[row] = order[6]
-        # df["short_order"] = short_orders
-        # df["long_order"] = long_orders
-        print(df[200:])
-        df[200:].to_csv(f"/home/alpha/workspace/cultivating-alpha/UI/public/TEST.csv")
+        short_orders = np.full_like(data.Close, 0, dtype=float)
+        long_orders = np.full_like(data.Close, 0, dtype=float)
+
+        for order in orders_arr:
+            index = int(order[0])
+            if order[1] == -1:
+                short_orders[index] = order[2]
+            else:
+                long_orders[index] = order[2]
+        df["short_order"] = short_orders
+        df["long_order"] = long_orders
+
+        df[200 - 1 :].to_csv(
+            f"/home/alpha/workspace/cultivating-alpha/UI/public/TEST.csv"
+        )
 
     def print_trades(self, pf):
         if hasattr(pf.trades.mask, "columns"):

@@ -21,6 +21,7 @@ dask = {extras = ["distributed"], version = "^2023.5.0"}
 tqdm = "^4.65.0"
 pynvim = "^0.4.3"
 python-binance = "^1.0.17"
+seaborn = {extras = ["stats"], version = "^0.12.2"}
 
 
 [build-system]

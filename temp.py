@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+
 import talib
 import matplotlib.pyplot as plt
 
@@ -34,8 +35,13 @@ def print_trades(trades_arr):
         trades_arr,
         columns=["entry_time", "exit_time", "entry_price", "exit_price", "pnl", "size"],
     )
-    trades_df["entry_time"] = pd.to_datetime(trades_df["entry_time"])
+    trades_df["entry_time"] = pd.to_datetime(trades_df["entry_time"], unit="s")
+    trades_df["exit_time"] = pd.to_datetime(trades_df["exit_time"], unit="s")
+    pnl = trades_df["pnl"].sum()
     print(trades_df)
+    # print('==========')
+    # print(pnl)
+    # print('==========')
 
 
 #######
@@ -54,8 +60,17 @@ def calculate_metrics(equity, data, final_value):
 
     dd = prices / np.maximum.accumulate(prices) - 1.0
     dd = dd.replace([np.inf, -np.inf, -0], 0).min()
+    dd = dd * 100
 
-    total_return = (final_value / 10000) - 1
-    ratio = dd * 100 / total_return
+    total_return = ((final_value / 10000) - 1) * 100
+    ratio = total_return / abs(dd)
 
-    return dd, total_return, ratio
+    buy_and_hold = ((data.Close[-1] / data.Close[0]) - 1) * 100
+    # print("Buy and hold: ", buy_and_hold)
+    # initial_investment = 10000  # Example initial investment amount
+    #
+    # # Calculate the buy and hold strategy in dollar figures
+    # buy_and_hold = (data["Close"] / data["Close"].iloc[0]) * initial_investment
+    # print("Buy and hold: ", buy_and_hold)
+
+    return dd, total_return, ratio, buy_and_hold
