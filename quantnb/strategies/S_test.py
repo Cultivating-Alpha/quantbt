@@ -1,5 +1,5 @@
-from strategies.S_base import Base
-from indicators import SMA
+from .S_base import S_Base
+from ..indicators import SMA
 import mplfinance as mpf
 import pandas as pd
 
@@ -7,7 +7,7 @@ import talib
 import numpy as np
 
 
-class S_Test(Base):
+class S_Test(S_Base):
     def get_signals(self, params):
         long, short, cutoff, atr_distance = params
         close = self.data.Close

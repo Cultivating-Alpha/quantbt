@@ -1,13 +1,13 @@
 import numpy as np
 import pandas as pd
-from core.backtester import Backtester
+from quantnb.core.backtester import Backtester
 import matplotlib.pyplot as plt
 
-from helpers import save_to_csv, print_orders, print_trades, calculate_metrics
+from quantnb.helpers import save_to_csv, print_orders, print_trades, calculate_metrics
 
 
-class Base:
-    def __init__(self, data, offset=0):
+class S_Base:
+    def __init__(self, data, offset=0, commission=0.0002, initial_capital=1000):
         data = data[offset:]
 
         data.rename(
@@ -16,6 +16,8 @@ class Base:
         )
         data.index = data.index.astype(int) // 10**9
         self.data = data
+        self.commmision = commission
+        self.initial_capital = initial_capital
 
     def simulation(self, mode, use_sl):
         close = self.data.Close
@@ -30,7 +32,9 @@ class Base:
         close = df.Close.to_numpy(dtype=np.float32)
         index = df.index.to_numpy(dtype=np.int32)
 
-        bt = Backtester(commissions=0.0005)
+        bt = Backtester(
+            commissions=self.commmision, initial_capital=self.initial_capital
+        )
         bt.set_data(open, high, low, close, index)
         bt.backtest(self.entries.values, self.exits.values, self.sl.values)
 
