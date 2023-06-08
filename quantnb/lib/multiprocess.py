@@ -2,8 +2,8 @@ import multiprocessing
 import math
 
 
-def worker(method, items, iteration, args, queue):
-    result = method(items, iteration, *args)
+def worker(method, items, NUMBER_OF_CPU, iteration, args, queue):
+    result = method(items, NUMBER_OF_CPU, iteration, *args)
     queue.put(result)
 
 
@@ -24,7 +24,7 @@ def multiprocess(items, method, *args):
     for i in range(NUMBER_OF_CPU):
         if i < len(divided_list):
             p = multiprocessing.Process(
-                target=worker, args=(method, divided_list[i], i, args, result_queue)
+                target=worker, args=(method, divided_list[i], NUMBER_OF_CPU,i , args, result_queue)
             )
             processes.append(p)
             p.start()
