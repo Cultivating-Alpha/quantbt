@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from quantnb.helpers import save_to_csv, print_orders, print_trades, calculate_metrics
 
 
-class S_Base:
+class S_base:
     def __init__(self, data, offset=0, commission=0.0002, initial_capital=1000):
         data = data[offset:]
 
