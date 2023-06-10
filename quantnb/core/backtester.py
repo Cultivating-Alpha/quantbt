@@ -82,7 +82,6 @@ class Backtester:
 
     #                                POSITION MANAGEMENT                                    #
     # ===================================================================================== #
-
     def new_order(self, i, order_type, close):
         self.orders[self.order_idx, :] = [
             i,
@@ -172,7 +171,7 @@ class Backtester:
                 print(f"========== {i}")
             if entry_signals[i]:
                 if not self.in_position:
-                    if use_sl:
+                    if use_sl and sl is not None:
                         stop_loss = sl[i]
                     self.go_long(i)
 

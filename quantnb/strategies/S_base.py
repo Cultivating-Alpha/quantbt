@@ -41,7 +41,12 @@ class S_base:
         if self.use_sl:
             sl = self.sl.values
 
-        bt.backtest(self.entries.values, self.exits.values, sl, use_sl=use_sl)
+        bt.backtest(
+            self.entries.values,
+            self.exits.values,
+            sl,
+            False,  # use_sl,
+        )
 
         return (
             bt.final_value,
@@ -52,10 +57,8 @@ class S_base:
 
     def backtest(self, params):
         self.get_signals(params)
-        self.simulation(mode=1, use_sl=True)
-
         (final_value, equity, orders_arr, trades_arr) = self.simulation(
-            mode=1, use_sl=True
+            mode=1, use_sl=False
         )
         self.orders_arr = orders_arr
 
