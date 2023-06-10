@@ -172,7 +172,8 @@ class Backtester:
                 print(f"========== {i}")
             if entry_signals[i]:
                 if not self.in_position:
-                    stop_loss = sl[i]
+                    if use_sl:
+                        stop_loss = sl[i]
                     self.go_long(i)
 
             elif exit_signals[i]:
