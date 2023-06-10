@@ -31,6 +31,18 @@ for asset in assets:
 
 # |%%--%%| <PSegVofl0P|W9pyX2nkWW>
 
+from quantnb.strategies.S_test import S_Test
+
+from quantnb.lib import np, timeit, pd
+from quantnb.lib import find_files, optimize
+
+
+assets = find_files("./data/@ENQ.time", "1h")
+data = pd.read_parquet(assets[0])
+data
+
+data = data[0:500]
+
 
 def single():
     bt = S_Test(data)
@@ -40,12 +52,12 @@ def single():
 
 pf = single()
 # pf.print_trades()
-# pf.plot_equity()
+pf.plot_equity()
 pf.stats
-# pf.plot_ohlc()
+pf.plot_ohlc()
 
+# |%%--%%| <W9pyX2nkWW|40lFm5vOxI>
 
-# |%%--%%| <W9pyX2nkWW|2SZ62F0QMF>
 
 count = 30
 execution_time = timeit.timeit(single, number=count)
