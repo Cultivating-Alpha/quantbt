@@ -159,7 +159,7 @@ class Backtester:
     # ===================================================================================== #
 
     def backtest(
-        self, entry_signals, exit_signals, sl=None, use_sl=True, mode=1, debug=False
+        self, entry_signals, exit_signals, sl=None, use_sl=False, mode=1, debug=False
     ):
         close = self.close
         stop_loss = 0

@@ -41,7 +41,7 @@ class S_base:
         if self.use_sl:
             sl = self.sl.values
 
-        bt.backtest(self.entries.values, self.exits.values, sl)
+        bt.backtest(self.entries.values, self.exits.values, sl, use_sl=use_sl)
 
         return (
             bt.final_value,
