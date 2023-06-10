@@ -18,6 +18,7 @@ class S_base:
         self.data = data
         self.commmision = commission
         self.initial_capital = initial_capital
+        self.use_sl = False
 
     def simulation(self, mode, use_sl):
         close = self.data.Close
@@ -36,7 +37,11 @@ class S_base:
             commissions=self.commmision, initial_capital=self.initial_capital
         )
         bt.set_data(open, high, low, close, index)
-        bt.backtest(self.entries.values, self.exits.values, self.sl.values)
+        sl = None
+        if self.use_sl:
+            sl = self.sl.values
+
+        bt.backtest(self.entries.values, self.exits.values, sl)
 
         return (
             bt.final_value,
