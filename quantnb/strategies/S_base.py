@@ -7,7 +7,9 @@ from quantnb.helpers import save_to_csv, print_orders, print_trades, calculate_m
 
 
 class S_base:
-    def __init__(self, data, offset=0, commission=0.0002, initial_capital=1000):
+    def __init__(
+        self, data, offset=0, commission=0.0002, initial_capital=10000, use_sl=False
+    ):
         data = data[offset:]
 
         data.rename(
@@ -18,7 +20,7 @@ class S_base:
         self.data = data
         self.commmision = commission
         self.initial_capital = initial_capital
-        self.use_sl = False
+        self.use_sl = use_sl
 
     def simulation(self, mode, use_sl):
         close = self.data.Close
@@ -41,12 +43,7 @@ class S_base:
         if self.use_sl:
             sl = self.sl.values
 
-        bt.backtest(
-            self.entries.values,
-            self.exits.values,
-            sl,
-            False,  # use_sl,
-        )
+        bt.backtest(self.entries.values, self.exits.values, sl, use_sl)
 
         return (
             bt.final_value,
@@ -58,12 +55,12 @@ class S_base:
     def backtest(self, params):
         self.get_signals(params)
         (final_value, equity, orders_arr, trades_arr) = self.simulation(
-            mode=1, use_sl=False
+            mode=1, use_sl=self.use_sl
         )
         self.orders_arr = orders_arr
 
         dd, total_return, ratio, buy_and_hold = calculate_metrics(
-            equity, self.data, final_value
+            equity, self.data, final_value, self.initial_capital
         )
 
         self.stats = pd.DataFrame(
