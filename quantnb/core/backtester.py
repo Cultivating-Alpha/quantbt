@@ -174,6 +174,8 @@ class Backtester:
                     if use_sl and sl is not None:
                         stop_loss = sl[i]
                     self.go_long(i)
+                    # print(self.entry_size)
+                    # print("GOING LONG")
 
             elif exit_signals[i]:
                 if self.in_position:
