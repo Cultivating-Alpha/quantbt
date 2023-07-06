@@ -1492,6 +1492,35 @@ docs = ["furo", "olefile", "sphinx (>=2.4)", "sphinx-copybutton", "sphinx-inline
 tests = ["check-manifest", "coverage", "defusedxml", "markdown2", "olefile", "packaging", "pyroma", "pytest", "pytest-cov", "pytest-timeout"]
 
 [[package]]
+name = "polars"
+version = "0.18.4"
+description = "Blazingly fast DataFrame library"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "polars-0.18.4-cp37-abi3-macosx_10_7_x86_64.whl", hash = "sha256:3adfd39f84387f8589735e5c57f466c7ba19812140bc64248b9602755915c52f"},
+    {file = "polars-0.18.4-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:5658f9751d93451549ecf429eb6486b203a86130132310c520cd1336d15ca258"},
+    {file = "polars-0.18.4-cp37-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:4bbc04db1d765f7cad287204a014e8e10bb2245f1910e26cd99964333e3682c6"},
+    {file = "polars-0.18.4-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f9117544d86542954588e295127f3892c15e09db04c474a0d8d830735154a54c"},
+    {file = "polars-0.18.4-cp37-abi3-win_amd64.whl", hash = "sha256:a033ee71d8fde63ac71c7579230d31372cdaddf1df4227a537d96b91a58abd29"},
+    {file = "polars-0.18.4.tar.gz", hash = "sha256:136d8cdbf3c1ec33ab577536ac35a10701ec3dfd21b54cb757ee9b0e0f525a85"},
+]
+
+[package.extras]
+all = ["polars[connectorx,deltalake,fsspec,matplotlib,numpy,pandas,pyarrow,sqlalchemy,timezone,xlsx2csv,xlsxwriter]"]
+connectorx = ["connectorx"]
+deltalake = ["deltalake (>=0.8.0)"]
+fsspec = ["fsspec"]
+matplotlib = ["matplotlib"]
+numpy = ["numpy (>=1.16.0)"]
+pandas = ["pandas", "pyarrow (>=7.0.0)"]
+pyarrow = ["pyarrow (>=7.0.0)"]
+sqlalchemy = ["pandas", "sqlalchemy"]
+timezone = ["backports.zoneinfo", "tzdata"]
+xlsx2csv = ["xlsx2csv (>=0.8.0)"]
+xlsxwriter = ["xlsxwriter"]
+
+[[package]]
 name = "prompt-toolkit"
 version = "3.0.38"
 description = "Library for building powerful interactive command lines in Python"
@@ -2371,4 +2400,4 @@ requests = ">=2.26"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "ce9677d4ac67dca1b2d5e6cb253276dde3114595875543e19628742cc200e852"
+content-hash = "a2c8d75f25230c90bcd6666f1aba9d2509fdbaddd2018c1a59743ffaa067c137"
