@@ -40,7 +40,6 @@ class S_base:
         )
         bt.set_data(open, high, low, close, index)
         sl = None
-        print(self.use_sl)
         if self.use_sl:
             sl = self.sl.values
 
