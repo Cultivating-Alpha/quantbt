@@ -20,6 +20,7 @@ python-binance = "^1.0.17"
 seaborn = {extras = ["stats"], version = "^0.12.2"}
 ipython = "^8.14.0"
 polars = "^0.18.4"
+pandas-ta = {version = "^0.3.14b0", optional = true}
 
 
 [build-system]

@@ -1355,6 +1355,23 @@ test = ["hypothesis (>=6.34.2)", "pytest (>=7.0.0)", "pytest-asyncio (>=0.17.0)"
 xml = ["lxml (>=4.6.3)"]
 
 [[package]]
+name = "pandas-ta"
+version = "0.3.14b"
+description = "An easy to use Python 3 Pandas Extension with 130+ Technical Analysis Indicators. Can be called from a Pandas DataFrame or standalone like TA-Lib. Correlation tested with TA-Lib."
+optional = true
+python-versions = "*"
+files = [
+    {file = "pandas_ta-0.3.14b.tar.gz", hash = "sha256:0fa35aec831d2815ea30b871688a8d20a76b288a7be2d26cc00c35cd8c09a993"},
+]
+
+[package.dependencies]
+pandas = "*"
+
+[package.extras]
+dev = ["alphaVantage-api", "matplotlib", "mplfinance", "scipy", "sklearn", "statsmodels", "stochastic", "talib", "tqdm", "vectorbt", "yfinance"]
+test = ["ta-lib"]
+
+[[package]]
 name = "parso"
 version = "0.8.3"
 description = "A Python Parser"
@@ -2400,4 +2417,4 @@ requests = ">=2.26"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "a2c8d75f25230c90bcd6666f1aba9d2509fdbaddd2018c1a59743ffaa067c137"
+content-hash = "905235a3e3809ef400a848c60439c59bdd2a157f0446e2b1d1bcb2efd3df019a"
