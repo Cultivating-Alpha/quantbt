@@ -52,6 +52,9 @@ class S_base:
             bt.trades[: bt.trade_idx, :],
         )
 
+    def backtest_bid_ask(self, params):
+        pass
+
     def backtest(self, params):
         self.get_signals(params)
         (final_value, equity, orders_arr, trades_arr) = self.simulation(
