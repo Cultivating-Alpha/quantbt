@@ -68,13 +68,14 @@ class Backtester:
         self.total_volume = 0
         self.weighted_sum = 0
 
-    def set_bid_ask_data(self, date, bid, ask, volume):
+    def set_bid_ask_data(self, date, bid, ask, volume=None):
         # DATA
         self.date = date
         self.bid = bid
         self.ask = ask
         self.close = bid
-        self.volume = volume
+        if volume is not None:
+            self.volume = volume
 
         self.set_general()
 
@@ -278,3 +279,21 @@ class Backtester:
         print(self.average_price)
         print(self.total_volume)
         self.final_value = self.equity[-1]
+
+    def from_orders(self, size):
+        close = self.bid
+        for i in range(len(self.bid)):
+            if size[i] != 0:
+                volume = size[i]
+                price = self.bid[i]
+                # If the volume is positive, then we take from buy and take the ask price
+                if volume > 0:
+                    price = self.ask[i]
+
+                self.total_volume += volume
+                self.weighted_sum += price * volume
+                self.average_price = self.weighted_sum / self.total_volume
+
+            self.equity[i] = (
+                self.cash + (self.average_price - close[i]) * self.weighted_sum
+            )
