@@ -9,7 +9,7 @@ def places_orders_on_ohlc_nb(ohlc, order, vol, debug=True):
 
     last_trade_index = 0
 
-    for i in range(len(ohlc) - 1):
+    for i in range(len(ohlc)):
         tick = ohlc[i]
         next_tick = ohlc[i + 1]
 
@@ -30,9 +30,9 @@ def places_orders_on_ohlc_nb(ohlc, order, vol, debug=True):
         # if last_trade_index > total_trades:
         #     break
 
-    print(last_trade_index)
+    print("Last trade index: ", last_trade_index)
     # print(array2[last_trade_index])
-    return new_array[:-1]
+    return new_array
 
 
 #
