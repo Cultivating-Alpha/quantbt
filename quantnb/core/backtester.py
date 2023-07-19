@@ -283,12 +283,13 @@ class Backtester:
     def from_orders(self, size):
         close = self.bid
         for i in range(len(self.bid)):
-            if size[i] != 0:
-                volume = size[i]
-                price = self.bid[i]
+            volume = size[i]
+            if volume != 0:
                 # If the volume is positive, then we take from buy and take the ask price
                 if volume > 0:
                     price = self.ask[i]
+                else:
+                    price = self.bid[i]
 
                 self.total_volume += volume
                 self.weighted_sum += price * volume
@@ -297,3 +298,5 @@ class Backtester:
             self.equity[i] = (
                 self.cash + (self.average_price - close[i]) * self.weighted_sum
             )
+
+        print(self.weighted_sum)
