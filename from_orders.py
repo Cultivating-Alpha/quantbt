@@ -26,8 +26,8 @@ orders_against = pd.read_parquet("./data/sorted_orders_against.parquet")
 orders_against.loc[orders_against["direction"] == 0, "volume"] *= -1
 # print(orders_against)
 # orders
-# data = ohlc[0:1000000]
-data = ohlc
+data = ohlc[0:1600000]
+# data = ohlc
 
 # data = ohlc[0:1000000]
 
@@ -39,7 +39,6 @@ def backtest(data, orders):
     data, orders_data_array = place_orders_on_ohlc(data, orders)
 
     bt.set_bid_ask_data(data["Date"].values, data["Bid"].values, data["Ask"].values)
-
     bt.from_orders(orders_data_array[:, 1])
 
     df = helper.plot_equity(bt.equity, data)
@@ -47,7 +46,7 @@ def backtest(data, orders):
 
 
 df = backtest(data, orders)
-df = backtest(data, orders_against)
+# df = backtest(data, orders_against)
 
 
 # |%%--%%| <NarXB5wS7A|nh7dvDieEW>

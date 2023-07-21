@@ -77,7 +77,7 @@ class Helper:
                 "Bid": data["Bid"].values,
             }
         )
-        print(df)
+        # print(df)
 
         df["bnh"] = df["Bid"].diff().cumsum() + 10000
 
