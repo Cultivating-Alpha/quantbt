@@ -1,9 +1,15 @@
 import numba as nb
 import numpy as np
 from numba import float32, int32, int64
+import numba
 from quantnb.core.enums import OrderType
+import numpy as np
+from numba import from_dtype, njit
 
 from typing import List
+
+dt = np.dtype([("x", np.float32), ("y", np.float32)])
+nb_dt = from_dtype(dt)
 
 
 @nb.experimental.jitclass()
@@ -40,6 +46,11 @@ class Backtester:
     trade_idx: int32
     orders: float32[:, :]
     trades: float32[:, :]
+
+    # TRADE MANAGEMENT
+    active_trades: float32[:, :]
+    closed_trades: float32[:, :]
+    number_of_closed_trades: int32
 
     # POSITION MANAGEMENT
     total_volume: float32
@@ -304,27 +315,121 @@ class Backtester:
 
         print(self.weighted_sum)
 
+    def was_trade_filled(self, i, ohlc, last_trade, last_trade_index=None, debug=False):
+        tick = ohlc[i]
+        next_tick = ohlc[i + 1]
+
+        # print("==========")
+        # print(last_trade)
+        # print(tick)
+        if tick < last_trade <= next_tick:
+            # The order will be placed on the next tick
+            # new_array[i] = [next_tick, vol[last_trade_index]]
+            # last_trade_index += 1
+            return True
+
+        elif last_trade < tick:
+            if debug:
+                print("Skippped tick", last_trade_index, last_trade, tick, next_tick, i)
+            # new_array[i] = [tick, vol[last_trade_index]]
+            # last_trade_index += 1
+            return True
+        else:
+            # new_array[i] = [tick, 0]
+            return False
+
+    def update_trades_pnl(self, index):
+        for trade in self.active_trades:
+            direction = trade[1]
+            trade_price = trade[3]
+            trade_volume = trade[6]
+
+            if direction == 1:  # LONG
+                price = self.bid[index]
+                pnl = (price - trade_price) * trade_volume
+            else:
+                price = self.ask[index]
+                pnl = (trade_price - price) * trade_volume
+
+            self.trades[int(trade[0])][7] = pnl
+
+    def check_trades_to_close(self, current_tick):
+        for trade in self.active_trades:
+            trade_exit = trade[4]
+            if trade_exit < current_tick:
+                # print("need to close trade")
+                self.trades[int(trade[0])][9] = False
+                self.closed_trades[self.number_of_closed_trades] = trade
+                self.number_of_closed_trades += 1
+                self.update_active_trades()
+
+    def update_active_trades(self):
+        # Extract the last column (assuming it contains boolean values)
+        last_column = self.trades[:, -1]
+        mask = last_column == True
+        self.active_trades = self.trades[mask]
+
+    def update_equity(self, index, active_trades):
+        pnl = 0
+        for trade in active_trades:
+            pnl += trade[7]
+            # print(self.trades[i][6])
+        self.equity[index] = self.cash + pnl
+
     def from_trades(self, trades):
-        print(trades)
-        # close = self.bid
-        # for i in range(len(self.bid)):
-        #     volume = size[i]
-        #     if volume != 0:
-        #         # If the volume is positive, then we take from buy and take the ask price
-        #         if volume > 0:
-        #             price = self.ask[i]
-        #         else:
-        #             price = self.bid[i]
-        #
-        #         self.total_volume += volume
-        #         self.weighted_sum += price * volume
-        #         self.average_price = self.weighted_sum / self.total_volume
-        #
-        #     self.equity[i] = (
-        #         self.cash + (self.average_price - close[i]) * self.weighted_sum
-        #     )
-        #
-        #     if self.equity[i] < 99994.02:
-        #         print("ASD")
-        #
-        # print(self.weighted_sum)
+        last_trade_index = 0
+        close = self.bid
+
+        """
+        A trade row contains the following:
+        ["Index", "Direction", "EntryTime", "EntryPrice", "ExitTime", "ExitPrice", "Volume", "TP", "SL", "PNL", "Commission", "Active"]
+        """
+        # self.trades = np.zeros((len(trades), 3), dtype=("int", "int", "bool"))
+        # dtype = [("col1", "int32")]
+        # self.trades = np.zeros((4, 1), dtype=dtype)
+
+        # test()
+        self.trades = np.zeros((len(trades), 10), dtype=float32)
+        self.closed_trades = np.zeros((len(trades), 10), dtype=float32)
+        self.number_of_closed_trades = 0
+
+        # print(close)
+        # print(self.date)
+        for i in range(len(self.bid)):
+            curr_trade = trades[last_trade_index]
+
+            if last_trade_index < len(trades):
+                self.update_trades_pnl(i)
+                self.check_trades_to_close(self.date[i])
+                self.update_equity(i, self.active_trades)
+
+                if self.was_trade_filled(i, self.date, curr_trade[0], debug=False):
+                    entry_time = curr_trade[0]
+                    exit_time = curr_trade[1]
+                    volume = curr_trade[2]
+                    direction = curr_trade[3]
+
+                    if direction == 1:
+                        price = self.ask[i]
+                    else:
+                        price = self.bid[i]
+                    self.trades[last_trade_index] = [
+                        last_trade_index,
+                        direction,
+                        entry_time,
+                        price,
+                        exit_time,  # Exit Time
+                        -1,  # Exit Price
+                        volume,
+                        0,  # PNL
+                        0,  # Need to implement commissions
+                        True,
+                    ]
+                    # print("Entering a trade")
+                    last_trade_index += 1
+
+                    self.update_active_trades()
+
+        print(last_trade_index)
+        self.trades = self.trades[:last_trade_index]
+        self.closed_trades = self.closed_trades[: self.number_of_closed_trades]
