@@ -299,7 +299,32 @@ class Backtester:
                 self.cash + (self.average_price - close[i]) * self.weighted_sum
             )
 
-            if self.equity[i] < 99994.02:
-                print("ASD")
+            # if self.equity[i] < 99994.02:
+            #     print("ASD")
 
         print(self.weighted_sum)
+
+    def from_trades(self, trades):
+        print(trades)
+        # close = self.bid
+        # for i in range(len(self.bid)):
+        #     volume = size[i]
+        #     if volume != 0:
+        #         # If the volume is positive, then we take from buy and take the ask price
+        #         if volume > 0:
+        #             price = self.ask[i]
+        #         else:
+        #             price = self.bid[i]
+        #
+        #         self.total_volume += volume
+        #         self.weighted_sum += price * volume
+        #         self.average_price = self.weighted_sum / self.total_volume
+        #
+        #     self.equity[i] = (
+        #         self.cash + (self.average_price - close[i]) * self.weighted_sum
+        #     )
+        #
+        #     if self.equity[i] < 99994.02:
+        #         print("ASD")
+        #
+        # print(self.weighted_sum)

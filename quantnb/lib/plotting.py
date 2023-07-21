@@ -52,12 +52,12 @@ class Plotting:
         plt.title("Lines between Points")
         plt.show()
 
-    def plot_equity(self, equity, data):
+    def plot_equity(self, equity, data, bid_column):
         df = pd.DataFrame(
             {
                 "equity": equity,
                 "date": TimeManip().convert_ms_to_datetime(data["Date"].values),
-                "Bid": data["Bid"].values,
+                "Bid": data[bid_column].values,
             }
         )
         # print(df)
