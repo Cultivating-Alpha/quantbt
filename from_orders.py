@@ -31,6 +31,8 @@ data = ohlc[0:1600000]
 
 # data = ohlc[0:1000000]
 
+data = ohlc[0:1000000]
+
 
 def backtest(data, orders):
     bt = Backtester(commissions=0.002, initial_capital=100000)
@@ -54,10 +56,11 @@ df = backtest(data, orders)
 
 data
 test = data.copy()
+test.reset_index(inplace=True)
 test["Date"] = pd.to_datetime(test["Date"], unit="ms")
 test
 test.set_index("Date", inplace=True)
-test["Bid"].plot()
+test["EURUSD.bid"].plot()
 
 # |%%--%%| <nh7dvDieEW|tuOF7yATJd>
 
