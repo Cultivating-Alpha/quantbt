@@ -1,22 +1,9 @@
+from .output_trades import output_trades
 import pandas as pd
 
 
 def calculate_stats(data, bt):
-    trades = pd.DataFrame(
-        bt.trades,
-        columns=[
-            "Index",
-            "Direction",
-            "EntryTime",
-            "EntryPrice",
-            "ExitTime",
-            "ExitPrice",
-            "Volume",
-            "PNL",
-            "Commission",
-            "Active",
-        ],
-    )
+    trades = output_trades(bt)
     trades["EntryTime"] = pd.to_datetime(trades["EntryTime"], unit="ms")
     trades["ExitTime"] = pd.to_datetime(trades["ExitTime"], unit="ms")
     trades["Duration"] = trades["ExitTime"] - trades["EntryTime"]
