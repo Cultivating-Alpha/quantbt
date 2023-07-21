@@ -1,6 +1,7 @@
 import numpy as np
 from numba import njit
 import pandas as pd
+from ..lib.time_manip import time_manip
 
 
 @njit
@@ -35,13 +36,32 @@ def places_orders_on_ohlc_nb(ohlc, order, vol, debug=True):
     return new_array
 
 
-#
-def place_orders_on_ohlc(ohlc, orders):
+def place_orders_on_ohlc(ohlc, orders, bid_column, ask_column):
+    """
+    Places orders on OHLC data and returns the result.
+
+    Parameters:
+        ohlc (pd.DataFrame): DataFrame containing OHLC data with timestamps as the index.
+        orders (pd.DataFrame): DataFrame containing order data with 'time' and 'volume' columns.
+        bid_column (str): Name of the column in 'ohlc' DataFrame representing bid prices.
+        ask_column (str): Name of the column in 'ohlc' DataFrame representing ask prices.
+
+    Returns:
+        pd.DataFrame: A DataFrame with columns 'Date', 'Bid', and 'Ask'.
+        ndarray: An array containing the processed order data.
+
+    Usage:
+        ohlc_data, orders_data = place_orders_on_ohlc(ohlc_df, orders_df, 'EURUSD.bid', 'EURUSD.ask')
+
+    Example:
+        >> place_orders_on_ohlc(ohlc_df, orders_df, 'EURUSD.bid', 'EURUSD.ask')
+        << (ohlc_data, orders_data)
+    """
     data = pd.DataFrame(
         {
-            "Date": ohlc.index.astype(np.int64) // 10**6,
-            "Bid": ohlc["EURUSD.bid"].values,
-            "Ask": ohlc["EURUSD.ask"].values,
+            "Date": time_manip.convert_datetime_to_ms(ohlc.index),
+            "Bid": ohlc[bid_column].values,
+            "Ask": ohlc[ask_column].values,
         }
     )
 
