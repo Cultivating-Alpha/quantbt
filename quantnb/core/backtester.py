@@ -299,4 +299,7 @@ class Backtester:
                 self.cash + (self.average_price - close[i]) * self.weighted_sum
             )
 
+            if self.equity[i] < 99994.02:
+                print("ASD")
+
         print(self.weighted_sum)
