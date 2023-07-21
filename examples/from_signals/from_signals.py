@@ -1,6 +1,8 @@
 from numba import njit
 from quantnb.lib.plotting import plotting
+from quantnb.lib.time_manip import time_manip
 from quantnb.lib import np, timeit, pd
+from quantnb.lib.calculate_stats import calculate_stats
 from quantnb.strategies.S_base import S_base
 from quantnb.core.backtester import Backtester
 from quantnb.strategies.S_bid_ask import S_bid_ask
@@ -10,18 +12,38 @@ from quantnb.core.place_orders_on_ohlc import place_orders_on_ohlc
 #                                                                      #
 # ==================================================================== #
 
-ohlc = pd.read_parquet("./data/EURUSD.parquet")
-ohlc.reset_index(inplace=True)
 
-long_trades = pd.read_parquet("./data/long_trades.parquet")
-short_trades = pd.read_parquet("./data/long_trades.parquet")
+def get_ohlc_trades():
+    ohlc = pd.read_parquet("./data/EURUSD.parquet")
+    ohlc.reset_index(inplace=True)
 
-long_trades
+    long = pd.read_parquet("./data/long_trades.parquet")
+    long.sort_values(by="long_entry", inplace=True)
+    long["direction"] = 1
+    short = pd.read_parquet("./data/short_trades.parquet")
+    short.sort_values(by="short_entry", inplace=True)
+    return long, short, ohlc
 
-data = ohlc[0:1000000]
-trades = long_trades
 
-# |%%--%%| <NarXB5wS7A|fOaSUABOzG>
+long, short, ohlc = get_ohlc_trades()
+
+
+data = ohlc[0:314000]
+# data = ohlc[0:1314000]
+# data = ohlc
+data
+# data = ohlc[0:1000]
+# data
+trades = long
+# trades
+test = time_manip.convert_ms_to_datetime(trades["long_entry"])
+test_exit = time_manip.convert_ms_to_datetime(trades["long_exit"])
+test
+test_exit
+
+
+# long
+long["volume"] = long["volume"] * 10000
 
 
 def backtest(data, trades):
@@ -30,14 +52,30 @@ def backtest(data, trades):
     # data = ohlc
 
     bt.set_bid_ask_data(
-        data["Date"].values, data["EURUSD.bid"].values, data["EURUSD.ask"].values
+        time_manip.convert_datetime_to_ms(data["Date"]).values,
+        data["EURUSD.bid"].values,
+        data["EURUSD.ask"].values,
     )
+
+    print("Backtest started")
     bt.from_trades(trades.values)
 
-    # df = plotting.plot_equity(bt.equity, data, "EURUSD.bid")
+    df = plotting.plot_equity(bt.equity, data, "EURUSD.bid")
     return bt, df
 
 
-bt, df = backtest(data, long_trades)
+bt, df = backtest(data, long)
+# bt, df = backtest(data, short)
 
-bt.equity
+
+# tr = bt.trades
+# #
+#
+# plotting.plot_equity(bt.equity, data, "EURUSD.bid")
+#
+# #
+# # # bt.equity
+# |%%--%%| <StffNH0Txc|lNN7NHpeW4>
+
+
+calculate_stats(data, bt)
