@@ -3,6 +3,7 @@ from quantnb.lib.plotting import plotting
 from quantnb.lib.time_manip import time_manip
 from quantnb.lib import np, timeit, pd
 from quantnb.lib.calculate_stats import calculate_stats
+from quantnb.lib.output_trades import output_trades
 from quantnb.strategies.S_base import S_base
 from quantnb.core.backtester import Backtester
 from quantnb.strategies.S_bid_ask import S_bid_ask
@@ -60,11 +61,14 @@ def backtest(data, trades):
     print("Backtest started")
     bt.from_trades(trades.values)
 
-    df = plotting.plot_equity(bt.equity, data, "EURUSD.bid")
-    return bt, df
+    return bt
 
 
-bt, df = backtest(data, long)
+bt = backtest(data, long)
+calculate_stats(data, bt)
+
+trades = output_trades(bt)
+# plotting.plot_equity(bt.equity, data, "EURUSD.bid")
 # bt, df = backtest(data, short)
 
 
@@ -76,6 +80,3 @@ bt, df = backtest(data, long)
 # #
 # # # bt.equity
 # |%%--%%| <StffNH0Txc|lNN7NHpeW4>
-
-
-calculate_stats(data, bt)

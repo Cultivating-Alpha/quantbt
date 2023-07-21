@@ -430,6 +430,5 @@ class Backtester:
 
                     self.update_active_trades()
 
-        print(last_trade_index)
         self.trades = self.trades[:last_trade_index]
         self.closed_trades = self.closed_trades[: self.number_of_closed_trades]
