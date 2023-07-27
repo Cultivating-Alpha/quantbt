@@ -68,6 +68,7 @@ bt = backtest(data, long)
 calculate_stats(data, bt)
 
 trades = output_trades(bt)
+trades["ExitPrice"]
 # plotting.plot_equity(bt.equity, data, "EURUSD.bid")
 # bt, df = backtest(data, short)
 
@@ -79,4 +80,9 @@ trades = output_trades(bt)
 #
 # #
 # # # bt.equity
-# |%%--%%| <StffNH0Txc|lNN7NHpeW4>
+# |%%--%%| <StffNH0Txc|6FCue3G7IQ>
+
+
+bt.trades
+
+# |%%--%%| <6FCue3G7IQ|lNN7NHpeW4>
