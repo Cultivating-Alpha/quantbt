@@ -1,11 +1,47 @@
 import pandas as pd
 from .time_manip import TimeManip
 import matplotlib.pyplot as plt
+import mplfinance as mpf
+from .convert_signal_to_markers import convert_signal_to_marker
 
 
 class Plotting:
     def __init__(self):
         pass
+
+    # ================================================================================= #
+    #                             SubPlotting Methods                                   #
+    # ================================================================================= #
+    def add_line_plot(self, data, panel=0, color="black"):
+        return mpf.make_addplot(data, color=color, panel=panel)
+
+    def add_markers(self, markers, data, panel=0, color="black"):
+        markers = convert_signal_to_marker(markers, data.close, data.index)
+        print(markers.tail(20))
+        return mpf.make_addplot(
+            markers,
+            type="scatter",
+            panel=panel,
+            color=color,
+            markersize=50,
+        )
+
+    def mpf_plot(self, data, subplots):
+        # # Create my own `marketcolors` to use with the `nightclouds` style:
+        # mc = mpf.make_marketcolors(up="white", down="red", inherit=True)
+        #
+        # # Create a new style based on `nightclouds` but with my own `marketcolors`:
+        # s = mpf.make_mpf_style(base_mpf_style="nightclouds", marketcolors=mc)
+        # Create MPF plot
+        mpf.plot(
+            data,
+            type="candle",
+            volume=False,
+            ylabel="Price",
+            addplot=subplots,
+            style="classic",
+            title="Strategy Oupput",
+        )
 
     # ================================================================================= #
     #                              Plotting Methods                                     #
