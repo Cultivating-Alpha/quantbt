@@ -1241,6 +1241,22 @@ llvmlite = "==0.40.*"
 numpy = ">=1.21,<1.25"
 
 [[package]]
+name = "numba-progress"
+version = "1.0.0"
+description = "A progress bar implementation for numba functions using tqdm"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "numba-progress-1.0.0.tar.gz", hash = "sha256:c460f96f10370b40c5fae47ad9a966841d02c9b4021953dd076010ad9a7e0a66"},
+    {file = "numba_progress-1.0.0-py3-none-any.whl", hash = "sha256:57c102a5321da9fb196ef781736e38f9a3b4329d4a3245dfb6e4e0a77278f092"},
+]
+
+[package.dependencies]
+numba = ">=0.52"
+numpy = "*"
+tqdm = "*"
+
+[[package]]
 name = "numpy"
 version = "1.24.3"
 description = "Fundamental package for array computing in Python"
@@ -2388,4 +2404,4 @@ requests = ">=2.26"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "0ae514240d7e2f3eec801f56c86b13413d92128017bb2807053913cbd0edd5dd"
+content-hash = "7a4a74e59b277a2cd4f8c0c0d2d6727090e212eb705f712dc7d1309acf39c28c"

@@ -30,8 +30,8 @@ long, short, ohlc = get_ohlc_trades()
 
 
 data = ohlc[0:314000]
-# data = ohlc[0:1314000]
-# data = ohlc
+data = ohlc[0:1314000]
+data = ohlc
 data
 # data = ohlc[0:1000]
 # data
@@ -47,6 +47,9 @@ test_exit
 long["volume"] = long["volume"] * 10000
 
 
+from numba_progress import ProgressBar
+
+
 def backtest(data, trades):
     bt = Backtester(commissions=0.002, initial_capital=100000)
     # data = ohlc[615000:626000]
@@ -58,31 +61,37 @@ def backtest(data, trades):
         data["EURUSD.ask"].values,
     )
 
-    print("Backtest started")
     bt.from_trades(trades.values)
 
     return bt
 
 
 bt = backtest(data, long)
-calculate_stats(data, bt)
+# calculate_stats(data, bt)
+#
+# trades = output_trades(bt)
+# trades["ExitPrice"]
 
-trades = output_trades(bt)
-trades["ExitPrice"]
 # plotting.plot_equity(bt.equity, data, "EURUSD.bid")
 # bt, df = backtest(data, short)
-
-
 # tr = bt.trades
-# #
-#
 # plotting.plot_equity(bt.equity, data, "EURUSD.bid")
-#
-# #
-# # # bt.equity
+# bt.equity
 # |%%--%%| <StffNH0Txc|6FCue3G7IQ>
 
+from numba_progress import ProgressBar
+from quantnb.core.sleep import usleep
+import numba as nb
 
-bt.trades
 
-# |%%--%%| <6FCue3G7IQ|lNN7NHpeW4>
+@nb.njit
+def numba_parallel_sleeper(num_iterations, sleep_us, progress_hook):
+    for i in range(num_iterations):
+        usleep(sleep_us)
+        progress_hook.update(1)
+
+
+num_iterations = 30 * 8
+sleep_time_us = 250_000
+with ProgressBar(total=num_iterations) as numba_progress:
+    numba_parallel_sleeper(num_iterations, sleep_time_us, numba_progress)

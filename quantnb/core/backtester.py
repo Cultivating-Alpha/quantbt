@@ -1,9 +1,8 @@
-import numba as nb
 import numpy as np
-from numba import float32, int32, int64
-import numba
 from quantnb.core.enums import OrderType
 import numpy as np
+import numba as nb
+from numba import float32, int32, int64
 from numba import from_dtype, njit
 
 from typing import List
@@ -12,7 +11,10 @@ dt = np.dtype([("x", np.float32), ("y", np.float32)])
 nb_dt = from_dtype(dt)
 
 
-@nb.experimental.jitclass()
+from tqdm import tqdm
+
+
+@nb.experimental.jitclass
 class Backtester:
     # DATA
     open: float32[:]
@@ -56,6 +58,9 @@ class Backtester:
     total_volume: float32
     weighted_sum: float32
     average_price: float32
+
+    # GENERAL
+    prev_percentage: float32
 
     def __init__(self, initial_capital=10000, commissions=0.0):
         # PORTFOLIO
@@ -385,6 +390,17 @@ class Backtester:
             # print(self.trades[i][6])
         self.equity[index] = self.cash + pnl
 
+    # def from_trades(self, trades, progress_proxy):
+    def print_bar(self, length, fill, iteration, total):
+        percentage = iteration * 100 / total
+        if percentage - self.prev_percentage > 10:
+            progress = iteration / float(total)
+            filled_length = int(length * progress)
+            bar = fill * filled_length + "-" * (length - filled_length)
+            print(np.round(percentage), f"% | {bar} |")
+            self.prev_percentage = percentage
+            # print(f"\r{prefix} |{bar}| {progress:.1%}", end=end)
+
     def from_trades(self, trades):
         last_trade_index = 0
         close = self.bid
@@ -404,7 +420,11 @@ class Backtester:
 
         # print(close)
         # print(self.date)
+
+        self.prev_percentage = 0
+
         for i in range(len(self.bid)):
+            self.print_bar(40, "█", i, len(self.bid))
             curr_trade = trades[last_trade_index]
 
             if last_trade_index < len(trades):
