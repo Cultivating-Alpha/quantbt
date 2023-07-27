@@ -6,8 +6,10 @@ import matplotlib.pyplot as plt
 from quantnb.helpers import save_to_csv, print_orders, print_trades, calculate_metrics
 
 
-class S_Base:
-    def __init__(self, data, offset=0, commission=0.0002, initial_capital=1000):
+class S_base:
+    def __init__(
+        self, data, offset=0, commission=0.0002, initial_capital=10000, use_sl=False
+    ):
         data = data[offset:]
 
         data.rename(
@@ -18,44 +20,55 @@ class S_Base:
         self.data = data
         self.commmision = commission
         self.initial_capital = initial_capital
+        self.use_sl = use_sl
 
-    def simulation(self, mode, use_sl):
-        close = self.data.Close
-        size = np.full_like(close, 1)
-        multiplier = 1
-        size = size * multiplier
+        self.set_bt_data()
 
+    def set_bt_data(self):
         df = self.data
         open = df.Open.to_numpy(dtype=np.float32)
         high = df.High.to_numpy(dtype=np.float32)
         low = df.Low.to_numpy(dtype=np.float32)
         close = df.Close.to_numpy(dtype=np.float32)
-        index = df.index.to_numpy(dtype=np.int32)
+        index = df.index.to_numpy(dtype=np.int64)
 
-        bt = Backtester(
+        self.bt = Backtester(
             commissions=self.commmision, initial_capital=self.initial_capital
         )
-        bt.set_data(open, high, low, close, index)
-        bt.backtest(self.entries.values, self.exits.values, self.sl.values)
+        self.bt.set_data(open, high, low, close, index)
+
+    def simulation(self, mode, use_sl):
+        close = self.data.Close
+
+        sl = None
+        if self.use_sl:
+            sl = self.sl.values
+
+        size = np.full_like(close, 1)
+        multiplier = 1
+        size = size * multiplier
+
+        self.bt.from_signals(self.entries, self.exits, sl, use_sl)
 
         return (
-            bt.final_value,
-            bt.equity,
-            bt.orders[: bt.order_idx, :],
-            bt.trades[: bt.trade_idx, :],
+            self.bt.final_value,
+            self.bt.equity,
+            self.bt.orders[: self.bt.order_idx, :],
+            self.bt.trades[: self.bt.trade_idx, :],
         )
+
+    def backtest_bid_ask(self, params):
+        pass
 
     def backtest(self, params):
         self.get_signals(params)
-        self.simulation(mode=1, use_sl=True)
-
         (final_value, equity, orders_arr, trades_arr) = self.simulation(
-            mode=1, use_sl=True
+            mode=1, use_sl=self.use_sl
         )
         self.orders_arr = orders_arr
 
         dd, total_return, ratio, buy_and_hold = calculate_metrics(
-            equity, self.data, final_value
+            equity, self.data, final_value, self.initial_capital
         )
 
         self.stats = pd.DataFrame(

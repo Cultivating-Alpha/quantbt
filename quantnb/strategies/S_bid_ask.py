@@ -1,28 +1,15 @@
 from .S_base import S_base
-from ..indicators import SMA
 import mplfinance as mpf
 import pandas as pd
 
-import talib
-import numpy as np
 
+class S_bid_ask(S_base):
+    def set_signals(self, long_entries, long_exits):
+        self.entries = long_entries
+        self.exits = long_exits
 
-class S_Test(S_base):
     def get_signals(self, params):
-        long, short, cutoff, atr_distance = params
-        close = self.data.Close
-        self.ma_long = SMA(close, long)
-        self.ma_short = SMA(close, short)
-        self.rsi = talib.RSI(close, timeperiod=2)
-        self.atr = talib.ATR(self.data.High, self.data.Low, close, 14)
-
-        self.entries = np.logical_and(
-            close <= self.ma_short,
-            np.logical_and(close >= self.ma_long, self.rsi <= cutoff),
-        )
-        self.exits = close > self.ma_short
-
-        self.sl = self.data.Low - self.atr * atr_distance
+        pass
 
     def plot_ohlc(self, offset=0):
         data = self.data[offset:]
