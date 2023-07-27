@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "quantnb"
-version = "0.2.20"
+version = "0.2.21"
 description = ""
 authors = ["Alpha <piotr@piotryordanov.com>"]
 readme = "README.md"
