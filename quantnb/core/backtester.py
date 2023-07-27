@@ -11,9 +11,6 @@ dt = np.dtype([("x", np.float32), ("y", np.float32)])
 nb_dt = from_dtype(dt)
 
 
-from tqdm import tqdm
-
-
 @nb.experimental.jitclass
 class Backtester:
     # DATA

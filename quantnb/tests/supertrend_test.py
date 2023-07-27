@@ -27,8 +27,9 @@ mpf.plot(
     volume=False,
     ylabel="Price",
     addplot=[
-        mpf.make_addplot(supers, color="red", panel=0),
-        mpf.make_addplot(superl, color="teal", panel=0),
+        mpf.make_addplot(supert, color="red", panel=0),
+        # mpf.make_addplot(supers, color="red", panel=0),
+        # mpf.make_addplot(superl, color="teal", panel=0),
     ],
     title="Supertrend Indicator",
 )
