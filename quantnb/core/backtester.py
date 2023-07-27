@@ -345,20 +345,29 @@ class Backtester:
             trade_volume = trade[6]
 
             if direction == 1:  # LONG
-                price = self.bid[index]
+                price = self.ask[index]
                 pnl = (price - trade_price) * trade_volume
             else:
-                price = self.ask[index]
+                price = self.bid[index]
                 pnl = (trade_price - price) * trade_volume
 
             self.trades[int(trade[0])][7] = pnl
 
-    def check_trades_to_close(self, current_tick):
+    def calculate_exit_price(self, trade, index):
+        direction = trade[1]
+        if direction == 1:  # LONG
+            exit_price = self.bid[index]
+        else:
+            exit_price = self.ask[index]
+        return exit_price
+
+    def check_trades_to_close(self, current_tick, index):
         for trade in self.active_trades:
             trade_exit = trade[4]
             if trade_exit < current_tick:
                 # print("need to close trade")
                 self.trades[int(trade[0])][9] = False
+                self.trades[int(trade[0])][5] = self.calculate_exit_price(trade, index)
                 self.closed_trades[self.number_of_closed_trades] = trade
                 self.number_of_closed_trades += 1
                 self.update_active_trades()
@@ -400,7 +409,7 @@ class Backtester:
 
             if last_trade_index < len(trades):
                 self.update_trades_pnl(i)
-                self.check_trades_to_close(self.date[i])
+                self.check_trades_to_close(self.date[i], i)
                 self.update_equity(i, self.active_trades)
 
                 if self.was_trade_filled(i, self.date, curr_trade[0], debug=False):
