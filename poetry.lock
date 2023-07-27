@@ -1241,22 +1241,6 @@ llvmlite = "==0.40.*"
 numpy = ">=1.21,<1.25"
 
 [[package]]
-name = "numba-progress"
-version = "1.0.0"
-description = "A progress bar implementation for numba functions using tqdm"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "numba-progress-1.0.0.tar.gz", hash = "sha256:c460f96f10370b40c5fae47ad9a966841d02c9b4021953dd076010ad9a7e0a66"},
-    {file = "numba_progress-1.0.0-py3-none-any.whl", hash = "sha256:57c102a5321da9fb196ef781736e38f9a3b4329d4a3245dfb6e4e0a77278f092"},
-]
-
-[package.dependencies]
-numba = ">=0.52"
-numpy = "*"
-tqdm = "*"
-
-[[package]]
 name = "numpy"
 version = "1.24.3"
 description = "Fundamental package for array computing in Python"
@@ -1523,6 +1507,23 @@ files = [
 [package.extras]
 docs = ["furo", "olefile", "sphinx (>=2.4)", "sphinx-copybutton", "sphinx-inline-tabs", "sphinx-removed-in", "sphinxext-opengraph"]
 tests = ["check-manifest", "coverage", "defusedxml", "markdown2", "olefile", "packaging", "pyroma", "pytest", "pytest-cov", "pytest-timeout"]
+
+[[package]]
+name = "prettytable"
+version = "3.8.0"
+description = "A simple Python library for easily displaying tabular data in a visually appealing ASCII table format"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "prettytable-3.8.0-py3-none-any.whl", hash = "sha256:03481bca25ae0c28958c8cd6ac5165c159ce89f7ccde04d5c899b24b68bb13b7"},
+    {file = "prettytable-3.8.0.tar.gz", hash = "sha256:031eae6a9102017e8c7c7906460d150b7ed78b20fd1d8c8be4edaf88556c07ce"},
+]
+
+[package.dependencies]
+wcwidth = "*"
+
+[package.extras]
+tests = ["pytest", "pytest-cov", "pytest-lazy-fixture"]
 
 [[package]]
 name = "prompt-toolkit"
@@ -2193,7 +2194,7 @@ zstd = ["zstandard (>=0.18.0)"]
 name = "wcwidth"
 version = "0.2.6"
 description = "Measures the displayed width of unicode strings in a terminal"
-optional = true
+optional = false
 python-versions = "*"
 files = [
     {file = "wcwidth-0.2.6-py2.py3-none-any.whl", hash = "sha256:795b138f6875577cd91bba52baf9e445cd5118fd32723b460e30a0af30ea230e"},
@@ -2404,4 +2405,4 @@ requests = ">=2.26"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "7a4a74e59b277a2cd4f8c0c0d2d6727090e212eb705f712dc7d1309acf39c28c"
+content-hash = "422b4157a19addf459a11248af671dff42f2a568f8405862e6d959f04fee240e"

@@ -21,7 +21,7 @@ quantstats = {version = "^0.0.59", optional = true}
 seaborn = {version = "^0.12.2", extras = ["stats"], optional = true}
 ipython = {version = "^8.14.0", optional = true}
 pandas-ta = {version = "^0.3.14b0", optional = true}
-numba-progress = "^1.0.0"
+prettytable = "^3.8.0"
 
 
 [build-system]
