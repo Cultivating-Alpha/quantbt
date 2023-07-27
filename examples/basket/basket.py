@@ -63,6 +63,11 @@ stats = pd.DataFrame()
 INITIAL_CAPITAL = 1000 * 13
 initial_capital = INITIAL_CAPITAL / len(datas.keys())
 equities = []
+data = datas["BTCUSDT"]
+st = S_basket(data, commission=0.0005, initial_capital=initial_capital)
+st.backtest((10, 3, 200))
+
+# |%%--%%| <s4tvHELefh|UaV6o1ZohE>
 for key in datas:
     data = datas[key]
     st = S_basket(data, commission=0.0005, initial_capital=initial_capital)
