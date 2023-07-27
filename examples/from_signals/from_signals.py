@@ -44,10 +44,7 @@ test_exit
 
 
 # long
-long["volume"] = long["volume"] * 10000
-
-
-from numba_progress import ProgressBar
+long["volume"] = long["volume"] * 100000
 
 
 def backtest(data, trades):
@@ -67,7 +64,6 @@ def backtest(data, trades):
 
 
 bt = backtest(data, long)
-# calculate_stats(data, bt)
 #
 # trades = output_trades(bt)
 # trades["ExitPrice"]
@@ -77,21 +73,9 @@ bt = backtest(data, long)
 # tr = bt.trades
 # plotting.plot_equity(bt.equity, data, "EURUSD.bid")
 # bt.equity
-# |%%--%%| <StffNH0Txc|6FCue3G7IQ>
+# |%%--%%| <xxALjYrrlf|vE79q6AEOa>
 
-from numba_progress import ProgressBar
-from quantnb.core.sleep import usleep
-import numba as nb
+from quantnb.lib.calculate_stats import calculate_stats
 
-
-@nb.njit
-def numba_parallel_sleeper(num_iterations, sleep_us, progress_hook):
-    for i in range(num_iterations):
-        usleep(sleep_us)
-        progress_hook.update(1)
-
-
-num_iterations = 30 * 8
-sleep_time_us = 250_000
-with ProgressBar(total=num_iterations) as numba_progress:
-    numba_parallel_sleeper(num_iterations, sleep_time_us, numba_progress)
+calculate_stats(data, bt)
+trades = output_trades(bt)
