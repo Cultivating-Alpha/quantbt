@@ -16,8 +16,7 @@ class Plotting:
         return mpf.make_addplot(data, color=color, panel=panel)
 
     def add_markers(self, markers, data, panel=0, color="black"):
-        markers = convert_signal_to_marker(markers, data.close, data.index)
-        print(markers.tail(20))
+        markers = convert_signal_to_marker(markers, data.Close, data.index)
         return mpf.make_addplot(
             markers,
             type="scatter",
