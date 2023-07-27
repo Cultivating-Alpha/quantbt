@@ -26,10 +26,22 @@ for asset in assets:
         rsi=range(3, 15, 1),
         atr_distance=np.arange(0.5, 10.5, 0.5),
     )
-    optimisation = optimisation.sort_values("ratio", ascending=False).head(10)
+    optimisation = optimisation.sort_values("ratio", ascending=False)
     optimisation.to_parquet(f"{sym}-RSI.parquet")
 
 # |%%--%%| <PSegVofl0P|W9pyX2nkWW>
+
+from quantnb.strategies.S_test import S_Test
+
+from quantnb.lib import np, timeit, pd
+from quantnb.lib import find_files, optimize
+
+
+assets = find_files("./data/@ENQ.time", "1m")
+data = pd.read_parquet(assets[0])
+data
+
+# data = data[0:500]
 
 
 def single():
@@ -38,14 +50,20 @@ def single():
     return bt
 
 
+import time
+
+start = time.time()
 pf = single()
+end = time.time()
+
+print(end - start)
 # pf.print_trades()
 # pf.plot_equity()
-pf.stats
 # pf.plot_ohlc()
+# pf.stats
 
+# |%%--%%| <W9pyX2nkWW|40lFm5vOxI>
 
-# |%%--%%| <W9pyX2nkWW|2SZ62F0QMF>
 
 count = 30
 execution_time = timeit.timeit(single, number=count)
