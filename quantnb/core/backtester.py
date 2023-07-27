@@ -167,10 +167,10 @@ class Backtester:
         close = self.close[i]
 
         fee = self.calculate_fees(close, self.entry_size, self.commissions)
-        print("closing position")
-        print(self.cash)
+        # print("closing position")
+        # print(self.cash)
         self.cash += self.entry_size * exit_price - fee
-        print(self.cash)
+        # print(self.cash)
 
         order_type = OrderType.LONG
         if self.current_trade_type == OrderType.LONG.value:
@@ -196,43 +196,43 @@ class Backtester:
     # ===================================================================================== #
     #                                       CORE BACKTESTER                                 #
     # ===================================================================================== #
-    # def backtest(
-    #     self, entry_signals, exit_signals, sl=None, use_sl=False, mode=1, debug=False
-    # ):
-    #     close = self.close
-    #     stop_loss = 0
-    #
-    #     if debug:
-    #         print("Backtest launched")
-    #
-    #     for i in range(1, len(close)):
-    #         if debug:
-    #             print(f"========== {i}")
-    #         if entry_signals[i]:
-    #             if not self.in_position:
-    #                 if use_sl and sl is not None:
-    #                     stop_loss = sl[i]
-    #
-    #                 self.entry_size = self.cash / self.close[i]
-    #                 self.go_long(self.ask[i], i)
-    #                 # print("GOING LONG")
-    #
-    #         elif exit_signals[i]:
-    #             if self.in_position:
-    #                 self.close_position(i, close[i])
-    #
-    #         if use_sl and self.in_position:
-    #             if mode == 1:
-    #                 if close[i] < stop_loss:
-    #                     self.close_position(i, self.open[i + 1])
-    #             elif mode == 2:
-    #                 if self.low[i] < stop_loss:
-    #                     self.close_position(i, stop_loss)
-    #
-    #         fee = self.calculate_fees(close[i], self.entry_size, self.commissions)
-    #         self.equity[i] = self.cash + self.entry_size * close[i] - fee
-    #
-    #     self.final_value = self.equity[-1]
+    def from_signals(
+        self, entry_signals, exit_signals, sl=None, use_sl=False, mode=1, debug=False
+    ):
+        close = self.close
+        stop_loss = 0
+
+        if debug:
+            print("Backtest launched")
+
+        for i in range(1, len(close)):
+            if debug:
+                print(f"========== {i}")
+            if entry_signals[i]:
+                if not self.in_position:
+                    # print("GOING LONG")
+                    if use_sl and sl is not None:
+                        stop_loss = sl[i]
+
+                    self.entry_size = self.cash / self.close[i]
+                    self.go_long(self.close[i], i)
+
+            elif exit_signals[i]:
+                if self.in_position:
+                    self.close_position(i, close[i])
+
+            if use_sl and self.in_position:
+                if mode == 1:
+                    if close[i] < stop_loss:
+                        self.close_position(i, self.open[i + 1])
+                elif mode == 2:
+                    if self.low[i] < stop_loss:
+                        self.close_position(i, stop_loss)
+
+            fee = self.calculate_fees(close[i], self.entry_size, self.commissions)
+            self.equity[i] = self.cash + self.entry_size * close[i] - fee
+
+        self.final_value = self.equity[-1]
 
     def add_position(self, price, volume):
         self.total_volume += volume
