@@ -1,4 +1,0 @@
-data/*.parquet filter=lfs diff=lfs merge=lfs -text
-data/@ENQ-M1.parquet filter=lfs diff=lfs merge=lfs -text
-data/EURUSD.parquet filter=lfs diff=lfs merge=lfs -text
-data/test.parquet filter=lfs diff=lfs merge=lfs -text
