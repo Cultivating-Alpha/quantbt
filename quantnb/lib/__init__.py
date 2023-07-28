@@ -6,6 +6,8 @@ from .create_binance_dataframe import create_binance_dataframe
 from .multiprocess import multiprocess
 from .optimize import optimize
 from .plotting import plotting
+from .time_manip import time_manip
+from .calculate_stats import calculate_stats
 
 import numpy as np
 import pandas as pd

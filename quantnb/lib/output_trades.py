@@ -1,9 +1,13 @@
 import pandas as pd
+import numpy as np
 
 
 def output_trades(bt):
+    trades = np.concatenate((bt.closed_trades, bt.active_trades))
+    # trades = bt.trades
     trades = pd.DataFrame(
-        bt.trades,
+        trades,
+        # bt.trades,
         columns=[
             "Index",
             "Direction",
