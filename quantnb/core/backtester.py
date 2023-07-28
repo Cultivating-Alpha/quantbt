@@ -1,3 +1,4 @@
+from cycler import mul
 import numpy as np
 from quantnb.core.enums import OrderType
 import numpy as np
@@ -26,10 +27,13 @@ class Backtester:
     ask: float32[:]
 
     # PORTFOLIO
+    initial_capital: float32
     cash: float32
     final_value: float32
     total_pnl: float32
+    multiplier: float32
     equity: float32[:]
+    default_size: float32
 
     # TRADE MANAGEMENT
     in_position: nb.boolean
@@ -37,7 +41,8 @@ class Backtester:
     entry_time: int32
     entry_size: float32
     entry_price: float32
-    commissions: float32
+    commission: float32
+    commission_type: str
     current_trade_type: int32
 
     # MISC
@@ -59,11 +64,21 @@ class Backtester:
     # GENERAL
     prev_percentage: float32
 
-    def __init__(self, initial_capital=10000, commissions=0.0):
+    def __init__(
+        self,
+        initial_capital=10000,
+        commission=0.0,
+        commission_type="percentage",
+        multiplier=1,
+        default_size=None,
+    ):
         # PORTFOLIO
         self.cash = initial_capital
+        self.initial_capital = initial_capital
         self.final_value = initial_capital
         self.total_pnl = 0.0
+        self.multiplier = multiplier
+        self.default_size = default_size
 
         # TRADE MANAGEMENT
         self.in_position = False
@@ -71,7 +86,8 @@ class Backtester:
         self.entry_time = 0
         self.entry_size = 0
         self.entry_price = 0
-        self.commissions = commissions
+        self.commission = commission
+        self.commission_type = commission_type
 
         # MISC
         self.order_idx = 0
@@ -109,15 +125,18 @@ class Backtester:
 
         # MISC
         self.orders = np.zeros((len(self.close), 5), dtype=float32)
-        self.trades = np.zeros((len(self.close), 7), dtype=float32)
+        self.trades = np.zeros((len(self.close), 8), dtype=float32)
 
     # ===================================================================================== #
     #                                       HELPERS                                         #
     # ===================================================================================== #
 
     @staticmethod
-    def calculate_fees(price, size, commissions):
-        return price * size * commissions
+    def calculate_fees(price, size, commission, commission_type):
+        if commission_type == "percentage":
+            return price * size * commission
+        else:
+            return commission
 
     # ===================================================================================== #
 
@@ -136,7 +155,9 @@ class Backtester:
     def go_long(self, price, i):
         # self.entry_size = self.cash / self.close[i]
 
-        fee = self.calculate_fees(price, self.entry_size, self.commissions)
+        fee = self.calculate_fees(
+            price, self.entry_size, self.commission, self.commission_type
+        )
         self.cash -= self.entry_size * price - fee
 
         self.new_order(i, OrderType.LONG, price)
@@ -151,7 +172,9 @@ class Backtester:
     def go_short(self, i):
         close = self.close[i]
 
-        fee = self.calculate_fees(close, self.entry_size, self.commissions)
+        fee = self.calculate_fees(
+            close, self.entry_size, self.commission, self.commission_type
+        )
         self.cash -= self.entry_size * close - fee
 
         self.new_order(i, OrderType.SHORT, close)
@@ -166,10 +189,11 @@ class Backtester:
     def close_position(self, i, exit_price):
         close = self.close[i]
 
-        fee = self.calculate_fees(close, self.entry_size, self.commissions)
+        fee = self.calculate_fees(
+            close, self.entry_size, self.commission, self.commission_type
+        )
         # print("closing position")
         # print(self.cash)
-        self.cash += self.entry_size * exit_price - fee
         # print(self.cash)
 
         order_type = OrderType.LONG
@@ -177,7 +201,14 @@ class Backtester:
             order_type = OrderType.SHORT
         self.new_order(i, order_type, close)
 
-        pnl = (exit_price - self.entry_price) * self.entry_size - fee
+        if self.commission_type == "percentage":
+            print("need to update commissions calculation of percentage trades")
+            entry_fee = self.entry_price * self.entry_size * self.commission
+        elif self.commission_type == "fixed":
+            fee = fee * 2
+
+        pnl = (exit_price - self.entry_price) * self.entry_size * self.multiplier - fee
+        self.cash += self.entry_size * exit_price - fee
         self.total_pnl += pnl
 
         self.trades[self.trade_idx, :] = [
@@ -186,6 +217,7 @@ class Backtester:
             self.entry_price,
             exit_price,
             pnl,
+            fee,
             self.entry_size,
             self.current_trade_type,
         ]
@@ -215,6 +247,8 @@ class Backtester:
                         stop_loss = sl[i]
 
                     self.entry_size = self.cash / self.close[i]
+                    if self.default_size is not None:
+                        self.entry_size = self.default_size
                     self.go_long(self.close[i], i)
 
             elif exit_signals[i]:
@@ -229,8 +263,17 @@ class Backtester:
                     if self.low[i] < stop_loss:
                         self.close_position(i, stop_loss)
 
-            fee = self.calculate_fees(close[i], self.entry_size, self.commissions)
-            self.equity[i] = self.cash + self.entry_size * close[i] - fee
+            fee = self.calculate_fees(
+                close[i], self.entry_size, self.commission, self.commission_type
+            )
+            if self.commission_type == "percentage":
+                print("missing")
+            else:
+                fee = fee * 2
+            # pnl = 0
+            # for j in range(0, self.trade_idx):
+            #     pnl += self.trades[j, 4]
+            self.equity[i] = self.initial_capital + self.total_pnl
 
         self.final_value = self.equity[-1]
 
@@ -282,11 +325,10 @@ class Backtester:
                 self.close_position(i, bid[i])
                 self.remove_position(bid[i], exit_volume[i])
 
-            fee = self.calculate_fees(bid[i], self.total_volume, self.commissions)
+            fee = self.calculate_fees(
+                bid[i], self.total_volume, self.commission, self.commission_type
+            )
             self.equity[i] = self.cash + self.total_volume * bid[i] - fee
-
-            fee = self.calculate_fees(bid[i], self.entry_size, self.commissions)
-            self.equity[i] = self.cash + self.entry_size * bid[i] - fee
 
         print("========== DONE =========")
         print(self.average_price)
@@ -448,7 +490,7 @@ class Backtester:
                         -1,  # Exit Price
                         volume,
                         0,  # PNL
-                        0,  # Need to implement commissions
+                        0,  # Need to implement commission
                         True,
                     ]
                     # print("Entering a trade")

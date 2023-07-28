@@ -8,7 +8,7 @@ def worker(method, items, NUMBER_OF_CPU, iteration, args, queue):
 
 
 def multiprocess(items, method, *args):
-    NUMBER_OF_CPU = multiprocessing.cpu_count() - 1
+    NUMBER_OF_CPU = multiprocessing.cpu_count() - 2
 
     # Calculate the length of each part
     part_length = math.ceil(len(items) / NUMBER_OF_CPU)

@@ -8,7 +8,15 @@ from quantnb.helpers import save_to_csv, print_orders, print_trades, calculate_m
 
 class S_base:
     def __init__(
-        self, data, offset=0, commission=0.0002, initial_capital=10000, use_sl=False
+        self,
+        data,
+        offset=0,
+        commission=0.0002,
+        commission_type="percentage",
+        initial_capital=10000,
+        multiplier=1,
+        default_size=None,
+        use_sl=False,
     ):
         data = data[offset:]
 
@@ -19,6 +27,9 @@ class S_base:
         data.index = data.index.astype(int) // 10**9
         self.data = data
         self.commmision = commission
+        self.multiplier = multiplier
+        self.default_size = default_size
+        self.commmision_type = commission_type
         self.initial_capital = initial_capital
         self.use_sl = use_sl
 
@@ -33,7 +44,11 @@ class S_base:
         index = df.index.to_numpy(dtype=np.int64)
 
         self.bt = Backtester(
-            commissions=self.commmision, initial_capital=self.initial_capital
+            initial_capital=self.initial_capital,
+            commission=self.commmision,
+            commission_type=self.commmision_type,
+            default_size=self.default_size,
+            multiplier=self.multiplier,
         )
         self.bt.set_data(open, high, low, close, index)
 
@@ -88,7 +103,7 @@ class S_base:
 
     # HELPERS
     def print_trades(self):
-        print_trades(self.trades_arr)
+        return print_trades(self.trades_arr)
 
     def save_to_csv(self):
         data = self.data.copy()

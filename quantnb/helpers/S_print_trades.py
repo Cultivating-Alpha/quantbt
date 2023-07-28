@@ -10,6 +10,7 @@ def print_trades(trades_arr):
             "entry_price",
             "exit_price",
             "pnl",
+            "commission",
             "size",
             "direction",
         ],

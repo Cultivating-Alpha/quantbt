@@ -25,7 +25,7 @@ class Plotting:
             markersize=50,
         )
 
-    def mpf_plot(self, data, subplots):
+    def mpf_plot(self, data, subplots, type="candle"):
         # # Create my own `marketcolors` to use with the `nightclouds` style:
         # mc = mpf.make_marketcolors(up="white", down="red", inherit=True)
         #
@@ -34,7 +34,7 @@ class Plotting:
         # Create MPF plot
         mpf.plot(
             data,
-            type="candle",
+            type=type,
             volume=False,
             ylabel="Price",
             addplot=subplots,
