@@ -41,15 +41,18 @@ class Backtester:
     entry_time: int32
     entry_size: float32
     entry_price: float32
+    current_trade_type: int32
     commission: float32
     commission_type: str
-    current_trade_type: int32
+    slippage: float32
+    slippage_type: str
 
     # MISC
     order_idx: int32
     trade_idx: int32
     orders: float32[:, :]
     trades: float32[:, :]
+    final_trades: float32[:, :]
 
     # TRADE MANAGEMENT
     active_trades: float32[:, :]
@@ -71,6 +74,8 @@ class Backtester:
         commission_type="percentage",
         multiplier=1,
         default_size=None,
+        slippage=None,
+        slippage_type="fixed",
     ):
         # PORTFOLIO
         self.cash = initial_capital
@@ -78,7 +83,12 @@ class Backtester:
         self.final_value = initial_capital
         self.total_pnl = 0.0
         self.multiplier = multiplier
-        self.default_size = default_size
+        if default_size is not None:
+            self.default_size = default_size
+
+        if slippage is not None:
+            self.slippage = slippage
+        self.slippage_type = slippage_type
 
         # TRADE MANAGEMENT
         self.in_position = False
@@ -382,18 +392,22 @@ class Backtester:
             # new_array[i] = [tick, 0]
             return False
 
-    def update_trades_pnl(self, index):
-        for trade in self.active_trades:
+    def update_trades_pnl(self, index, active_trades):
+        for trade in active_trades:
             direction = trade[1]
             trade_price = trade[3]
+
+            commission = 0
             trade_volume = trade[6]
+            if self.commission_type == "fixed":
+                commission = self.commission
 
             if direction == 1:  # LONG
                 price = self.ask[index]
-                pnl = (price - trade_price) * trade_volume
+                pnl = (price - trade_price) * trade_volume - commission
             else:
                 price = self.bid[index]
-                pnl = (trade_price - price) * trade_volume
+                pnl = (trade_price - price) * trade_volume - commission
 
             self.trades[int(trade[0])][7] = pnl
 
@@ -405,14 +419,42 @@ class Backtester:
             exit_price = self.ask[index]
         return exit_price
 
+    def calculate_trade_exit_pnl(self, trade, exit_price):
+        direction = trade[1]
+        trade_price = trade[3]
+        trade_volume = trade[6]
+
+        commission = 0
+        if self.commission_type == "fixed":
+            commission = self.commission
+
+        if direction == 1:  # LONG
+            pnl = (exit_price - trade_price) * trade_volume - commission
+        else:
+            pnl = (trade_price - exit_price) * trade_volume - commission
+        return pnl
+
     def check_trades_to_close(self, current_tick, index):
         for trade in self.active_trades:
             trade_exit = trade[4]
             if trade_exit < current_tick:
                 # print("need to close trade")
-                self.trades[int(trade[0])][9] = False
-                self.trades[int(trade[0])][5] = self.calculate_exit_price(trade, index)
-                self.closed_trades[self.number_of_closed_trades] = trade
+                exit_price = self.calculate_exit_price(trade, index)
+
+                new_trade = trade
+                new_trade[9] = False
+                new_trade[5] = exit_price
+                new_trade[7] = self.calculate_trade_exit_pnl(trade, exit_price)
+
+                self.trades[int(trade[0])] = new_trade
+
+                self.closed_trades[self.number_of_closed_trades] = new_trade
+
+                realized_pnl = 0
+                for trade in self.closed_trades:
+                    realized_pnl += trade[7]
+                self.total_pnl = realized_pnl
+
                 self.number_of_closed_trades += 1
                 self.update_active_trades()
 
@@ -425,9 +467,14 @@ class Backtester:
     def update_equity(self, index, active_trades):
         pnl = 0
         for trade in active_trades:
+            # if index > 20008:
+            #     print(pnl, "  --  ", trade[7])
             pnl += trade[7]
-            # print(self.trades[i][6])
-        self.equity[index] = self.cash + pnl
+
+        # if index > 20008:
+        #     print(self.cash, self.total_pnl, pnl)
+
+        self.equity[index] = self.cash + self.total_pnl + pnl
 
     # def from_trades(self, trades, progress_proxy):
     def print_bar(self, length, fill, iteration, total):
@@ -448,17 +495,9 @@ class Backtester:
         A trade row contains the following:
         ["Index", "Direction", "EntryTime", "EntryPrice", "ExitTime", "ExitPrice", "Volume", "TP", "SL", "PNL", "Commission", "Active"]
         """
-        # self.trades = np.zeros((len(trades), 3), dtype=("int", "int", "bool"))
-        # dtype = [("col1", "int32")]
-        # self.trades = np.zeros((4, 1), dtype=dtype)
-
-        # test()
         self.trades = np.zeros((len(trades), 10), dtype=float32)
         self.closed_trades = np.zeros((len(trades), 10), dtype=float32)
         self.number_of_closed_trades = 0
-
-        # print(close)
-        # print(self.date)
 
         self.prev_percentage = 0
 
@@ -467,7 +506,7 @@ class Backtester:
             curr_trade = trades[last_trade_index]
 
             if last_trade_index < len(trades):
-                self.update_trades_pnl(i)
+                self.update_trades_pnl(i, self.active_trades)
                 self.check_trades_to_close(self.date[i], i)
                 self.update_equity(i, self.active_trades)
 
@@ -481,21 +520,24 @@ class Backtester:
                         price = self.ask[i]
                     else:
                         price = self.bid[i]
+
+                    commission = 0
+                    if self.commission_type == "fixed":
+                        commission = self.commission
                     self.trades[last_trade_index] = [
                         last_trade_index,
                         direction,
                         entry_time,
-                        price,
+                        price + self.slippage,
                         exit_time,  # Exit Time
                         -1,  # Exit Price
                         volume,
                         0,  # PNL
-                        0,  # Need to implement commission
+                        commission,  # Need to implement commission
                         True,
                     ]
                     # print("Entering a trade")
                     last_trade_index += 1
-
                     self.update_active_trades()
 
         self.trades = self.trades[:last_trade_index]

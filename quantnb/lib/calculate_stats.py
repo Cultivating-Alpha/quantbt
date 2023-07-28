@@ -35,6 +35,7 @@ def winning_streak(trades):
 
 def calculate_stats(data, bt):
     trades = output_trades(bt)
+    print(trades)
     t = PrettyTable(["Label", "Value"])
 
     trades["EntryTime"] = pd.to_datetime(trades["EntryTime"], unit="ms")
