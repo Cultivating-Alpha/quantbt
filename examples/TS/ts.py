@@ -7,12 +7,11 @@ import os
 # |%%--%%| <NaCTS8fbAy|96njygS0NI>
 
 
-assets = find_files("./data/", "arbitrum")
+assets = find_files("./data/", "binance")
 assets
 
 
 def test(asset_index=0):
-    assets = find_files("./data/", "arbitrum")
     data = pd.read_parquet(assets[asset_index])
     print(data)
     data = data[303:]
@@ -22,8 +21,9 @@ def test(asset_index=0):
     print(bt.stats)
 
 
-test(0)  # BTC
-test(1)  # ETH
+assets[1]
+# test(0)  # BTC
+# test(1)  # ETH
 
 # pf = single((113, 35, 3, 0.5), use_sl=False)
 # pf.print_trades()

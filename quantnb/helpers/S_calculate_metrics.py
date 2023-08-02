@@ -27,8 +27,6 @@ def calculate_metrics(equity, data, final_value, initial_capital):
     dd = calculate_dd(equity)
 
     total_return = ((final_value / initial_capital) - 1) * 100
-    total_return = ((final_value / initial_capital) - 1) * 100
-    total_return = final_value * 100 / initial_capital
     ratio = total_return / abs(dd)
 
     close = data.Close.values

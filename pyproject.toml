@@ -27,3 +27,6 @@ prettytable = "^3.8.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.extras]
+dev_tools = ["python-binance", "quantstats", "seaborn", "ipython", "pandas-ta", "prettytable"]

@@ -59,9 +59,9 @@ class S_base:
         if self.use_sl:
             sl = self.sl.values
 
-        size = np.full_like(close, 1)
-        multiplier = 1
-        size = size * multiplier
+        # size = np.full_like(close, 1)
+        # multiplier = 1
+        # size = size * multiplier
 
         self.bt.from_signals(self.entries, self.exits, sl, use_sl)
 
