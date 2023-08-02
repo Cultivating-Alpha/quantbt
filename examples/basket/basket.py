@@ -6,21 +6,61 @@ from quantnb.strategies.S_base import S_base
 from quantnb.lib import find_files, plotting
 from quantnb.indicators import supertrend, SMA, cross_below, cross_above
 from quantnb.helpers.S_calculate_metrics import calculate_dd
+from quantnb.lib.output_trades import output_trades
+from quantnb.lib import plotting
+
+assets = find_files("./data", "quickswap")
+
+datas = {}
+for asset in assets:
+    print(asset)
+    df = pd.read_parquet(asset)
+    df.rename(
+        {"Open": "open", "High": "high", "Low": "low", "Close": "close"},
+        axis=1,
+        inplace=True,
+    )
+    datas[asset.split("/")[2]] = df
+
+assets = find_files("./data", "uniswap_v2")
+
+for asset in assets:
+    print(asset)
+    df = pd.read_parquet(asset)
+    df.rename(
+        {"Open": "open", "High": "high", "Low": "low", "Close": "close"},
+        axis=1,
+        inplace=True,
+    )
+    datas[asset.split("/")[2]] = df
+
+
+assets = find_files("./data", "uniswap_v3-ethereum-WETH-USDC-1h")
+# (ChainId.ethereum, "uniswap-v3", "WETH", "USDC", 0.0005) # Ether-USD Coin https://tradingstrategy.ai/trading-view/ethereum/uniswap-v3/eth-usdc-fee-5#30d
+
+
+for asset in assets:
+    print(asset)
+    df = pd.read_parquet(asset)
+    df.rename(
+        {"Open": "open", "High": "high", "Low": "low", "Close": "close"},
+        axis=1,
+        inplace=True,
+    )
+    datas[asset.split("/")[2]] = df
+
 
 assets = find_files("./data", "binance")
 
-datas = {}
 for asset in assets:
     datas[asset.split("-")[1]] = pd.read_parquet(asset)
 
 
-assets
+keys = list(datas.keys())
+keys
+
 
 # |%%--%%| <h1NJ8eCQd7|s4tvHELefh>
-
-data = datas["BTCUSDT"]
-data
-# data = data[0:3000]
 
 
 class S_basket(S_base):
@@ -38,10 +78,11 @@ class S_basket(S_base):
 
         self.supert = supert
         self.sma = sma
+        a = cross_above(df.Close.values, supert)
 
         self.entries = np.logical_and(
-            cross_above(df.Close.values, supert), data.close > sma
-        ).values
+            cross_above(df.Close.values, supert), df.Close.values > sma
+        )
         self.exits = cross_below(df.Close.values, supert)
 
     def get_signals(self, params):
@@ -62,18 +103,98 @@ class S_basket(S_base):
         )
 
 
-stats = pd.DataFrame()
+MAIN_OFFSET = 20000
+print(f"Data length is {MAIN_OFFSET}")
+
+
+def backtest(datas, key, offset, params):
+    stats = pd.DataFrame()
+    initial_capital = 10000
+    # data = datas["ETHUSDT"]
+    # data = data[49000:]
+
+    # data[27468:]
+    # data
+    data = datas[key]
+    # data = data[offset:]
+    data = data[-MAIN_OFFSET:]
+
+    st = S_basket(data, commission=0.0005, initial_capital=initial_capital)
+    st.backtest(params)
+    bt = st.bt
+
+    trades = output_trades(st.bt, concatenate=False)
+    print(len(trades))
+    # print(st.stats)
+    # print(data)
+    return st
+
+
+key = keys[0]
+print("=======================================================", key)
+backtest(datas, key, 0, (10, 3, 200))
+
+print()
+key = keys[1]
+print("=======================================================", key)
+backtest(datas, key, 3050, (10, 3, 200))
+
+
+print()
+key = keys[2]
+print("=======================================================", key)
+uni_bt = backtest(datas, key, 27448, (10, 3, 200))
+
+print()
+key = keys[3]
+print("=======================================================", key)
+bnb_bt = backtest(datas, key, 27448, (10, 3, 200))
+
+
+# |%%--%%| <s4tvHELefh|PhNdvFWLZe>
+
+
+#
+quick = datas[keys[0]][-MAIN_OFFSET:]
+uni = datas[keys[1]][-MAIN_OFFSET:]
+v3 = datas[keys[2]][-MAIN_OFFSET:]
+bnb = datas[keys[3]][-MAIN_OFFSET:]
+#
+correlation_matrix = quick.corrwith(uni)
+
+uni.corrwith(bnb)
+
+
+df = pd.DataFrame(
+    {
+        "uni": uni.close.values,
+        "bnb": bnb.close.values,
+        "quick": quick.close.values,
+        "v3": v3.close.values,
+    }
+)
+df.tail()
+
+# plotting.mpf_plot(quick, [])
+plotting.mpf_plot(
+    bnb,
+    [
+        plotting.add_line_plot(bnb_bt.supert, color="red"),
+        # plotting.add_line_plot(bnb_bt.sma, color="red"),
+        # plotting.add_line_plot(uni.close.values, color="gray"),
+        plotting.add_line_plot(uni_bt.supert, color="black"),
+        # plotting.add_line_plot(uni_bt.sma, color="orange"),
+    ],
+    type="line",
+)
+# plotting.mpf_plot(bnb, [])
+
+
+# |%%--%%| <PhNdvFWLZe|UaV6o1ZohE>
+
 INITIAL_CAPITAL = 1000 * 13
 initial_capital = INITIAL_CAPITAL / len(datas.keys())
 equities = []
-data = datas["BTCUSDT"]
-st = S_basket(data, commission=0.0005, initial_capital=initial_capital)
-st.backtest((10, 3, 200))
-
-initial_capital
-st.stats
-
-# |%%--%%| <s4tvHELefh|UaV6o1ZohE>
 
 for key in datas:
     data = datas[key]
@@ -84,7 +205,6 @@ for key in datas:
     stats = pd.concat([stats, st.stats])
 stats.index = datas.keys()
 
-stats
 
 eq = pd.DataFrame()
 for index, key in enumerate(datas):

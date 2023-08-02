@@ -3,7 +3,6 @@ import re
 
 
 def find_files(directory, regex_filter):
-    print(directory)
     # Get all files under the directory
     file_list = []
     for root, dirs, files in os.walk(directory):

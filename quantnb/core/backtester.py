@@ -85,6 +85,8 @@ class Backtester:
         self.multiplier = multiplier
         if default_size is not None:
             self.default_size = default_size
+        else:
+            self.default_size = -1
 
         if slippage is not None:
             self.slippage = slippage
@@ -135,7 +137,7 @@ class Backtester:
 
         # MISC
         self.orders = np.zeros((len(self.close), 5), dtype=float32)
-        self.trades = np.zeros((len(self.close), 8), dtype=float32)
+        self.trades = np.zeros((len(self.close), 10), dtype=float32)
 
     # ===================================================================================== #
     #                                       HELPERS                                         #
@@ -212,7 +214,7 @@ class Backtester:
         self.new_order(i, order_type, close)
 
         if self.commission_type == "percentage":
-            print("need to update commissions calculation of percentage trades")
+            # print("need to update commissions calculation of percentage trades")
             entry_fee = self.entry_price * self.entry_size * self.commission
         elif self.commission_type == "fixed":
             fee = fee * 2
@@ -222,15 +224,18 @@ class Backtester:
         self.total_pnl += pnl
 
         self.trades[self.trade_idx, :] = [
+            self.trade_idx,
+            self.current_trade_type,
             self.entry_time,
-            self.date[i],
             self.entry_price,
+            self.date[i],
             exit_price,
+            self.entry_size,
             pnl,
             fee,
-            self.entry_size,
-            self.current_trade_type,
+            False,
         ]
+
         self.trade_idx += 1
         self.entry_size = 0
         self.in_position = False
@@ -257,7 +262,7 @@ class Backtester:
                         stop_loss = sl[i]
 
                     self.entry_size = self.cash / self.close[i]
-                    if self.default_size is not None:
+                    if self.default_size > 0:
                         self.entry_size = self.default_size
                     self.go_long(self.close[i], i)
 
@@ -277,7 +282,8 @@ class Backtester:
                 close[i], self.entry_size, self.commission, self.commission_type
             )
             if self.commission_type == "percentage":
-                print("missing")
+                # print("missing")
+                a = 4
             else:
                 fee = fee * 2
             # pnl = 0
@@ -286,6 +292,7 @@ class Backtester:
             self.equity[i] = self.initial_capital + self.total_pnl
 
         self.final_value = self.equity[-1]
+        self.trades = self.trades[: self.trade_idx, :]
 
     def add_position(self, price, volume):
         self.total_volume += volume

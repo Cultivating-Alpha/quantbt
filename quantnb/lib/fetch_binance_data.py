@@ -16,8 +16,8 @@ def get_data(asset, tf=Client.KLINE_INTERVAL_1HOUR, days="3000 day ago UTC"):
 
 
 assets = [
-    "BTCUSDT",
     "ETHUSDT",
+    "BTCUSDT",
     "DOGEUSDT",
     "BNBUSDT",
     "ATOMUSDT",
