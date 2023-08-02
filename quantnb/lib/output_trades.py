@@ -1,29 +1,24 @@
 import pandas as pd
 import numpy as np
+from quantnb.core.enums import CommissionType, Trade
 
 
-def output_trades(bt, concatenate=True):
-    trades = bt.trades
-    if concatenate:
-        trades = np.concatenate((bt.closed_trades, bt.active_trades))
+TRADE_ITEMS_COUNT = Trade.__len__()
+
+all_names = [trade.name for trade in Trade]
+all_names
+
+
+def output_trades(bt, unit="ms"):
+    # trades = np.concatenate((bt.closed_trades, bt.active_trades))
+    trades = bt.active_trades
 
     trades = pd.DataFrame(
         trades,
-        # bt.trades,
-        columns=[
-            "Index",
-            "Direction",
-            "EntryTime",
-            "EntryPrice",
-            "ExitTime",
-            "ExitPrice",
-            "Volume",
-            "PNL",
-            "Commission",
-            "Active",
-        ],
+        columns=all_names,
     )
+    print(trades)
 
-    trades["EntryTime"] = pd.to_datetime(trades["EntryTime"], unit="s")
-    trades["ExitTime"] = pd.to_datetime(trades["ExitTime"], unit="s")
+    trades["EntryTime"] = pd.to_datetime(trades["EntryTime"], unit=unit)
+    trades["ExitTime"] = pd.to_datetime(trades["ExitTime"], unit=unit)
     return trades

@@ -1,9 +1,9 @@
 from enum import IntEnum
 
 
-class OrderType(IntEnum):
-    LONG = 0
-    SHORT = 1
+class OrderDirection(IntEnum):
+    SHORT = 0
+    LONG = 1
 
 
 class CommissionType(IntEnum):
@@ -32,7 +32,8 @@ class Trade(IntEnum):
     Volume = 6
     TP = 7
     SL = 8
-    PNL = 9
-    Commission = 10
-    Active = 11
-    Extra = 12
+    TIME_SL = 9
+    PNL = 10
+    Commission = 11
+    Active = 12
+    Extra = 13

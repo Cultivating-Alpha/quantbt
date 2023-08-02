@@ -20,6 +20,7 @@ portfolio = [
     ("equity", float32[:]),
     ("size", float32),
     ("size_type", int32),
+    ("data_type", int32),
 ]
 trade_management = [
     ("current_trade_type", int32),
@@ -28,15 +29,14 @@ trade_management = [
     ("slippage", float32),
     ("slippage_type", int32),
     ("active_trades", float32[:, :]),
+    ("last_active_trade_index", int32),
     ("closed_trades", float32[:, :]),
-    ("number_of_closed_trades", int32),
+    ("last_closed_trade_index", int32),
 ]
 misc = [
     ("order_idx", int32),
     ("trade_idx", int32),
     ("orders", float32[:, :]),
-    ("trades", float32[:, :]),
-    ("final_trades", float32[:, :]),
 ]
 position_management = [
     ("total_volume", float32),
