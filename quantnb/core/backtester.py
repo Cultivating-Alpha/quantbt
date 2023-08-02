@@ -1,157 +1,75 @@
-from cycler import mul
 import numpy as np
-from quantnb.core.enums import OrderType
+from quantnb.core.enums import OrderType, CommissionType, SlippageType, Trade, DataType
 import numpy as np
 import numba as nb
-from numba import float32, int32, int64
-from numba import from_dtype, njit
+from numba import float32
+from quantnb.core import spec, print_bar, calculate_fees
 
-from typing import List
-
-dt = np.dtype([("x", np.float32), ("y", np.float32)])
-nb_dt = from_dtype(dt)
+TRADE_ITEMS_COUNT = Trade.__len__()
 
 
-@nb.experimental.jitclass
+@nb.experimental.jitclass(spec)
 class Backtester:
-    # DATA
-    open: float32[:]
-    high: float32[:]
-    low: float32[:]
-    close: float32[:]
-    volume: float32[:]
-    date: int64[:]
-
-    # Bid Ask Data
-    bid: float32[:]
-    ask: float32[:]
-
-    # PORTFOLIO
-    initial_capital: float32
-    cash: float32
-    final_value: float32
-    total_pnl: float32
-    multiplier: float32
-    equity: float32[:]
-    default_size: float32
-
-    # TRADE MANAGEMENT
-    in_position: nb.boolean
-    stop_loss: float32
-    entry_time: int32
-    entry_size: float32
-    entry_price: float32
-    current_trade_type: int32
-    commission: float32
-    commission_type: str
-    slippage: float32
-    slippage_type: str
-
-    # MISC
-    order_idx: int32
-    trade_idx: int32
-    orders: float32[:, :]
-    trades: float32[:, :]
-    final_trades: float32[:, :]
-
-    # TRADE MANAGEMENT
-    active_trades: float32[:, :]
-    closed_trades: float32[:, :]
-    number_of_closed_trades: int32
-
-    # POSITION MANAGEMENT
-    total_volume: float32
-    weighted_sum: float32
-    average_price: float32
-
-    # GENERAL
-    prev_percentage: float32
-
     def __init__(
         self,
         initial_capital=10000,
+        multiplier=1,  # leverage multiplier
         commission=0.0,
-        commission_type="percentage",
-        multiplier=1,
-        default_size=None,
-        slippage=None,
-        slippage_type="fixed",
+        commission_type=2,
+        size=-1,
+        size_type=1,
+        slippage=0,
+        slippage_type=1,
+        data_type=0,
+        open=None,
+        high=None,
+        low=None,
+        close=None,
+        bid=None,
+        ask=None,
+        date=None,
     ):
         # PORTFOLIO
-        self.cash = initial_capital
         self.initial_capital = initial_capital
         self.final_value = initial_capital
         self.total_pnl = 0.0
         self.multiplier = multiplier
-        if default_size is not None:
-            self.default_size = default_size
-        else:
-            self.default_size = -1
 
-        if slippage is not None:
-            self.slippage = slippage
-        self.slippage_type = slippage_type
+        # SIZE
+        self.size = size
+        self.size_type = size_type
 
-        # TRADE MANAGEMENT
-        self.in_position = False
-        self.stop_loss = 0
-        self.entry_time = 0
-        self.entry_size = 0
-        self.entry_price = 0
+        # COMMISSIONS
         self.commission = commission
         self.commission_type = commission_type
 
-        # MISC
-        self.order_idx = 0
-        self.trade_idx = 0
+        # SLIPPAGE
+        self.slippage = slippage
+        self.slippage_type = slippage_type
 
-        # POSITION MANAGEMENT
-        self.total_volume = 0
-        self.weighted_sum = 0
-
-    def set_bid_ask_data(self, date, bid, ask, volume=None):
         # DATA
-        self.date = date
-        self.bid = bid
-        self.ask = ask
-        self.close = bid
-        if volume is not None:
-            self.volume = volume
+        # self.date = date
+        if data_type == DataType.OHLC.value:
+            if open is not None:
+                self.open = open
+                self.high = high
+                self.low = low
+                self.close = close
+        else:
+            if bid is not None:
+                self.bid = bid
+                self.ask = ask
+            self.close = self.bid
 
-        self.set_general()
-
-    def set_data(self, open, high, low, close, date):
-        # DATA
-        self.open = open
-        self.high = high
-        self.low = low
-        self.close = close
-        self.date = date
-
-        self.set_general()
-
-    def set_general(self):
         # PORTFOLIO
         self.equity = np.empty(len(self.close), dtype=float32)
-        self.equity[0] = self.cash
+        self.equity[0] = self.initial_capital
 
         # MISC
-        self.orders = np.zeros((len(self.close), 5), dtype=float32)
-        self.trades = np.zeros((len(self.close), 10), dtype=float32)
+        # self.trades = np.zeros((len(self.close), len(Trade)), dtype=float32)
+        self.trades = np.zeros((len(self.close), TRADE_ITEMS_COUNT), dtype=float32)
 
     # ===================================================================================== #
-    #                                       HELPERS                                         #
-    # ===================================================================================== #
-
-    @staticmethod
-    def calculate_fees(price, size, commission, commission_type):
-        if commission_type == "percentage":
-            return price * size * commission
-        else:
-            return commission
-
-    # ===================================================================================== #
-
     #                                POSITION MANAGEMENT                                    #
     # ===================================================================================== #
     def new_order(self, i, order_type, close):
@@ -167,7 +85,7 @@ class Backtester:
     def go_long(self, price, i):
         # self.entry_size = self.cash / self.close[i]
 
-        fee = self.calculate_fees(
+        fee = calculate_fees(
             price, self.entry_size, self.commission, self.commission_type
         )
         self.cash -= self.entry_size * price - fee
@@ -294,87 +212,9 @@ class Backtester:
         self.final_value = self.equity[-1]
         self.trades = self.trades[: self.trade_idx, :]
 
-    def add_position(self, price, volume):
-        self.total_volume += volume
-        self.weighted_sum += price * volume
-        self.average_price = self.weighted_sum / self.total_volume
-
-    def remove_position(self, price, volume):
-        self.total_volume -= volume
-        self.weighted_sum -= price * volume
-        if self.total_volume > 0:
-            self.average_price = self.weighted_sum / self.total_volume
-        else:
-            self.average_price = 0
-
-    def backtest_bid_ask(
-        self,
-        entry,
-        exit,
-        entry_volume,
-        exit_volume,
-        sl=None,
-        use_sl=False,
-        mode=1,
-        debug=False,
-    ):
-        self.close = self.bid
-        bid = self.bid
-
-        if debug:
-            print("Backtest launched")
-
-        for i in range(1, len(bid)):
-            if debug:
-                print(f"========== {i}")
-            # if entry_volume[i] > 0:
-            #     print(entry_volume[i])
-            if entry[i]:
-                self.entry_size = entry_volume[i]
-                self.go_long(self.ask[i], i)
-                self.add_position(bid[i], entry_volume[i])
-                print("========== GOING LONG")
-                print("volume", entry_volume[i])
-            if exit[i]:
-                print("========== Close Position")
-                print(self.cash)
-
-                self.close_position(i, bid[i])
-                self.remove_position(bid[i], exit_volume[i])
-
-            fee = self.calculate_fees(
-                bid[i], self.total_volume, self.commission, self.commission_type
-            )
-            self.equity[i] = self.cash + self.total_volume * bid[i] - fee
-
-        print("========== DONE =========")
-        print(self.average_price)
-        print(self.total_volume)
-        self.final_value = self.equity[-1]
-
     def from_orders(self, size):
-        close = self.bid
-        for i in range(len(self.bid)):
-            volume = size[i]
-            if volume != 0:
-                # If the volume is positive, then we take from buy and take the ask price
-                if volume > 0:
-                    price = self.ask[i]
-                else:
-                    price = self.bid[i]
-
-                self.total_volume += volume
-                self.weighted_sum += price * volume
-                self.average_price = self.weighted_sum / self.total_volume
-
-            self.equity[i] = (
-                self.cash + (self.average_price - close[i]) * self.weighted_sum
-            )
-
-            # if self.equity[i] < 99994.02:
-            #     print("ASD")
-
-        print(self.weighted_sum)
+        print("need implementing")
+        return
 
     def was_trade_filled(self, i, ohlc, last_trade, last_trade_index=None, debug=False):
         tick = ohlc[i]
@@ -483,17 +323,6 @@ class Backtester:
 
         self.equity[index] = self.cash + self.total_pnl + pnl
 
-    # def from_trades(self, trades, progress_proxy):
-    def print_bar(self, length, fill, iteration, total):
-        percentage = iteration * 100 / total
-        if percentage - self.prev_percentage > 10:
-            progress = iteration / float(total)
-            filled_length = int(length * progress)
-            bar = fill * filled_length + "-" * (length - filled_length)
-            print(np.round(percentage), f"% | {bar} |")
-            self.prev_percentage = percentage
-            # print(f"\r{prefix} |{bar}| {progress:.1%}", end=end)
-
     def from_trades(self, trades):
         last_trade_index = 0
         close = self.bid
@@ -509,7 +338,9 @@ class Backtester:
         self.prev_percentage = 0
 
         for i in range(len(self.bid)):
-            self.print_bar(40, "█", i, len(self.bid))
+            self.prev_percentage = print_bar(
+                40, "█", i, len(self.bid), self.prev_percentage
+            )
             curr_trade = trades[last_trade_index]
 
             if last_trade_index < len(trades):
@@ -549,3 +380,16 @@ class Backtester:
 
         self.trades = self.trades[:last_trade_index]
         self.closed_trades = self.closed_trades[: self.number_of_closed_trades]
+
+
+from quantnb.indicators.random_data import random_data
+
+date, open, high, low, close, df = random_data()
+bt = Backtester(
+    # open=open, high=high, low=low, close=close, date=date, data_type=DataType.OHLC
+    bid=open,
+    ask=close,
+    date=date,
+    data_type=DataType.BID_ASK,
+)
+bt

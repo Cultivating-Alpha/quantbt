@@ -7,6 +7,7 @@ Given a seed, generate random candlesticks data
 # import random
 import pandas as pd
 import numpy as np
+from quantnb.lib.time_manip import time_manip
 
 
 def random_data(seed=None):
@@ -42,10 +43,14 @@ def random_data(seed=None):
         }
     )
     ohlc_data.set_index("date", inplace=True)
+    ohlc_data.dtype = np.float32
+
+    date = time_manip.convert_datetime_to_s(ohlc_data.index).values
     return (
-        ohlc_data["open"].values,
-        ohlc_data["high"].values,
-        ohlc_data["low"].values,
-        ohlc_data["close"].values,
+        date,
+        ohlc_data.open.to_numpy(dtype=np.float32),
+        ohlc_data.high.to_numpy(dtype=np.float32),
+        ohlc_data.low.to_numpy(dtype=np.float32),
+        ohlc_data.close.to_numpy(dtype=np.float32),
         ohlc_data,
     )
