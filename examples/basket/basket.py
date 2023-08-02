@@ -14,9 +14,12 @@ for asset in assets:
     datas[asset.split("-")[1]] = pd.read_parquet(asset)
 
 
+assets
+
 # |%%--%%| <h1NJ8eCQd7|s4tvHELefh>
 
 data = datas["BTCUSDT"]
+data
 # data = data[0:3000]
 
 
@@ -67,7 +70,11 @@ data = datas["BTCUSDT"]
 st = S_basket(data, commission=0.0005, initial_capital=initial_capital)
 st.backtest((10, 3, 200))
 
+initial_capital
+st.stats
+
 # |%%--%%| <s4tvHELefh|UaV6o1ZohE>
+
 for key in datas:
     data = datas[key]
     st = S_basket(data, commission=0.0005, initial_capital=initial_capital)
