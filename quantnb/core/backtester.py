@@ -57,8 +57,9 @@ class Backtester:
                 self.close = close
         else:
             if bid is not None:
-                self.bid = bid
-                self.ask = ask
+                print(bid)
+                # self.bid = bid
+                # self.ask = ask
             self.close = self.bid
 
         # PORTFOLIO
@@ -331,9 +332,11 @@ class Backtester:
         A trade row contains the following:
         ["Index", "Direction", "EntryTime", "EntryPrice", "ExitTime", "ExitPrice", "Volume", "TP", "SL", "PNL", "Commission", "Active"]
         """
+        print(self.trades)
         self.trades = np.zeros((len(trades), 10), dtype=float32)
         self.closed_trades = np.zeros((len(trades), 10), dtype=float32)
         self.number_of_closed_trades = 0
+        return 0
 
         self.prev_percentage = 0
 
@@ -382,14 +385,14 @@ class Backtester:
         self.closed_trades = self.closed_trades[: self.number_of_closed_trades]
 
 
-from quantnb.indicators.random_data import random_data
-
-date, open, high, low, close, df = random_data()
-bt = Backtester(
-    # open=open, high=high, low=low, close=close, date=date, data_type=DataType.OHLC
-    bid=open,
-    ask=close,
-    date=date,
-    data_type=DataType.BID_ASK,
-)
-bt
+# from quantnb.indicators.random_data import random_data
+#
+# date, open, high, low, close, df = random_data()
+# bt = Backtester(
+#     # open=open, high=high, low=low, close=close, date=date, data_type=DataType.OHLC
+#     bid=open,
+#     ask=close,
+#     date=date,
+#     data_type=DataType.BID_ASK,
+# )
+# bt
