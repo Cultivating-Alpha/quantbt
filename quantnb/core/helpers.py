@@ -2,7 +2,7 @@ import numpy as np
 from numba import njit
 
 
-@njit
+@njit(cache=True)
 def print_bar(iteration, total, prev_percentage, length=40, fill="█"):
     percentage = iteration * 100 / total
     if percentage - prev_percentage >= 10:

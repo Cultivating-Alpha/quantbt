@@ -10,15 +10,15 @@ all_names
 
 
 def output_trades(bt, unit="ms"):
-    # trades = np.concatenate((bt.closed_trades, bt.active_trades))
-    trades = bt.active_trades
+    trades = np.concatenate((bt.closed_trades, bt.active_trades))
+    # trades = bt.active_trades
 
     trades = pd.DataFrame(
         trades,
         columns=all_names,
     )
-    print(trades)
-
     trades["EntryTime"] = pd.to_datetime(trades["EntryTime"], unit=unit)
     trades["ExitTime"] = pd.to_datetime(trades["ExitTime"], unit=unit)
+    # trades["TIME_SL"] = pd.to_datetime(trades["TIME_SL"], unit=unit)
+
     return trades

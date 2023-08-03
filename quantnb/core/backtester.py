@@ -1,4 +1,5 @@
 import numpy as np
+import numba as nb
 from quantnb.core.enums import (
     OrderDirection,
     CommissionType,
@@ -6,7 +7,6 @@ from quantnb.core.enums import (
     Trade,
     DataType,
 )
-import numpy as np
 import quantnb.core.PNL as PNL
 from quantnb.core import (
     spec,
@@ -20,7 +20,7 @@ from quantnb.core import (
 TRADE_ITEMS_COUNT = Trade.__len__()
 
 
-# @nb.experimental.jitclass(spec)
+@nb.experimental.jitclass(spec)
 class Backtester:
     def __init__(
         self,
@@ -79,16 +79,13 @@ class Backtester:
             self.close = self.bid
 
         # PORTFOLIO
-        self.equity = np.empty(len(self.close), dtype=np.float32)
+        length = len(self.close)
+        self.equity = np.empty(length, dtype=np.float32)
         self.equity[0] = self.initial_capital
 
         # MISC
-        self.active_trades = np.zeros(
-            (len(self.close), TRADE_ITEMS_COUNT), dtype=np.float32
-        )
-        self.closed_trades = np.zeros(
-            (len(self.close), TRADE_ITEMS_COUNT), dtype=np.float32
-        )
+        self.active_trades = np.zeros((0, TRADE_ITEMS_COUNT), dtype=np.float64)
+        self.closed_trades = np.zeros((length, TRADE_ITEMS_COUNT), dtype=np.float64)
         self.prev_percentage = 0
 
     # # ===================================================================================== #
@@ -252,72 +249,73 @@ class Backtester:
         else:
             return False
 
-    # def calculate_trade_exit_pnl(self, trade, exit_price):
-    #     direction = trade[1]
-    #     trade_price = trade[3]
-    #     trade_volume = trade[6]
-    #
-    #     commission = 0
-    #     if self.commission_type == "fixed":
-    #         commission = self.commission
-    #
-    #     if direction == 1:  # LONG
-    #         pnl = (exit_price - trade_price) * trade_volume - commission
-    #     else:
-    #         pnl = (trade_price - exit_price) * trade_volume - commission
-    #     return pnl
-
-    def check_trades_to_close(self, current_tick, index):
+    def update_equity(self, index):
+        pnl = 0
         for trade in self.active_trades:
-            if trade[Trade.TIME_SL.value] < current_tick:
-                print("need to close trade")
-                direction = trade[Trade.Direction.value]
-                exit_price = calculate_exit_price(
-                    self.slippage, direction, None, self.bid[index], self.ask[index]
-                )
+            pnl += trade[7]
 
-                new_trade = trade
-                new_trade[Trade.Active.value] = False
-                new_trade[Trade.ExitPrice.value] = exit_price
-                new_trade[Trade.PNL.value] = PNL.calculate_trade_exit_pnl(trade)
+        self.equity[index] = self.initial_capital + self.total_pnl + pnl
 
-                self.closed_trades[self.last_closed_trade_index] = new_trade
-                self.last_closed_trade_index += 1
-
-                self.total_pnl = PNL.calculate_realized_pnl(self.closed_trades)
-
-    #             self.update_active_trades()
+    # def check_trades_to_close(self, current_tick, index):
+    #     if len(self.active_trades) == 0:
+    #         return
+    #     has_new_trade = False
+    #     for trade in self.active_trades:
+    #         if trade[Trade.TIME_SL.value] < current_tick:
+    #             # print("need to close trade")
+    #             direction = trade[Trade.Direction.value]
+    #             exit_price = calculate_exit_price(
+    #                 self.slippage, direction, None, self.bid[index], self.ask[index]
+    #             )
     #
+    #             # new_trade = trade
+    #             # new_trade[Trade.Active.value] = False
+    #             # new_trade[Trade.ExitPrice.value] = exit_price
+    #             # new_trade[Trade.ExitTime.value] = current_tick
+    #             # new_trade[Trade.PNL.value] = PNL.calculate_trade_exit_pnl(trade)
+    #             #
+    #             # # Update Closed Trades
+    #             # self.closed_trades[self.last_closed_trade_index] = new_trade
+    #             # self.last_closed_trade_index += 1
+    #             #
+    #             # # Update total PNL
+    #             # self.total_pnl = PNL.calculate_realized_pnl(self.closed_trades)
+    #             #
+    #             # trade[Trade.Active.value] = False
+    #             has_new_trade = True
     #
-    # def update_equity(self, index, active_trades):
-    #     pnl = 0
-    #     for trade in active_trades:
-    #         # if index > 20008:
-    #         #     print(pnl, "  --  ", trade[7])
-    #         pnl += trade[7]
+    #     # Update Active Trades
+    #     if has_new_trade:
+    #         # self.active_trades[trade[Trade.Index.value]][Trade.Active.value] = False
+    #         print("Have had a trade closed")
+    #         # print(index)
+    #         active_column = self.active_trades[:, Trade.Active.value]
+    #         mask = active_column == True
+    #         self.active_trades = self.active_trades[mask]
+    #         # self.last_active_trade_index -= 1
+    #     return
     #
-    #     # if index > 20008:
-    #     #     print(self.cash, self.total_pnl, pnl)
-    #
-    #     self.equity[index] = self.cash + self.total_pnl + pnl
-
-    def update_trades_pnl(self, index):
-        self.active_trades = PNL.update_trades_pnl(
-            self.active_trades,
-            self.last_active_trade_index,
-            commission=self.commission,
-            commission_type=self.commission_type,
-            data_type=self.data_type,
-            price_value=self.close[index],
-            bid=self.bid[index],
-            ask=self.ask[index],
-        )
+    # def update_trades_pnl(self, index):
+    #     self.active_trades = PNL.update_trades_pnl(
+    #         self.active_trades,
+    #         self.last_active_trade_index,
+    #         commission=self.commission,
+    #         commission_type=self.commission_type,
+    #         data_type=self.data_type,
+    #         price_value=self.close[index],
+    #         bid=self.bid[index],
+    #         ask=self.ask[index],
+    #     )
 
     def add_trade(self, *args):
-        # print("Adding new trade")
-        trade = create_new_trade(*args)
-        self.active_trades[self.last_active_trade_index] = trade
+        # if self.debug:
+        #     print("Adding new trade")
+        if len(self.active_trades) >= 100:
+            return
         self.last_active_trade_index += 1
+        self.active_trades = create_new_trade(
+            self.active_trades, self.last_active_trade_index, *args
+        )
 
     def from_trades(self, trades):
         last_trade_index = 0
@@ -343,53 +341,18 @@ class Backtester:
                 price = calculate_trade_price(
                     self.slippage, direction, None, self.bid[i], self.ask[i]
                 )
-
                 self.add_trade(
                     i, direction, curr_trade[0], price, volume, 0, 0, exit_time, 0
                 )
+                last_trade_index += 1
 
-            self.update_trades_pnl(i)
-            self.check_trades_to_close(self.date[i], i)
+            # self.update_trades_pnl(i)
+            # self.check_trades_to_close(self.date[i], i)
+            # self.update_equity(i)
 
-        self.active_trades = self.active_trades[: self.last_active_trade_index]
+        print("done")
+        self.closed_trades = self.closed_trades[: self.last_closed_trade_index]
         return 0
-        #     if last_trade_index < len(trades):
-        #         self.update_trades_pnl(i, self.active_trades)
-        #         self.check_trades_to_close(self.date[i], i)
-        #         self.update_equity(i, self.active_trades)
-        #
-        #         if self.was_trade_filled(i, self.date, curr_trade[0], debug=False):
-        #             entry_time = curr_trade[0]
-        #             exit_time = curr_trade[1]
-        #             volume = curr_trade[2]
-        #             direction = curr_trade[3]
-        #
-        #             if direction == 1:
-        #                 price = self.ask[i]
-        #             else:
-        #                 price = self.bid[i]
-        #
-        #             commission = 0
-        #             if self.commission_type == "fixed":
-        #                 commission = self.commission
-        #             self.trades[last_trade_index] = [
-        #                 last_trade_index,
-        #                 direction,
-        #                 entry_time,
-        #                 price + self.slippage,
-        #                 exit_time,  # Exit Time
-        #                 -1,  # Exit Price
-        #                 volume,
-        #                 0,  # PNL
-        #                 commission,  # Need to implement commission
-        #                 True,
-        #             ]
-        #             # print("Entering a trade")
-        #             last_trade_index += 1
-        #             self.update_active_trades()
-        #
-        # self.trades = self.trades[:last_trade_index]
-        # self.closed_trades = self.closed_trades[: self.number_of_closed_trades]
 
 
 # from quantnb.indicators.random_data import random_data
