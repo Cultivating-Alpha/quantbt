@@ -20,7 +20,6 @@ data_specs = [
 trade_specs = [
     ("data_type", int32),
     ("last_trade_index", int32),
-    ("trades", float64[:, :]),
     ("active_trades", float64[:, :]),
     ("closed_trades", float64[:, :]),
     ("last_closed_trade_index", int32),

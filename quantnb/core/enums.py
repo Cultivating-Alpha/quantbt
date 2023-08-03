@@ -29,17 +29,18 @@ class OrderType(IntEnum):
 
 # ["Index", "Direction", "EntryTime", "EntryPrice", "ExitTime", "ExitPrice", "Volume", "TP", "SL", "PNL", "Commission", "Active"]
 class Trade(IntEnum):
-    Index = 0
-    Direction = 1
-    EntryTime = 2
-    EntryPrice = 3
-    ExitTime = 4
-    ExitPrice = 5
-    Volume = 6
-    TP = 7
-    SL = 8
-    TIME_SL = 9
-    PNL = 10
-    Commission = 11
-    Active = 12
-    Extra = 13
+    IDX = 0
+    Index = 1
+    Direction = 2
+    EntryTime = 3
+    EntryPrice = 4
+    ExitTime = 5
+    ExitPrice = 6
+    Volume = 7
+    TP = 8
+    SL = 9
+    TIME_SL = 10
+    PNL = 11
+    Commission = 12
+    Active = 13
+    Extra = 14

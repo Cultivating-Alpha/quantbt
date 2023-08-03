@@ -10,11 +10,12 @@ TRADE_ITEMS_COUNT = Trade.__len__()
 
 @njit(cache=True)
 def create_new_trade(
+    idx,
     index,
     direction,
     entry_time,
     entry_price,
-    volume,
+    volume=0,
     tp=0,
     sl=0,
     time_sl=np.inf,
@@ -23,6 +24,7 @@ def create_new_trade(
 ) -> np.ndarray:
     trade = np.empty(TRADE_ITEMS_COUNT, dtype=np.float64)
 
+    trade[Trade.IDX.value] = idx
     trade[Trade.Index.value] = index
     trade[Trade.Direction.value] = direction
     trade[Trade.EntryTime.value] = entry_time
