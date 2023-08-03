@@ -1,4 +1,4 @@
-from numba import float32, int32, int64, boolean
+from numba import float32, int32, int64, boolean, float64
 
 data = [
     ("open", float32[:]),
@@ -28,9 +28,9 @@ trade_management = [
     ("commission_type", int32),
     ("slippage", float32),
     ("slippage_type", int32),
-    ("active_trades", float32[:, :]),
+    ("active_trades", float64[:, :]),
     ("last_active_trade_index", int32),
-    ("closed_trades", float32[:, :]),
+    ("closed_trades", float64[:, :]),
     ("last_closed_trade_index", int32),
 ]
 misc = [

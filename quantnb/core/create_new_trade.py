@@ -1,12 +1,15 @@
 from quantnb.core.enums import CommissionType, Trade
 from quantnb.core import calculate_commission
 from numba import njit
+import numpy as np
 
 TRADE_ITEMS_COUNT = Trade.__len__()
 
 
-# @njit
+@njit(cache=True)
 def create_new_trade(
+    active_trades,
+    last_active_trade_index,
     index,
     direction,
     entry_time,
@@ -37,4 +40,23 @@ def create_new_trade(
     trade[Trade.Active.value] = True
     trade[Trade.Extra.value] = extra
 
-    return trade
+    # new_trades = np.zeros(
+    #     (last_active_trade_index, TRADE_ITEMS_COUNT), dtype=np.float64
+    # )
+    #
+    # for i in range(len(active_trades)):
+    #     new_trades[i] = active_trades[i]
+    # Copy the first (last_active_trade_index - 1) rows from active_trades to new_trades
+
+    new_trades = np.empty(
+        (last_active_trade_index, TRADE_ITEMS_COUNT), dtype=np.float64
+    )
+    new_trades[: last_active_trade_index - 1] = active_trades[
+        : last_active_trade_index - 1
+    ]
+
+    # Assign the trade data to the last row of new_trades
+    # new_trades[last_active_trade_index - 1] = trade
+    new_trades[last_active_trade_index - 1] = trade
+
+    return new_trades
