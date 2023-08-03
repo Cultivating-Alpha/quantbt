@@ -23,9 +23,6 @@ class TradeModule:
         max_active_trades=100,
     ) -> None:
         # Arrays
-        self.trades: List[float] = np.zeros(
-            (max_active_trades, TRADE_ITEMS_COUNT), dtype=np.float64
-        )
         self.closed_trades: List[float] = np.zeros(
             (max_active_trades, TRADE_ITEMS_COUNT), dtype=np.float64
         )
@@ -51,19 +48,35 @@ class TradeModule:
         self.closed_pnl: float = 0.0
 
     # ============================================================================= #
-    #                             HELPER FUNCTIONS                                  #
+    #                     ACTIVE TRADE HELPER FUNCTIONS                             #
     # ============================================================================= #
-    def reset_active_trades(self) -> None:
-        self.active_trades: List[float] = np.zeros(
-            (self.last_trade_index, TRADE_ITEMS_COUNT), dtype=np.float64
+    def add_trade_to_active_trades(self, trade) -> None:
+        new_active_trades: List[float] = np.zeros(
+            (len(self.active_trades) + 1, TRADE_ITEMS_COUNT), dtype=np.float64
+        )
+
+        for i in range(len(self.active_trades)):
+            new_active_trades[i] = self.active_trades[i]
+        new_active_trades[len(self.active_trades)] = trade
+        self.active_trades = new_active_trades
+
+    def remove_active_trade(self, index):
+        new_active_trades: List[float] = np.zeros(
+            (len(self.active_trades), TRADE_ITEMS_COUNT), dtype=np.float64
         )
         count: int = 0
-        for i in range(len(self.trades)):
-            trade = self.trades[i]
-            if trade[Trade.Active.value] == True:
-                self.active_trades[i] = trade
+        for i in range(len(self.active_trades)):
+            trade = self.active_trades[i]
+            if trade[Trade.IDX.value] != index:
+                new_active_trades[count] = trade
                 count += 1
-        self.active_trades = self.active_trades[:count]
+
+        if count == 0:
+            self.active_trades: List[float] = np.zeros(
+                (0, TRADE_ITEMS_COUNT), dtype=np.float64
+            )
+        else:
+            self.active_trades = new_active_trades[:count]
 
     # ============================================================================= #
     #                                PNL FUNCTIONS                                  #
@@ -78,6 +91,9 @@ class TradeModule:
             ask=ask,
         )
 
+    def reconcile(self):
+        self.closed_trades = self.closed_trades[: self.last_closed_trade_index]
+
     # ============================================================================= #
     #                               LOOP FUNCTIONS                                  #
     # ============================================================================= #
@@ -85,10 +101,11 @@ class TradeModule:
         if len(self.active_trades) == 0:
             return
 
-        should_update_trades = False
         for trade in self.active_trades:
             if trade[Trade.TIME_SL.value] < current_tick:
                 print("Should close trade")
+                # print(trade[Trade.Index.value])
+                # print(trade[Trade.IDX.value])
                 direction = trade[Trade.Direction.value]
                 exit_price = calculate_exit_price(
                     self.slippage, direction, price_value, bid, ask
@@ -97,20 +114,21 @@ class TradeModule:
                 # print(self.slippage)
                 # print(price_value)
                 # print(exit_price)
-        #
-        #         # Update Closed Trades
-        #         self.closed_trades[self.last_closed_trade_index] = new_trade
-        #         self.last_closed_trade_index += 1
-        #
-        #         # Update total PNL
-        #         self.total_pnl = PNL.calculate_realized_pnl(self.closed_trades)
-        #
-        #         trade[Trade.Active.value] = False
-        #         has_new_trade = True
-        #
-        # Update Active Trades
-        if should_update_trades:
-            self.reset_active_trades()
+
+                trade[Trade.ExitPrice.value] = exit_price
+                trade[Trade.ExitTime.value] = current_tick
+                trade[Trade.Active.value] = False
+
+                # Update Closed Trades
+                self.closed_trades[self.last_closed_trade_index] = trade
+                self.last_closed_trade_index += 1
+
+                # Update Closed PNL
+                self.closed_pnl += trade[Trade.PNL.value]
+
+                # Set Active state of trade
+                index = int(trade[Trade.IDX.value])
+                self.remove_active_trade(index)
         return
 
     def add_trade(
@@ -146,10 +164,9 @@ class TradeModule:
                     extra,
                 )
 
-                self.trades[self.last_trade_index] = trade
+                # self.trades[self.last_trade_index] = trade
+                self.add_trade_to_active_trades(trade)
                 self.last_trade_index += 1
-
-                self.reset_active_trades()
 
             # elif order_type == OrderType.STOP_LIMIT.value:
             #     was_order_hit(

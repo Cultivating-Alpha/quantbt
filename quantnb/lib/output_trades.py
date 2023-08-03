@@ -10,8 +10,8 @@ all_names
 
 
 def output_trades(bt, unit="s"):
-    # trades = np.concatenate((bt.closed_trades, bt.active_trades))
-    trades = bt.active_trades
+    trades = np.concatenate((bt.closed_trades, bt.active_trades))
+    # trades = bt.active_trades
 
     trades = pd.DataFrame(
         trades,

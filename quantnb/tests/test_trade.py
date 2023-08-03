@@ -20,6 +20,7 @@ COMMISSION = 4
 MAX_ACTIVE_TRADES = 3
 SLIPPAGE = 0.4
 INITIAL_CAPITAL = float(10000.0)
+CLOSED_TRADE_INDEX = 302
 
 
 class TestCalculatePrice:
@@ -57,10 +58,12 @@ class TestCalculatePrice:
     def test_add_trade(self, direction=OrderDirection.LONG):
         index = 300
         entry_price = self.data_module.get_entry_price(index, direction)  # index
-        time_sl = self.data_module.date[323]
+        time_sl = self.data_module.date[CLOSED_TRADE_INDEX]
         self.add_trade(direction, index, time_sl=time_sl)
         assert self.trade_module.last_trade_index == 1
-        last_trade = self.trade_module.trades[self.trade_module.last_trade_index - 1]
+        last_trade = self.trade_module.active_trades[
+            self.trade_module.last_trade_index - 1
+        ]
 
         assert last_trade[Trade.Index] == index
         assert last_trade[Trade.Direction] == direction.value
@@ -84,54 +87,71 @@ class TestCalculatePrice:
                 self.add_trade(direction, index)
             elif index == 324:
                 self.add_trade(direction, index)
+
+            # UPDATE PNL OF TRADES
             self.trade_module.update_trades_pnl(self.data_module.close[index], 0, 0)
+
+            # CLOSE TRADES
             self.trade_module.check_trades_to_close(
                 self.data_module.date[index], self.data_module.close[index], 0, 0
             )
+
+            # UPDATE EQUITY
             self.data_module.update_equity(
                 index, self.trade_module.closed_pnl, self.trade_module.floating_pnl
             )
-            idx = index
-
-        index = idx
+            idx: int = index
 
         # CURRENT
-        _sum = 0
+        _sum: float = 0
         for trade in self.trade_module.active_trades:
             _sum += trade[Trade.PNL]
+        for trade in self.trade_module.closed_trades:
+            _sum += trade[Trade.PNL]
 
-        current = self.data_module.close[index]
+        self.trade_module.reconcile()
+        trades = output_trades(self.trade_module)
+        print(trades)
+
+        current = self.data_module.close[idx]
+        closed_trade_current = self.data_module.close[CLOSED_TRADE_INDEX + 1]
         initial_trade = self.data_module.close[300] + SLIPPAGE
         first_trade_entry = self.data_module.close[312] + SLIPPAGE
         second_trade_entry = self.data_module.close[324] + SLIPPAGE
-        pnl0 = (current - initial_trade - SLIPPAGE) - COMMISSION
+        pnl0 = (closed_trade_current - initial_trade - SLIPPAGE) - COMMISSION
         pnl1 = (current - first_trade_entry - SLIPPAGE) - COMMISSION
         pnl2 = (current - second_trade_entry - SLIPPAGE) - COMMISSION
 
         expected_pnl = pnl0 + pnl1 + pnl2
 
-        # print(expected_pnl)
-        # print(_sum)
-
         expected_pnl = np.round(expected_pnl, 3)
         _sum = np.round(_sum, 3)
+
+        print(expected_pnl)
+        print(_sum)
+
+        # print(self.trade_module.closed_trades)
+        # print(self.trade_module.active_trades)
 
         assert expected_pnl == _sum
 
     def test_equity(self):
         expected = np.float32(
-            np.round(INITIAL_CAPITAL + self.trade_module.floating_pnl, 3)
+            np.round(
+                INITIAL_CAPITAL
+                + self.trade_module.floating_pnl
+                + self.trade_module.closed_pnl,
+                4,
+            )
         )
-        current = np.round(self.data_module.equity[324], 3)
-
-        # trades = output_trades(self.trade_module)
-        # print(trades)
+        current = np.round(self.data_module.equity[324], 4)
 
         # print("==========")
         # print(current)
         # print(expected)
         # trades = output_trades(self.trade_module)
         # print(trades)
+
         assert expected == current
 
         # df = pd.DataFrame(self.data_module.equity)
