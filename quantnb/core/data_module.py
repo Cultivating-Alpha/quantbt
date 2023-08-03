@@ -1,8 +1,12 @@
 import numpy as np
+from numba import float64
 from typing import Optional, List
 from quantnb.core.enums import DataType
 from numba.experimental import jitclass
 from quantnb.core.specs_nb import data_specs
+
+from quantnb.core.calculate_entry_price import calculate_entry_price
+from quantnb.core.calculate_exit_price import calculate_exit_price
 
 
 # pyright: reportGeneralTypeIssues=false
@@ -19,7 +23,8 @@ class DataModule:
         volume: Optional[List[float]] = None,
         bid: Optional[List[float]] = None,
         ask: Optional[List[float]] = None,
-        initial_capital=100000,
+        initial_capital=100000.0,
+        slippage=0.0,
     ) -> None:
         if date is not None:
             self.date: List[int] = date
@@ -34,7 +39,6 @@ class DataModule:
                 self.low: List[float] = low
             if close is not None:
                 self.close: List[float] = close
-            print(close)
         else:
             if bid is not None:
                 self.bid: List[float] = bid
@@ -47,8 +51,27 @@ class DataModule:
 
         # PORTFOLIO
         length = len(self.close)
-        self.equity = np.empty(length, dtype=np.float32)
+        self.equity = np.zeros(length, dtype=np.float32)
+        self.equity[0] = initial_capital
 
-        self.initial_capital = initial_capital
-        self.final_value = initial_capital
-        self.total_pnl = 0.0
+        self.initial_capital = float64(initial_capital)
+        self.final_value = float64(initial_capital)
+        self.total_pnl = float64(0.0)
+
+        # SLIPPAGE
+        self.slippage: float = slippage
+
+    def get_entry_price(self, i, direction):
+        bid: float = 0
+        ask: float = 0
+        price: float = 0
+        if self.data_type == DataType.OHLC.value:
+            price = self.close[i]
+        else:
+            bid = self.bid[i]
+            ask = self.ask[i]
+
+        return calculate_entry_price(self.slippage, direction, price, bid, ask)
+
+    def update_equity(self, i, closed_pnl, floating_pnl):
+        self.equity[i] = self.initial_capital + closed_pnl + floating_pnl
