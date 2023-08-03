@@ -17,13 +17,10 @@ def create_new_trade(
     volume,
     tp=0,
     sl=0,
-    time_sl=None,
+    time_sl=np.inf,
     extra=None,
     commission=0,
-    commission_type=CommissionType.FIXED,
 ):
-    commission = calculate_commission(commission_type, commission, entry_price)
-
     trade = [0] * TRADE_ITEMS_COUNT
     trade[Trade.Index.value] = index
     trade[Trade.Direction.value] = direction
@@ -39,6 +36,8 @@ def create_new_trade(
     trade[Trade.Commission.value] = commission
     trade[Trade.Active.value] = True
     trade[Trade.Extra.value] = extra
+
+    return trade
 
     # new_trades = np.zeros(
     #     (last_active_trade_index, TRADE_ITEMS_COUNT), dtype=np.float64

@@ -26,22 +26,10 @@ class Backtester:
         self,
         data_module: DataModule,
         trade_module: TradeModule,
-        commission=0.0,
-        commission_type=2,
-        slippage=0,
-        slippage_type=1,
     ) -> None:
         self.prev_percentage: int = 0
         self.data_module: DataModule = data_module
         self.trade_module: TradeModule = trade_module
-
-        # COMMISSIONS
-        self.commission: float = commission
-        self.commission_type: int = commission_type
-
-        # SLIPPAGE
-        self.slippage: int = slippage
-        self.slippage_type: int = slippage_type
 
         # DATA
         print("Test without this")

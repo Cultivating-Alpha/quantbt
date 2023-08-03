@@ -21,6 +21,12 @@ class DataType(IntEnum):
     BID_ASK = 1
 
 
+class OrderType(IntEnum):
+    MARKET = 0
+    LIMIT = 1
+    STOP_LIMIT = 2
+
+
 # ["Index", "Direction", "EntryTime", "EntryPrice", "ExitTime", "ExitPrice", "Volume", "TP", "SL", "PNL", "Commission", "Active"]
 class Trade(IntEnum):
     Index = 0
