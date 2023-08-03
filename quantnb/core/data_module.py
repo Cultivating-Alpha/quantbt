@@ -51,7 +51,7 @@ class DataModule:
 
         # PORTFOLIO
         length = len(self.close)
-        self.equity = np.zeros(length, dtype=np.float32)
+        self.equity = np.full(length, initial_capital, dtype=np.float32)
         self.equity[0] = initial_capital
 
         self.initial_capital = float64(initial_capital)
