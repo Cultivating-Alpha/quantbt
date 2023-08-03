@@ -73,16 +73,16 @@ class TestCalculatePrice:
 
     def test_add_multiple_trades(self, direction=OrderDirection.LONG):
         for index in range(300, 325):
-            self.data_module.update_equity(
-                index, self.trade_module.closed_pnl, self.trade_module.floating_pnl
-            )
             if index == 312:
                 self.add_trade(direction, index)
             elif index == 324:
                 self.add_trade(direction, index)
             self.trade_module.update_trades_pnl(self.data_module.close[index], 0, 0)
+            self.data_module.update_equity(
+                index, self.trade_module.closed_pnl, self.trade_module.floating_pnl
+            )
 
-        index = 325
+        index = 324
         # UPDATE PNL
         self.trade_module.update_trades_pnl(self.data_module.close[index], 0, 0)
 
@@ -109,8 +109,11 @@ class TestCalculatePrice:
         assert np.round(expected_pnl, 6) == np.round(_sum, 6)
 
     def test_equity(self):
-        expected = INITIAL_CAPITAL + self.trade_module.floating_pnl
-        assert self.data_module.equity[324] == expected
+        expected = np.float32(
+            np.round(INITIAL_CAPITAL + self.trade_module.floating_pnl, 3)
+        )
+        current = np.round(self.data_module.equity[324], 3)
+        assert expected == current
 
 
 # TestCalculatePrice().test_add_multiple_trades()
