@@ -2,18 +2,13 @@ import numpy as np
 import numba as nb
 from quantnb.core.enums import (
     OrderDirection,
-    CommissionType,
-    SlippageType,
     Trade,
     DataType,
 )
-import quantnb.core.PNL as PNL
 from quantnb.core import (
     spec,
     print_bar,
-    calculate_commission,
-    calculate_trade_price,
-    calculate_exit_price,
+    calculate_entry_price,
     create_new_trade,
 )
 
@@ -338,7 +333,7 @@ class Backtester:
             exit_time = curr_trade[1]
 
             if self.was_trade_filled(i, self.date, curr_trade[0], debug=False):
-                price = calculate_trade_price(
+                price = calculate_entry_price(
                     self.slippage, direction, None, self.bid[i], self.ask[i]
                 )
                 self.add_trade(
