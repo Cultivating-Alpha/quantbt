@@ -2,8 +2,9 @@ import numpy as np
 from typing import List
 from numba.experimental import jitclass
 from quantnb.core.specs_nb import trade_specs
-from quantnb.core.trade_create_new_trade import create_new_trade
 from quantnb.core.PNL import update_trades_pnl
+from quantnb.core.trade_create_new_trade import create_new_trade
+from quantnb.core.calculate_exit_price import calculate_exit_price
 from quantnb.core.enums import Trade, DataType, OrderDirection, OrderType
 
 TRADE_ITEMS_COUNT = Trade.__len__()
@@ -49,6 +50,9 @@ class TradeModule:
         self.floating_pnl: float = 0.0
         self.closed_pnl: float = 0.0
 
+    # ============================================================================= #
+    #                             HELPER FUNCTIONS                                  #
+    # ============================================================================= #
     def reset_active_trades(self) -> None:
         self.active_trades: List[float] = np.zeros(
             (self.last_trade_index, TRADE_ITEMS_COUNT), dtype=np.float64
@@ -61,6 +65,9 @@ class TradeModule:
                 count += 1
         self.active_trades = self.active_trades[:count]
 
+    # ============================================================================= #
+    #                                PNL FUNCTIONS                                  #
+    # ============================================================================= #
     def update_trades_pnl(self, price_value, bid, ask):
         (self.active_trades, self.floating_pnl) = update_trades_pnl(
             self.active_trades,
@@ -70,6 +77,41 @@ class TradeModule:
             bid=bid,
             ask=ask,
         )
+
+    # ============================================================================= #
+    #                               LOOP FUNCTIONS                                  #
+    # ============================================================================= #
+    def check_trades_to_close(self, current_tick, price_value, bid, ask):
+        if len(self.active_trades) == 0:
+            return
+
+        should_update_trades = False
+        for trade in self.active_trades:
+            if trade[Trade.TIME_SL.value] < current_tick:
+                print("Should close trade")
+                direction = trade[Trade.Direction.value]
+                exit_price = calculate_exit_price(
+                    self.slippage, direction, price_value, bid, ask
+                )
+                # print("==========")
+                # print(self.slippage)
+                # print(price_value)
+                # print(exit_price)
+        #
+        #         # Update Closed Trades
+        #         self.closed_trades[self.last_closed_trade_index] = new_trade
+        #         self.last_closed_trade_index += 1
+        #
+        #         # Update total PNL
+        #         self.total_pnl = PNL.calculate_realized_pnl(self.closed_trades)
+        #
+        #         trade[Trade.Active.value] = False
+        #         has_new_trade = True
+        #
+        # Update Active Trades
+        if should_update_trades:
+            self.reset_active_trades()
+        return
 
     def add_trade(
         self,
@@ -91,6 +133,7 @@ class TradeModule:
         else:
             if order_type == OrderType.MARKET.value:
                 trade = create_new_trade(
+                    self.last_trade_index,
                     index,
                     direction,
                     entry_time,

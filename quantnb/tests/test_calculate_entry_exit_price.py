@@ -65,13 +65,13 @@ class TestCalculateExitPrice:
         value = calculate_exit_price(
             self.slippage, self.direction_long, price_value=self.price
         )
-        assert value == self.price + self.slippage
+        assert value == self.price - self.slippage
 
     def test_short(self):
         value = calculate_exit_price(
             self.slippage, self.direction_short, price_value=self.price
         )
-        assert value == self.price - self.slippage
+        assert value == self.price + self.slippage
 
     def test_no_slippage(self):
         value = calculate_exit_price(0, self.direction_short, price_value=self.price)
@@ -81,13 +81,13 @@ class TestCalculateExitPrice:
         value = calculate_exit_price(
             self.slippage, self.direction_long, bid=self.bid, ask=self.ask
         )
-        assert value == self.bid + self.slippage
+        assert value == self.bid - self.slippage
 
     def test_short_bidask(self):
         value = calculate_exit_price(
             self.slippage, self.direction_short, bid=self.bid, ask=self.ask
         )
-        assert value == self.ask - self.slippage
+        assert value == self.ask + self.slippage
 
     def test_no_slippage_bidask(self):
         value = calculate_exit_price(
