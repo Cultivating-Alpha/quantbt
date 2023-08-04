@@ -121,6 +121,7 @@ class TradeModule:
         extra=-1,
     ) -> None:
         if len(self.active_trades) >= self.max_active_trades:
+            # DEBUG
             print(
                 "You have reached the max amount of trades. Please increase the max_active_trades property"
             )
