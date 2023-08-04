@@ -112,8 +112,8 @@ class TestCalculatePrice:
             _sum += trade[Trade.PNL]
 
         self.trade_module.reconcile()
-        trades = output_trades(self.trade_module)
-        print(trades)
+        # trades = output_trades(self.trade_module)
+        # print(trades)
 
         current = self.data_module.close[idx]
         closed_trade_current = self.data_module.close[CLOSED_TRADE_INDEX + 1]
@@ -123,6 +123,10 @@ class TestCalculatePrice:
         pnl0 = (closed_trade_current - initial_trade - SLIPPAGE) - COMMISSION
         pnl1 = (current - first_trade_entry - SLIPPAGE) - COMMISSION
         pnl2 = (current - second_trade_entry - SLIPPAGE) - COMMISSION
+
+        print(current)
+        print(first_trade_entry)
+        print(pnl1)
 
         expected_pnl = pnl0 + pnl1 + pnl2
 

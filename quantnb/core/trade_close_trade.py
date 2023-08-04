@@ -7,7 +7,8 @@ from quantnb.core.calculate_exit_price import calculate_exit_price
 def close_trade(
     trade, slippage, price_value, bid, ask, current_tick, close_reason
 ) -> tuple[dict, float, int]:
-    print("Should close trade")
+    # GENERATE DEBUG
+    # print("Should close trade")
     # print(trade[Trade.Index.value])
     # print(trade[Trade.IDX.value])
     direction = trade[Trade.Direction.value]

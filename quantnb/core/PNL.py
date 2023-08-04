@@ -7,12 +7,7 @@ from quantnb.core.calculate_exit_price import calculate_exit_price
 
 @njit(cache=True)
 def update_trades_pnl(
-    active_trades,
-    commission=0,
-    slippage=0,
-    price_value=0.0,
-    bid=0.0,
-    ask=0.0,
+    active_trades, commission=0, slippage=0, price_value=0.0, bid=0.0, ask=0.0
 ) -> Tuple[List[float], float]:
     cumulative_pnl = 0.0
     for i in range(len(active_trades)):

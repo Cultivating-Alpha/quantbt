@@ -1,12 +1,9 @@
-from typing import Optional, List
 from quantnb.core.data_module import DataModule
-from quantnb.core.enums import (
-    OrderDirection,
-    Trade,
-)
+from quantnb.core.enums import OrderDirection, Trade, OrderType
 from quantnb.core.data_module import DataModule
 from quantnb.core.trade_module import TradeModule
-from quantnb.core import print_bar, calculate_entry_price, create_new_trade
+from quantnb.core import print_bar
+from quantnb.core.enums import DataType, Trade
 from quantnb.core.specs_nb import backtester_specs
 from numba.experimental import jitclass
 
@@ -18,7 +15,7 @@ TRADE_ITEMS_COUNT = Trade.__len__()
 
 # pyright: reportGeneralTypeIssues=false
 @jitclass(backtester_specs)
-class Backtester:
+class Backtester_nb:
     data_module: DataModule.class_type.instance_type
     trade_module: TradeModule.class_type.instance_type
 
@@ -31,12 +28,9 @@ class Backtester:
         self.data_module: DataModule = data_module
         self.trade_module: TradeModule = trade_module
 
-        # DATA
-        print("Test without this")
-
-    def was_trade_filled(self, i, ohlc, last_trade, last_trade_index=None, debug=False):
-        tick = ohlc[i]
-        next_tick = ohlc[i + 1]
+    def was_trade_filled(self, i, date, last_trade, last_trade_index=None, debug=False):
+        tick = date[i]
+        next_tick = date[i + 1]
 
         if tick < last_trade <= next_tick:
             return True
@@ -48,84 +42,30 @@ class Backtester:
         else:
             return False
 
-    def update_equity(self, index):
-        pnl = 0
-        for trade in self.active_trades:
-            pnl += trade[7]
+    def loop_updates(self, index):
+        # UPDATE PNL OF TRADES
+        self.trade_module.update_trades_pnl(self.data_module.close[index], 0, 0)
 
-        self.equity[index] = self.initial_capital + self.total_pnl + pnl
-
-    def check_trades_to_close(self, current_tick, index):
-        if len(self.active_trades) == 0:
-            return
-        has_new_trade = False
-        for trade in self.active_trades:
-            if trade[Trade.TIME_SL.value] < current_tick:
-                # print("need to close trade")
-                direction = trade[Trade.Direction.value]
-                exit_price = calculate_exit_price(
-                    self.slippage, direction, None, self.bid[index], self.ask[index]
-                )
-
-                new_trade = trade
-                new_trade[Trade.Active.value] = False
-                new_trade[Trade.ExitPrice.value] = exit_price
-                new_trade[Trade.ExitTime.value] = current_tick
-                new_trade[Trade.PNL.value] = PNL.calculate_trade_exit_pnl(trade)
-
-                # Update Closed Trades
-                self.closed_trades[self.last_closed_trade_index] = new_trade
-                self.last_closed_trade_index += 1
-
-                # Update total PNL
-                self.total_pnl = PNL.calculate_realized_pnl(self.closed_trades)
-
-                trade[Trade.Active.value] = False
-                has_new_trade = True
-
-        # Update Active Trades
-        if has_new_trade:
-            # self.active_trades[trade[Trade.Index.value]][Trade.Active.value] = False
-            print("Have had a trade closed")
-            # print(index)
-            active_column = self.active_trades[:, Trade.Active.value]
-            mask = active_column == True
-            self.active_trades = self.active_trades[mask]
-            # self.last_active_trade_index -= 1
-        return
-
-    def update_trades_pnl(self, index):
-        self.active_trades = PNL.update_trades_pnl(
-            self.active_trades,
-            self.last_active_trade_index,
-            commission=self.commission,
-            commission_type=self.commission_type,
-            data_type=self.data_type,
-            price_value=self.close[index],
-            bid=self.bid[index],
-            ask=self.ask[index],
+        # CLOSE TRADES
+        data = self.data_module
+        self.trade_module.check_trades_to_close(
+            data.date[index], data.close[index], data.bid[index], data.ask[index]
         )
 
-    def add_trade(self, *args):
-        # if self.debug:
-        #     print("Adding new trade")
-        if len(self.active_trades) >= 100:
-            return
-        self.last_active_trade_index += 1
-        self.active_trades = create_new_trade(
-            self.active_trades, self.last_active_trade_index, *args
+        # UPDATE EQUITY
+        self.data_module.update_equity(
+            index, self.trade_module.closed_pnl, self.trade_module.floating_pnl
         )
 
-    def from_trades(self, trades, log_progress):
+    def from_trades(self, trades):
         last_trade_index = 0
-        close = self.close
+        close = self.data_module.close
         print("==========")
-        print(len(close))
 
         for i in range(len(close) - 1):
             self.prev_percentage = print_bar(i, len(close), self.prev_percentage)
 
-            ### ==============================================================================  ####
+            # ### ==============================================================================  ####
 
             curr_trade = trades[last_trade_index]
             direction = (
@@ -133,22 +73,70 @@ class Backtester:
                 if curr_trade[3] == 1
                 else OrderDirection.SHORT.value
             )
-            volume = curr_trade[2]
             exit_time = curr_trade[1]
+            volume = curr_trade[2]
 
-            if self.was_trade_filled(i, self.date, curr_trade[0], debug=False):
-                price = calculate_entry_price(
-                    self.slippage, direction, 0.0, self.bid[i], self.ask[i]
-                )
-                self.add_trade(
-                    i, direction, curr_trade[0], price, volume, 0, 0, exit_time, 0
+            if self.was_trade_filled(
+                i, self.data_module.date, curr_trade[0], debug=False
+            ):
+                entry_price = self.data_module.calculate_entry_price(i, direction)
+                self.trade_module.add_trade(
+                    i,
+                    direction,
+                    OrderType.MARKET.value,
+                    self.data_module.date[i],
+                    entry_price,
+                    volume,
+                    0,
+                    0,
+                    exit_time,
                 )
                 last_trade_index += 1
 
-            # self.update_trades_pnl(i)
-            # self.check_trades_to_close(self.date[i], i)
-            # self.update_equity(i)
+            # Update PNL | Check trades to close | Update Equity
+            self.loop_updates(i)
 
-        print("done")
-        self.closed_trades = self.closed_trades[: self.last_closed_trade_index]
+        self.trade_module.reconcile()
         return 0
+
+
+class Backtester:
+    def __init__(
+        self,
+        close,
+        bid,
+        ask,
+        date,
+        data_type=DataType.BID_ASK,
+        multiplier=1,
+        commission=0,
+        slippage=0,
+        initial_capital=10000,
+        max_active_trades=100,
+    ):
+        self.trade_module = TradeModule(
+            data_type=data_type,
+            multiplier=multiplier,
+            commission=commission,
+            slippage=slippage,
+            max_active_trades=max_active_trades,
+        )
+        self.data_module = DataModule(
+            slippage=slippage,
+            initial_capital=initial_capital,
+            close=close,
+            data_type=DataType.BID_ASK,
+            bid=bid,
+            ask=ask,
+            date=date,
+        )
+
+        print("Compiling")
+        print("Preparing")
+        self.bt = Backtester_nb(
+            self.data_module,
+            self.trade_module,
+        )
+
+    def from_trades(self, trades):
+        return self.bt.from_trades(trades)

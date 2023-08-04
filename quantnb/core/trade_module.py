@@ -11,6 +11,7 @@ from quantnb.core.enums import (
     OrderType,
 )
 
+from quantnb.core.calculate_exit_price import calculate_exit_price
 from quantnb.core.trade_remove_from_active_trades import remove_from_active_trades
 from quantnb.core.trade_add_trade_to_active_trades import add_trade_to_active_trades
 from quantnb.core.trade_close_trade import close_trade
@@ -30,10 +31,11 @@ class TradeModule:
         commission=0.0,
         commission_type=2,
         max_active_trades=100,
+        max_closed_trades=100000,
     ) -> None:
         # Arrays
         self.closed_trades: List[float] = np.zeros(
-            (max_active_trades, TRADE_ITEMS_COUNT), dtype=np.float64
+            (max_closed_trades, TRADE_ITEMS_COUNT), dtype=np.float64
         )
         self.active_trades: List[float] = np.zeros(
             (0, TRADE_ITEMS_COUNT), dtype=np.float64
