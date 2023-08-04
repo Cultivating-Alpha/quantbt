@@ -39,5 +39,6 @@ def create_new_trade(
     trade[Trade.Commission.value] = commission
     trade[Trade.Active.value] = True
     trade[Trade.Extra.value] = extra
+    trade[Trade.CloseReason.value] = -1
 
     return trade

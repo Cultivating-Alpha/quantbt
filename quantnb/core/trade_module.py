@@ -4,8 +4,17 @@ from numba.experimental import jitclass
 from quantnb.core.specs_nb import trade_specs
 from quantnb.core.PNL import update_trades_pnl
 from quantnb.core.trade_create_new_trade import create_new_trade
-from quantnb.core.calculate_exit_price import calculate_exit_price
-from quantnb.core.enums import Trade, DataType, OrderDirection, OrderType
+from quantnb.core.enums import (
+    Trade,
+    DataType,
+    OrderDirection,
+    OrderType,
+)
+
+from quantnb.core.trade_remove_from_active_trades import remove_from_active_trades
+from quantnb.core.trade_add_trade_to_active_trades import add_trade_to_active_trades
+from quantnb.core.trade_close_trade import close_trade
+from quantnb.core.trade_should_trade_close import should_trade_close
 
 TRADE_ITEMS_COUNT = Trade.__len__()
 
@@ -48,37 +57,6 @@ class TradeModule:
         self.closed_pnl: float = 0.0
 
     # ============================================================================= #
-    #                     ACTIVE TRADE HELPER FUNCTIONS                             #
-    # ============================================================================= #
-    def add_trade_to_active_trades(self, trade) -> None:
-        new_active_trades: List[float] = np.zeros(
-            (len(self.active_trades) + 1, TRADE_ITEMS_COUNT), dtype=np.float64
-        )
-
-        for i in range(len(self.active_trades)):
-            new_active_trades[i] = self.active_trades[i]
-        new_active_trades[len(self.active_trades)] = trade
-        self.active_trades = new_active_trades
-
-    def remove_active_trade(self, index):
-        new_active_trades: List[float] = np.zeros(
-            (len(self.active_trades), TRADE_ITEMS_COUNT), dtype=np.float64
-        )
-        count: int = 0
-        for i in range(len(self.active_trades)):
-            trade = self.active_trades[i]
-            if trade[Trade.IDX.value] != index:
-                new_active_trades[count] = trade
-                count += 1
-
-        if count == 0:
-            self.active_trades: List[float] = np.zeros(
-                (0, TRADE_ITEMS_COUNT), dtype=np.float64
-            )
-        else:
-            self.active_trades = new_active_trades[:count]
-
-    # ============================================================================= #
     #                                PNL FUNCTIONS                                  #
     # ============================================================================= #
     def update_trades_pnl(self, price_value, bid, ask):
@@ -97,38 +75,32 @@ class TradeModule:
     # ============================================================================= #
     #                               LOOP FUNCTIONS                                  #
     # ============================================================================= #
+    def close_trade(self, trade, price_value, bid, ask, current_tick, close_reason):
+        trade, new_pnl, index = close_trade(
+            trade, self.slippage, price_value, bid, ask, current_tick, close_reason
+        )
+
+        # Update Closed Trades
+        self.closed_trades[self.last_closed_trade_index] = trade
+        self.last_closed_trade_index += 1
+
+        # Update Closed PNL
+        self.closed_pnl += new_pnl
+
+        # Set Active state of trade
+        self.active_trades = remove_from_active_trades(self.active_trades, index)
+
     def check_trades_to_close(self, current_tick, price_value, bid, ask):
         if len(self.active_trades) == 0:
             return
 
         for trade in self.active_trades:
-            if trade[Trade.TIME_SL.value] < current_tick:
-                print("Should close trade")
-                # print(trade[Trade.Index.value])
-                # print(trade[Trade.IDX.value])
-                direction = trade[Trade.Direction.value]
-                exit_price = calculate_exit_price(
-                    self.slippage, direction, price_value, bid, ask
-                )
-                # print("==========")
-                # print(self.slippage)
-                # print(price_value)
-                # print(exit_price)
+            need_to_close, reason = should_trade_close(
+                trade, current_tick, price_value, bid, ask
+            )
 
-                trade[Trade.ExitPrice.value] = exit_price
-                trade[Trade.ExitTime.value] = current_tick
-                trade[Trade.Active.value] = False
-
-                # Update Closed Trades
-                self.closed_trades[self.last_closed_trade_index] = trade
-                self.last_closed_trade_index += 1
-
-                # Update Closed PNL
-                self.closed_pnl += trade[Trade.PNL.value]
-
-                # Set Active state of trade
-                index = int(trade[Trade.IDX.value])
-                self.remove_active_trade(index)
+            if need_to_close:
+                self.close_trade(trade, price_value, bid, ask, current_tick, reason)
         return
 
     def add_trade(
@@ -164,8 +136,9 @@ class TradeModule:
                     extra,
                 )
 
-                # self.trades[self.last_trade_index] = trade
-                self.add_trade_to_active_trades(trade)
+                self.active_trades = add_trade_to_active_trades(
+                    self.active_trades, trade
+                )
                 self.last_trade_index += 1
 
             # elif order_type == OrderType.STOP_LIMIT.value:
