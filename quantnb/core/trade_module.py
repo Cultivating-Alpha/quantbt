@@ -83,7 +83,7 @@ class TradeModule:
         # Update Closed Trades
         self.closed_trades[self.last_closed_trade_index] = trade
         self.last_closed_trade_index += 1
-
+        #
         # Update Closed PNL
         self.closed_pnl += new_pnl
 
@@ -95,12 +95,14 @@ class TradeModule:
             return
 
         for trade in self.active_trades:
-            need_to_close, reason = should_trade_close(
+            need_to_close, close_reason = should_trade_close(
                 trade, current_tick, price_value, bid, ask
             )
 
             if need_to_close:
-                self.close_trade(trade, price_value, bid, ask, current_tick, reason)
+                self.close_trade(
+                    trade, price_value, bid, ask, current_tick, close_reason
+                )
         return
 
     def add_trade(

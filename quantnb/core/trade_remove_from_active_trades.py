@@ -7,7 +7,7 @@ TRADE_ITEMS_COUNT = Trade.__len__()
 
 
 @njit(cache=True)
-def remove_from_active_trades(index: int, active_trades: ndarray) -> ndarray:
+def remove_from_active_trades(active_trades: ndarray, index: int) -> ndarray:
     new_active_trades: ndarray = np.zeros(
         (len(active_trades), TRADE_ITEMS_COUNT), dtype=np.float64
     )

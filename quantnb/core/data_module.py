@@ -42,8 +42,11 @@ class DataModule:
         else:
             if bid is not None:
                 self.bid: List[float] = bid
+                self.close = bid
             if ask is not None:
                 self.ask: List[float] = ask
+            if bid is None or ask is None:
+                raise ValueError("Please provide both Bid AND Ask")
         self.data_type: int = data_type
 
         if volume is not None:
