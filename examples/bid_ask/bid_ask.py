@@ -2,7 +2,7 @@ from quantnb.lib import np, pd, time_manip
 from quantnb.core.backtester import Backtester
 from quantnb.core.data_module import DataModule
 from quantnb.core.trade_module import TradeModule
-from quantnb.core.enums import CommissionType, DataType
+from quantnb.core.enums import CommissionType, DataType, Trade
 from quantnb.lib.output_trades import output_trades
 import time
 
@@ -12,37 +12,30 @@ short = pd.read_parquet("./data/short_signals.parquet")
 
 
 INITIAL_CAPITAL = 10000
+SLIPPAGE = 0
+MAX_ACTIVE_TRADES = 10
+COMMISSION = 0
 # data = ohlc[0:15830]
 data = ohlc[0:25830]
-# data = ohlc[0:100000]
-# data = ohlc
+data = ohlc[0:100000]
+data = ohlc[0:1000000]
+data = ohlc
 data
 data.reset_index(inplace=True)
 
 
 def backtest(data, trades, initial_capital=INITIAL_CAPITAL):
-    print("Compiling")
-    data_module = DataModule(
+    bt = Backtester(
         close=data["EURUSD.bid"].to_numpy(dtype=np.float32),
         data_type=DataType.BID_ASK,
         bid=data["EURUSD.bid"].to_numpy(dtype=np.float32),
         ask=data["EURUSD.ask"].to_numpy(dtype=np.float32),
         date=time_manip.convert_datetime_to_ms(data["Date"]).values,
+        max_active_trades=1000,
     )
-    trade_module = TradeModule(
-        data["EURUSD.bid"].to_numpy(dtype=np.float32),
-        data_type=DataType.BID_ASK,
-        multiplier=2,
-    )
-
-    bt = Backtester(
-        data_module,
-        trade_module,
-    )
-
     print("running trade function")
     start = time.time()
-    # bt.from_trades(trades.values, True)
+    bt.from_trades(trades.values)
     end = time.time()
     print("Time taken: ", end - start)
 
@@ -52,20 +45,33 @@ def backtest(data, trades, initial_capital=INITIAL_CAPITAL):
 data.tail()
 time_manip.convert_ms_to_datetime(long["long_entry"]).head(10)
 time_manip.convert_ms_to_datetime(long["long_exit"]).head(15)
+long.columns
 
-print("Preparing")
 bt = backtest(data, long)
-
-# bt.closed_trades
-# len(bt.active_trades)
 #
-#
+closed = bt.trade_module.closed_trades
+active = bt.trade_module.active_trades
+print(len(closed))
+print(len(active))
+# # len(bt.active_trades)
+print(len(closed + len(active)))
+# #
 # #
 # # #
-# # # # stats = calculate_stats(data, bt)
+# # # #
+# # # # # stats = calculate_stats(data, bt)
+# # print(bt.trade_module.closed_trades)
+# # print(bt.trade_module.active_trades)
+# pnl = bt.trade_module.closed_trades[0][Trade.PNL.value]
+# pnl
+#
 # trades = output_trades(bt)
-# print("======================================")
+# # # print("======================================")
+# # trades["PNL"]
 # trades
+# trades["Direction"]
+# trades["EntryPrice"]
+# print(bt.data_module.close[-1])
 
 # trades.to_parquet("./quantnb/tests/sample_trades.parquet")
 

@@ -15,5 +15,6 @@ def should_trade_close(trade, current_tick, price_value, bid, ask):
         # print("CHECK TP")
         return True, PositionCloseReason.TP.value
 
+    # GENERATE DEBUG
     # print("What to do when TP and SL is hit in the same candle")
     return False, None
