@@ -1,0 +1,53 @@
+from numba import njit
+from typing import List, Tuple
+from quantnb.core import calculate_commission
+from quantnb.core.enums import OrderDirection, Trade, DataType
+from quantnb.core.calculate_exit_price import calculate_exit_price
+
+
+@njit(cache=True)
+def update_trades_pnl(
+    active_trades, commission=0, slippage=0, price_value=0.0, bid=0.0, ask=0.0
+) -> Tuple[List[float], float]:
+    cumulative_pnl = 0.0
+    for i in range(len(active_trades)):
+        # General Data on the Trade
+        trade = active_trades[i]
+        direction = trade[Trade.Direction.value]
+        entry_price = trade[Trade.EntryPrice.value]
+        trade_volume = trade[Trade.Volume.value]
+
+        # Calculate the PNL
+        current_price = calculate_exit_price(slippage, direction, price_value, bid, ask)
+        if direction == OrderDirection.LONG.value:
+            pnl = (current_price - entry_price) * trade_volume - commission
+        else:
+            pnl = (entry_price - current_price) * trade_volume - commission
+
+        # Update Metrics
+        cumulative_pnl += pnl
+        active_trades[i][Trade.PNL.value] = pnl
+    return active_trades, cumulative_pnl
+
+
+# @njit(cache=True)
+# def calculate_trade_exit_pnl(trade):
+#     direction = trade[Trade.Direction.value]
+#     entry_price = trade[Trade.EntryPrice.value]
+#     exit_price = trade[Trade.ExitPrice.value]
+#     trade_volume = trade[Trade.Volume.value]
+#     commission = trade[Trade.Commission.value]
+#
+#     if direction == OrderDirection.LONG.value:
+#         pnl = (exit_price - entry_price) * trade_volume - commission
+#     else:
+#         pnl = (entry_price - exit_price) * trade_volume - commission
+#     return pnl
+#
+#
+# @njit(cache=True)
+# def calculate_realized_pnl(closed_trades):
+#     realized_pnl = 0
+#     for trade in closed_trades:
+#         realized_pnl += trade[Trade.PNL.value]
+#     return realized_pnl
