@@ -27,6 +27,13 @@ class OrderType(IntEnum):
     STOP_LIMIT = 2
 
 
+class PositionCloseReason(IntEnum):
+    SIGNAL = 0
+    SL = 1
+    TP = 2
+    TIME_SL = 3
+
+
 # ["Index", "Direction", "EntryTime", "EntryPrice", "ExitTime", "ExitPrice", "Volume", "TP", "SL", "PNL", "Commission", "Active"]
 class Trade(IntEnum):
     IDX = 0
@@ -43,4 +50,5 @@ class Trade(IntEnum):
     PNL = 11
     Commission = 12
     Active = 13
-    Extra = 14
+    CloseReason = 14
+    Extra = 15
