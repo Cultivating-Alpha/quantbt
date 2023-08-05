@@ -35,7 +35,6 @@ def winning_streak(trades):
 
 def calculate_stats(data, bt):
     trades, closed_trades, active_trades = output_trades(bt)
-    print(trades)
     t = PrettyTable(["Label", "Value"])
 
     closed_trades["Duration"] = closed_trades["ExitTime"] - closed_trades["EntryTime"]
@@ -48,7 +47,6 @@ def calculate_stats(data, bt):
 
     equity = bt.data_module.equity
     initial_capital = bt.data_module.initial_capital
-    print(equity)
 
     ROI = np.round((equity[-1] - initial_capital) / initial_capital * 100, 2)
     ROI_usd = np.round(equity[-1] - initial_capital, 1)
