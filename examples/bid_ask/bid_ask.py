@@ -17,7 +17,7 @@ MAX_ACTIVE_TRADES = 10
 COMMISSION = 0
 # data = ohlc[0:15830]
 data = ohlc[0:25830]
-data = ohlc[0:100000]
+data = ohlc[0:50000]
 data = ohlc[0:1000000]
 data = ohlc
 data
@@ -46,7 +46,7 @@ data.tail()
 time_manip.convert_ms_to_datetime(long["long_entry"]).head(10)
 time_manip.convert_ms_to_datetime(long["long_exit"]).head(15)
 long.columns
-
+long
 bt = backtest(data, long)
 #
 closed = bt.trade_module.closed_trades
@@ -93,7 +93,7 @@ print(len(closed + len(active)))
 # # trades
 # # data
 
-# |%%--%%| <pzU8rtj7OO|oEuBWcb7Ae>
+# |%%--%%| <qZJhfDnqmc|oEuBWcb7Ae>
 
 
 from numba import njit
