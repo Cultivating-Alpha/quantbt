@@ -29,7 +29,7 @@ def create_new_trade(
     trade[Trade.Direction.value] = direction
     trade[Trade.EntryTime.value] = entry_time
     trade[Trade.EntryPrice.value] = entry_price
-    trade[Trade.ExitTime.value] = -1
+    trade[Trade.ExitTime.value] = np.inf
     trade[Trade.ExitPrice.value] = -1
     trade[Trade.Volume.value] = volume
     trade[Trade.TP.value] = tp

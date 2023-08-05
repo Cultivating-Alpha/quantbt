@@ -4,21 +4,22 @@ from quantnb.core.data_module import DataModule
 from quantnb.core.trade_module import TradeModule
 from quantnb.core.enums import CommissionType, DataType, Trade
 from quantnb.lib.output_trades import output_trades
+from quantnb.lib.calculate_stats import calculate_stats
+from quantnb.lib.plotting import plotting
 import time
 
 ohlc = pd.read_parquet("./data/EURUSD.parquet")
 long = pd.read_parquet("./data/long_signals.parquet")
 short = pd.read_parquet("./data/short_signals.parquet")
 
-
 INITIAL_CAPITAL = 10000
 SLIPPAGE = 0
 MAX_ACTIVE_TRADES = 10
 COMMISSION = 0
 # data = ohlc[0:15830]
-data = ohlc[0:25830]
-data = ohlc[0:50000]
-# data = ohlc[0:1000000]
+# data = ohlc[0:25830]
+# data = ohlc[0:50000]
+data = ohlc[0:2000000]
 # data = ohlc
 data
 data.reset_index(inplace=True)
@@ -59,16 +60,23 @@ print(len(closed + len(active)))
 # #
 # # #
 # # # #
-# # # # # stats = calculate_stats(data, bt)
 # # print(bt.trade_module.closed_trades)
 # # print(bt.trade_module.active_trades)
 # pnl = bt.trade_module.closed_trades[0][Trade.PNL.value]
 # pnl
 #
-trades = output_trades(bt)
+trades, closed_trades, active_trades = output_trades(bt)
 # # print("======================================")
 # trades["PNL"]
 trades
+
+stats = calculate_stats(data, bt)
+
+# |%%--%%| <pqS1Eu9p5p|TpMPbSwUoE>
+
+equity = bt.data_module.equity
+
+plotting.plot_equity(equity, data, "EURUSD.bid")
 # trades["Direction"]
 # trades["EntryPrice"]
 # print(bt.data_module.close[-1])
@@ -93,7 +101,7 @@ trades
 # # trades
 # # data
 
-# |%%--%%| <qZJhfDnqmc|oEuBWcb7Ae>
+# |%%--%%| <TpMPbSwUoE|oEuBWcb7Ae>
 
 
 from numba import njit
