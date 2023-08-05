@@ -79,19 +79,20 @@ class Backtester_nb:
             if self.was_trade_filled(
                 i, self.data_module.date, curr_trade[0], debug=False
             ):
+                print("ASDASD")
                 entry_price = self.data_module.calculate_entry_price(i, direction)
-                self.trade_module.add_trade(
-                    i,
-                    direction,
-                    OrderType.MARKET.value,
-                    self.data_module.date[i],
-                    entry_price,
-                    volume,
-                    0,
-                    0,
-                    exit_time,
-                )
-                last_trade_index += 1
+                # self.trade_module.add_trade(
+                #     i,
+                #     direction,
+                #     OrderType.MARKET.value,
+                #     self.data_module.date[i],
+                #     entry_price,
+                #     volume,
+                #     0,
+                #     0,
+                #     exit_time,
+                # )
+                # last_trade_index += 1
 
             # Update PNL | Check trades to close | Update Equity
             self.loop_updates(i)
