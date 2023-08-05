@@ -34,13 +34,11 @@ def winning_streak(trades):
 
 
 def calculate_stats(data, bt):
-    trades = output_trades(bt)
+    trades, closed_trades, active_trades = output_trades(bt)
     print(trades)
     t = PrettyTable(["Label", "Value"])
 
-    trades["EntryTime"] = pd.to_datetime(trades["EntryTime"], unit="ms")
-    trades["ExitTime"] = pd.to_datetime(trades["ExitTime"], unit="ms")
-    trades["Duration"] = trades["ExitTime"] - trades["EntryTime"]
+    closed_trades["Duration"] = closed_trades["ExitTime"] - closed_trades["EntryTime"]
 
     first_data_day = data["Date"].iloc[0]
     last_data_day = data["Date"].iloc[-1]
@@ -48,23 +46,27 @@ def calculate_stats(data, bt):
         (last_data_day - first_data_day).total_seconds() / (24 * 3600)
     )
 
-    ROI = bt.equity[-1] / bt.cash
-    ROI_usd = np.round(bt.equity[-1] - bt.cash, 3)
+    equity = bt.data_module.equity
+    initial_capital = bt.data_module.initial_capital
+    print(equity)
+
+    ROI = np.round((equity[-1] - initial_capital) / initial_capital * 100, 2)
+    ROI_usd = np.round(equity[-1] - initial_capital, 1)
     biggest_winning_trade = np.round(trades["PNL"].max(), 0)
     biggest_losing_trade = np.round(trades["PNL"].min(), 0)
-    longest_held_trade = format_duration(trades["Duration"].max())
-    shortest_held_trade = format_duration(trades["Duration"].min())
-    average_held_trade = format_duration(trades["Duration"].mean())
+    longest_held_trade = format_duration(closed_trades["Duration"].max())
+    shortest_held_trade = format_duration(closed_trades["Duration"].min())
+    average_held_trade = format_duration(closed_trades["Duration"].mean())
     largest_trade_volume = np.round(trades["Volume"].max(), 3)
     smallest_trade_volume = np.round(trades["Volume"].min(), 3)
     average_number_of_trades_per_day = np.round(len(trades) / total_trading_days, 3)
 
-    t.add_row(["Initial Capital", bt.cash])
-    t.add_row(["End Value", bt.equity[-1]])
+    t.add_row(["Initial Capital", initial_capital])
+    t.add_row(["End Value", equity[-1]])
     t.add_row(["Total Trading days: ", total_trading_days])
     t.add_row(["", ""])
 
-    t.add_row(["ROI: (%)", np.round(ROI, 3)])
+    t.add_row(["ROI: (%)", f"{ROI}%"])
     t.add_row(["ROI: ($)", f"{ROI_usd}$"])
     t.add_row(["Biggest winning trade: ($)", f"{biggest_winning_trade}$"])
     t.add_row(["Biggest losing trade: ($)", f"{biggest_losing_trade}$"])
@@ -78,7 +80,7 @@ def calculate_stats(data, bt):
     t.add_row(["Largest trade volume: ($)", largest_trade_volume])
     t.add_row(["Smallest trade volume: ($)", smallest_trade_volume])
     t.add_row(["Total Trades: ", len(trades)])
-    t.add_row(["Closed Trades: ", len(bt.closed_trades)])
+    t.add_row(["Closed Trades: ", len(bt.trade_module.closed_trades)])
     t.add_row(["Average number of trades per day: ", average_number_of_trades_per_day])
 
     t.align = "l"
