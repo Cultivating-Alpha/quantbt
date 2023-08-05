@@ -18,8 +18,8 @@ COMMISSION = 0
 # data = ohlc[0:15830]
 data = ohlc[0:25830]
 data = ohlc[0:50000]
-data = ohlc[0:1000000]
-data = ohlc
+# data = ohlc[0:1000000]
+# data = ohlc
 data
 data.reset_index(inplace=True)
 
@@ -31,7 +31,7 @@ def backtest(data, trades, initial_capital=INITIAL_CAPITAL):
         bid=data["EURUSD.bid"].to_numpy(dtype=np.float32),
         ask=data["EURUSD.ask"].to_numpy(dtype=np.float32),
         date=time_manip.convert_datetime_to_ms(data["Date"]).values,
-        max_active_trades=1,
+        max_active_trades=100,
     )
     print("running trade function")
     start = time.time()
@@ -65,10 +65,10 @@ print(len(closed + len(active)))
 # pnl = bt.trade_module.closed_trades[0][Trade.PNL.value]
 # pnl
 #
-# trades = output_trades(bt)
-# # # print("======================================")
-# # trades["PNL"]
-# trades
+trades = output_trades(bt)
+# # print("======================================")
+# trades["PNL"]
+trades
 # trades["Direction"]
 # trades["EntryPrice"]
 # print(bt.data_module.close[-1])
