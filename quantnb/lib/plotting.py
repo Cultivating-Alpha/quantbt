@@ -88,7 +88,8 @@ class Plotting:
         plt.title("Lines between Points")
         plt.show()
 
-    def plot_equity(self, equity, data, bid_column):
+    def plot_equity(self, bt, data, bid_column):
+        equity = bt.data_module.equity
         df = pd.DataFrame(
             {
                 "equity": equity,
