@@ -1,5 +1,5 @@
 from quantnb.lib import pd, find_files, np, optimize
-from quantnb.strategies.S_test import S_Test
+from quantnb.strategies.s_temp import S_Test
 import os
 
 # from quantnb.strategies.S_MACD import S_MACD
@@ -22,7 +22,7 @@ def test(asset_index=0):
 
 
 assets[1]
-# test(0)  # BTC
+test(0)  # BTC
 # test(1)  # ETH
 
 # pf = single((113, 35, 3, 0.5), use_sl=False)
