@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "quantnb"
-version = "0.2.22"
+version = "0.2.23"
 description = ""
 authors = ["Alpha <piotr@piotryordanov.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.9"
 numba = "^0.57.0"
 numpy = "^1.24.3"
 pandas = "^2.0.1"
@@ -25,6 +25,7 @@ pandas-ta = {version = "^0.3.14b0", optional = true}
 pytest = "^7.4.0"
 pytest-watcher = "^0.3.4"
 pyright = "^1.1.320"
+importlib-resources = "^6.0.1"
 
 
 [build-system]
