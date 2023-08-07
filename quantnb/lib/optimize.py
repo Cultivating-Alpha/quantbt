@@ -5,7 +5,7 @@ from . import find_files, multiprocess
 
 
 # def optimize(data, strategy, strategy_params=None, **kwargs):
-def optimize(data, strategy, INITIAL_CAPITAL, **kwargs):
+def optimize(data, strategy, **kwargs):
     kwargs = list(kwargs.values())
     total_combinations = list(itertools.product(*kwargs))
     print("Total combinations to test: ", len(total_combinations))
@@ -18,21 +18,23 @@ def optimize(data, strategy, INITIAL_CAPITAL, **kwargs):
 
         for param in params:
             # bt = strategy(data, *strategy_params)
+            stats = strategy(data, param)
+            #
+            # bt = strategy(
+            #     data,
+            #     commission_type="fixed",
+            #     initial_capital=INITIAL_CAPITAL,
+            #     # commission=0.6,
+            #     # multiplier=2,
+            #     commission=1.2,
+            #     multiplier=20,
+            #     default_size=1,
+            # )
+            # bt.backtest(param)
+            #
+            # stats.index = [param]
 
-            bt = strategy(
-                data,
-                commission_type="fixed",
-                initial_capital=INITIAL_CAPITAL,
-                # commission=0.6,
-                # multiplier=2,
-                commission=1.2,
-                multiplier=20,
-                default_size=1,
-            )
-            bt.backtest(param)
-
-            bt.stats.index = [param]
-            df = pd.concat([df, bt.stats])
+            df = pd.concat([df, stats])
             if iteration == 0:
                 pbar.update(NUMBER_OF_CPU)
         pbar.close()

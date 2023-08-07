@@ -8,15 +8,17 @@ class TestCalculatePrice:
     commission_percentage = 0.02
 
     def test_commission_fixed(self):
+        volume = 0.4
         value = calculate_commission(
-            CommissionType.FIXED, self.commission_fixed, self.price
+            CommissionType.FIXED, self.commission_fixed, self.price, volume
         )
 
         assert value == self.commission_fixed
 
     def test_commission_percentage(self):
+        volume = 0.4
         value = calculate_commission(
-            CommissionType.PERCENTAGE, self.commission_percentage, self.price
+            CommissionType.PERCENTAGE, self.commission_percentage, self.price, volume
         )
 
-        assert value == self.price * self.commission_percentage / 100
+        assert value == self.price * self.commission_percentage * 0.4 / 100
