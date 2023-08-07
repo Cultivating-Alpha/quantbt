@@ -20,7 +20,7 @@ def output_trades(bt, unit="ms"):
     )
     trades["EntryTime"] = pd.to_datetime(trades["EntryTime"], unit=unit)
     trades["ExitTime"] = pd.to_datetime(trades["ExitTime"], unit=unit)
-    trades["TIME_SL"] = pd.to_datetime(trades["TIME_SL"], unit=unit)
+    # trades["TIME_SL"] = pd.to_datetime(trades["TIME_SL"], unit=unit)
 
     closed_trades = trades[trades["Active"] == 0]
     active_trades = trades[trades["Active"] == 1]
