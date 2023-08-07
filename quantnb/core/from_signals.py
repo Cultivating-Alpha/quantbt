@@ -66,7 +66,7 @@ class FromSignals:
         long_entry_price,
         short_entry_price,
     ):
-        print("Running")
+        # print("Running")
         for i in range(len(long_entries)):
             if long_entries[i]:
                 entry_size = self.data_module.equity[i] / self.data_module.close[i]

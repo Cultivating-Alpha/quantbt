@@ -5,9 +5,12 @@ from quantnb.lib import np, timeit, pd, find_files
 from quantnb.lib.calculate_stats import calculate_stats
 from quantnb.lib.output_trades import output_trades
 from quantnb.core.enums import CommissionType, DataType
+from quantnb.lib import pd, find_files, np, optimize
 
 import quantnb as qnb
-import talib
+
+# import talib
+import pandas_ta as ta
 
 from quantnb.strategies.S_base import S_base
 from quantnb.core.backtester import Backtester
@@ -35,11 +38,16 @@ ohlc
 def get_signals(params):
     long, short, cutoff, atr_distance = params
     close = ohlc.close
-    ma_long = ind.SMA(ohlc.close, long)
-    ma_short = ind.SMA(close, short)
-    rsi = talib.RSI(close, timeperiod=2)
-    atr = talib.ATR(ohlc.high, ohlc.low, close, 14)
+    # ma_long = ind.talib_SMA(ohlc.close, long)
+    # ma_short = ind.talib_SMA(close, short)
+    # rsi = talib.RSI(close, timeperiod=2)
+    # atr = talib.ATR(ohlc.high, ohlc.low, close, 14)
 
+    ma_short = ta.sma(ohlc.close, length=short)
+    ma_long = ta.sma(ohlc.close, length=long)
+    rsi = ta.rsi(ohlc.close, length=2)
+    atr = ta.atr(ohlc.high, ohlc.low, close, 14)
+    #
     entries = np.logical_and(
         close <= ma_short,
         np.logical_and(close >= ma_long, rsi <= cutoff),
@@ -129,3 +137,88 @@ ohlc["Date"] = time_manip.convert_s_to_datetime(ohlc["Date"])
 stats = calculate_stats(ohlc, backtester.bt)
 
 # plotting.plot_equity(backtester, ohlc, "close")
+
+# |%%--%%| <TTK6Pa3d0m|obXHFDpjIw>
+
+import os
+
+
+def file_exists(file_path):
+    if os.path.exists(file_path):
+        return True
+    else:
+        return False
+
+
+assets = find_files("./data/", "binance-BTC")
+assets
+
+
+def strategy(data, params):
+    INITIAL_CAPITAL = 10000
+    long, short, cutoff, atr_distance = params
+    close = ohlc.close
+    ma_long = ind.SMA(ohlc.close, long)
+    ma_short = ind.SMA(close, short)
+    rsi = talib.RSI(close, timeperiod=2)
+    atr = talib.ATR(ohlc.high, ohlc.low, close, 14)
+
+    entries = np.logical_and(
+        close <= ma_short,
+        np.logical_and(close >= ma_long, rsi <= cutoff),
+    )
+
+    entries = ind.cross_below(close, ma_short)
+    # exits = close > ma_short
+    exits = ind.cross_above(close, ma_short)
+
+    sl = ohlc.low - atr * atr_distance
+
+    entries, exits, sl, ma_long, ma_short, rsi = get_signals(params)
+    backtester = qnb.core.backtester.Backtester(
+        close=ohlc.close.to_numpy(dtype=np.float32),
+        data_type=DataType.OHLC,
+        date=time_manip.convert_datetime_to_ms(ohlc.Date).values,
+        initial_capital=INITIAL_CAPITAL,
+        commission=0.0005,
+        commission_type=CommissionType.PERCENTAGE,
+    )
+
+    # Shift the array one position to the left
+    def shift(arr, index=1):
+        return np.concatenate((arr[index:], arr[:index]))
+
+    backtester.from_signals(
+        long_entries=entries,
+        long_exits=exits,
+        short_entries=exits,
+        short_exits=entries,
+        short_entry_price=shift(ohlc.open),
+        long_entry_price=shift(ohlc.open),
+        # short_entry_price=ohlc.close.to_numpy(dtype=np.float32),
+        # long_entry_price=ohlc.close.to_numpy(dtype=np.float32),
+    )
+
+    df = pd.DataFrame({"asd": 3}, index=[params])
+    return df
+
+
+for asset in assets:
+    sym = asset.split("/")[-1].split(".")[0]
+    data = pd.read_parquet(asset)
+    print(asset)
+    print(data)
+    for i in range(0, 9):
+        print(i)
+        out = f"./optimisation/{sym}-RSI-{i}.parquet"
+        if not file_exists(out):
+            optimisation = optimize(
+                data,
+                strategy,
+                long=range(100 + i * 50, 150 + i * 50, 1),
+                short=range(5, 55, 1),
+                rsi=range(3, 15, 1),
+                atr_distance=np.arange(0.5, 10.5, 0.5),
+            )
+            optimisation = optimisation.sort_values("ratio", ascending=False)
+            optimisation.to_parquet(f"./optimisation/{sym}-RSI-{i}.parquet")

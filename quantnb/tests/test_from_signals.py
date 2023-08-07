@@ -23,7 +23,10 @@ ohlc["date"] = time_manip.convert_datetime_to_s(ohlc["time"])
 ohlc = ohlc[-100:]
 # print(ohlc)
 
-sma = qnb.indicators.SMA(ohlc.close, 20)
+
+from quantnb.indicators import talib_SMA
+
+sma = talib_SMA(ohlc.close, 20)
 
 ohlc.set_index("time", inplace=True)
 entries = qnb.indicators.cross_above(ohlc.close, sma)
@@ -67,19 +70,20 @@ backtester.from_signals(
     long_exits=exits,
     short_entries=exits,
     short_exits=entries,
-    short_entry_price=ohlc.close,
-    long_entry_price=ohlc.close,
+    short_entry_price=ohlc.close.to_numpy(dtype=np.float32),
+    long_entry_price=ohlc.close.to_numpy(dtype=np.float32),
 )
+
 
 trades = output_trades(backtester.bt, unit="s")
 print(trades)
-
-plot()
-
-# |%%--%%| <6DyxzBZE96|jsfBnSWLJE>
-
-
-class TestFromSignals:
-    def was_trade_filled(self, i, date, last_trade, last_trade_index=None, debug=False):
-        a = 5
-        assert a == 5
+#
+# plot()
+#
+# # |%%--%%| <6DyxzBZE96|jsfBnSWLJE>
+#
+#
+# class TestFromSignals:
+#     def was_trade_filled(self, i, date, last_trade, last_trade_index=None, debug=False):
+#         a = 5
+#         assert a == 5
