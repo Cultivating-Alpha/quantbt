@@ -21,7 +21,7 @@ ohlc = pd.read_parquet("./data/@ENQ-M1.parquet")
 ohlc["date"] = time_manip.convert_datetime_to_s(ohlc["time"])
 
 ohlc = ohlc[-100:]
-print(ohlc)
+# print(ohlc)
 
 sma = qnb.indicators.SMA(ohlc.close, 20)
 
@@ -30,21 +30,26 @@ entries = qnb.indicators.cross_above(ohlc.close, sma)
 exits = qnb.indicators.cross_below(ohlc.close, sma)
 
 
-plotting.mpf_plot(
-    ohlc,
-    subplots=[
-        plotting.add_line_plot(sma, color="red"),
-        plotting.add_markers(
-            entries, ohlc.close, color="green", marker_type=matplotlib.markers.CARETUP
-        ),
-        plotting.add_markers(
-            exits, ohlc.close, color="red", marker_type=matplotlib.markers.CARETDOWNBASE
-        ),
-    ],
-)
+def plot():
+    plotting.mpf_plot(
+        ohlc,
+        subplots=[
+            plotting.add_line_plot(sma, color="red"),
+            plotting.add_markers(
+                entries,
+                ohlc.close,
+                color="green",
+                marker_type=matplotlib.markers.CARETUP,
+            ),
+            plotting.add_markers(
+                exits,
+                ohlc.close,
+                color="red",
+                marker_type=matplotlib.markers.CARETDOWNBASE,
+            ),
+        ],
+    )
 
-
-# |%%--%%| <yhPo36qTQy|GIhAIWD8uQ>
 
 # files = find_files("./data", "binance-BTCUSD")
 # btc = pd.read_parquet(files[0])
@@ -55,7 +60,7 @@ from quantnb.core.enums import DataType
 backtester = qnb.core.backtester.Backtester(
     close=ohlc.close.to_numpy(dtype=np.float32),
     data_type=DataType.OHLC,
-    date=time_manip.convert_datetime_to_ms(ohlc.date).values,
+    date=ohlc.date.values,
 )
 backtester.from_signals(
     long_entries=entries,
@@ -65,3 +70,16 @@ backtester.from_signals(
     short_entry_price=ohlc.close,
     long_entry_price=ohlc.close,
 )
+
+trades = output_trades(backtester.bt, unit="s")
+print(trades)
+
+plot()
+
+# |%%--%%| <6DyxzBZE96|jsfBnSWLJE>
+
+
+class TestFromSignals:
+    def was_trade_filled(self, i, date, last_trade, last_trade_index=None, debug=False):
+        a = 5
+        assert a == 5

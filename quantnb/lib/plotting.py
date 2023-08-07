@@ -15,11 +15,12 @@ class Plotting:
     def add_line_plot(self, data, panel=0, color="black"):
         return mpf.make_addplot(data, color=color, panel=panel)
 
-    def add_markers(self, markers, data, panel=0, color="black"):
-        markers = convert_signal_to_marker(markers, data.Close, data.index)
+    def add_markers(self, markers, data, panel=0, color="black", marker_type="scatter"):
+        markers = convert_signal_to_marker(markers, data, data.index)
         return mpf.make_addplot(
             markers,
             type="scatter",
+            marker=marker_type,
             panel=panel,
             color=color,
             markersize=50,

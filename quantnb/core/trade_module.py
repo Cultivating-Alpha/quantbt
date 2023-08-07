@@ -77,7 +77,8 @@ class TradeModule:
     # ============================================================================= #
     #                               LOOP FUNCTIONS                                  #
     # ============================================================================= #
-    def close_trade(self, trade, price_value, bid, ask, current_tick, close_reason):
+    def close_trade(self, trade, price_data, close_reason):
+        current_tick, price_value, bid, ask = price_data
         trade, new_pnl, index = close_trade(
             trade, self.slippage, price_value, bid, ask, current_tick, close_reason
         )
@@ -92,19 +93,15 @@ class TradeModule:
         # Set Active state of trade
         self.active_trades = remove_from_active_trades(self.active_trades, index)
 
-    def check_trades_to_close(self, current_tick, price_value, bid, ask):
+    def check_trades_to_close(self, price_data):
         if len(self.active_trades) == 0:
             return
 
         for trade in self.active_trades:
-            need_to_close, close_reason = should_trade_close(
-                trade, current_tick, price_value, bid, ask
-            )
+            need_to_close, close_reason = should_trade_close(trade, price_data)
 
             if need_to_close:
-                self.close_trade(
-                    trade, price_value, bid, ask, current_tick, close_reason
-                )
+                self.close_trade(trade, price_data, close_reason)
         return
 
     def add_trade(
