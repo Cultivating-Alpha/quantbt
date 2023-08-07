@@ -18,8 +18,8 @@ COMMISSION = 0
 # data = ohlc[0:15830]
 data = ohlc[0:25830]
 data = ohlc[0:100000]
-data = ohlc[0:1000000]
-data = ohlc
+# data = ohlc[0:1000000]
+# data = ohlc
 data
 data.reset_index(inplace=True)
 
