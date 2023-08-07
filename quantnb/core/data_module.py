@@ -64,6 +64,14 @@ class DataModule:
         # SLIPPAGE
         self.slippage: float = slippage
 
+    def get_data_at_index(self, index):
+        date = self.date[index]
+        close = self.close[index]
+        if self.data_type == DataType.OHLC.value:
+            return date, close, 0, 0
+        else:
+            return date, close, self.bid[index], self.ask[index]
+
     def calculate_entry_price(self, i, direction):
         price_value = 0
         bid = 0

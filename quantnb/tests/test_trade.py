@@ -94,7 +94,7 @@ class TestCalculatePrice:
 
             # CLOSE TRADES
             self.trade_module.check_trades_to_close(
-                self.data_module.date[index], self.data_module.close[index], 0, 0
+                self.data_module.get_data_at_index(index)
             )
 
             # UPDATE EQUITY
