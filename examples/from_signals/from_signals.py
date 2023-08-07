@@ -4,6 +4,7 @@ from quantnb.lib.time_manip import time_manip
 from quantnb.lib import np, timeit, pd, find_files
 from quantnb.lib.calculate_stats import calculate_stats
 from quantnb.lib.output_trades import output_trades
+from quantnb.core.enums import CommissionType, DataType
 
 import quantnb as qnb
 import talib
@@ -19,15 +20,16 @@ import quantnb.indicators as ind
 # ==================================================================== #
 #                                                                      #
 # ==================================================================== #
-
-# ohlc = pd.read_parquet("./data/@ENQ-M1.parquet")
-# ohlc["Date"] = time_manip.convert_datetime_to_s(ohlc["time"])
 ohlc = pd.read_parquet("./data/binance-BTCUSDT-1h.parquet")
 ohlc.reset_index(inplace=True)
-ohlc
 
-# ohlc = ohlc[-1000:]
-print(ohlc)
+"""
+Uncomment this if you want to see how it would look like on arbitrum equivalent data, which start in Dec 2022
+"""
+# ohlc = ohlc[-6000:]
+
+INITIAL_CAPITAL = 10000
+ohlc
 
 
 def get_signals(params):
@@ -54,48 +56,52 @@ def get_signals(params):
 
 params = (123, 11, 13, 2.5)
 entries, exits, sl, ma_long, ma_short, rsi = get_signals(params)
-entries
-exits
-
-
-# ohlc.set_index("time", inplace=True)
 
 
 def plot():
+    data = ohlc.copy()
+    data.set_index("Date", inplace=True)
     plotting.mpf_plot(
-        ohlc,
+        data,
         subplots=[
             plotting.add_line_plot(ma_long, color="black"),
             plotting.add_line_plot(ma_short, color="blue"),
             plotting.add_line_plot(rsi, panel=1, color="black"),
             plotting.add_markers(
                 entries,
-                ohlc.close,
+                data.close,
                 color="green",
                 marker_type=matplotlib.markers.CARETUP,
             ),
             plotting.add_markers(
                 exits,
-                ohlc.close,
+                data.close,
                 color="red",
                 marker_type=matplotlib.markers.CARETDOWNBASE,
             ),
         ],
+        type="line",
     )
 
 
-# files = find_files("./data", "binance-BTCUSD")
-# btc = pd.read_parquet(files[0])
-# btc
-from quantnb.core.enums import DataType
+"""
+Uncomment this if you want to see the OHLC data with indicators and signals of entries/exits
+"""
+# plot()
 
 
 backtester = qnb.core.backtester.Backtester(
     close=ohlc.close.to_numpy(dtype=np.float32),
     data_type=DataType.OHLC,
     date=time_manip.convert_datetime_to_ms(ohlc.Date).values,
-    initial_capital=1000000,
+    initial_capital=INITIAL_CAPITAL,
+    commission=0.0005,
+    commission_type=CommissionType.PERCENTAGE,
 )
+
+import time
+
+start = time.time()
 backtester.from_signals(
     long_entries=entries,
     long_exits=exits,
@@ -104,16 +110,14 @@ backtester.from_signals(
     short_entry_price=ohlc.close,
     long_entry_price=ohlc.close,
 )
+end = time.time()
+print(f"Time taken: {end-start}")
 
-trades = output_trades(backtester.bt)
-trades
+trades, closed_trades, active_trades = output_trades(backtester.bt)
+print(trades)
 
 
 ohlc["Date"] = time_manip.convert_s_to_datetime(ohlc["Date"])
 stats = calculate_stats(ohlc, backtester.bt)
 
-# equity = backtester.data_module.equity
-plotting.plot_equity(backtester, ohlc, "close")
-# equity
-# equity.plot()
-plt.show()
+# plotting.plot_equity(backtester, ohlc, "close")

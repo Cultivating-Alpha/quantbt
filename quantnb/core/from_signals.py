@@ -69,14 +69,14 @@ class FromSignals:
         print("Running")
         for i in range(len(long_entries)):
             if long_entries[i]:
-                print("Need to go long")
+                entry_size = self.data_module.equity[i] / self.data_module.close[i]
                 self.trade_module.add_trade(
                     i,
                     OrderDirection.LONG.value,
                     OrderType.MARKET.value,
                     self.data_module.date[i],
                     long_entry_price[i],
-                    1,
+                    entry_size,
                     0,
                     0,
                 )

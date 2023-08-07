@@ -9,6 +9,7 @@ from quantnb.core.enums import (
     DataType,
     OrderDirection,
     OrderType,
+    CommissionType,
 )
 
 from quantnb.core.calculate_exit_price import calculate_exit_price
@@ -29,7 +30,7 @@ class TradeModule:
         data_type=DataType.OHLC.value,
         slippage=0.0,
         commission=0.0,
-        commission_type=2,
+        commission_type=CommissionType.FIXED.value,
         max_active_trades=100,
         max_closed_trades=100000,
     ) -> None:
@@ -65,6 +66,7 @@ class TradeModule:
         self.floating_pnl = update_trades_pnl(
             self.active_trades,
             commission=self.commission,
+            commission_type=self.commission_type,
             slippage=self.slippage,
             price_value=price_value,
             bid=bid,
