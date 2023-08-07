@@ -101,14 +101,22 @@ backtester = qnb.core.backtester.Backtester(
 
 import time
 
+
+# Shift the array one position to the left
+def shift(arr, index=1):
+    return np.concatenate((arr[index:], arr[:index]))
+
+
 start = time.time()
 backtester.from_signals(
     long_entries=entries,
     long_exits=exits,
     short_entries=exits,
     short_exits=entries,
-    short_entry_price=ohlc.close,
-    long_entry_price=ohlc.close,
+    short_entry_price=shift(ohlc.open),
+    long_entry_price=shift(ohlc.open),
+    # short_entry_price=ohlc.close.to_numpy(dtype=np.float32),
+    # long_entry_price=ohlc.close.to_numpy(dtype=np.float32),
 )
 end = time.time()
 print(f"Time taken: {end-start}")

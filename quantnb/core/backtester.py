@@ -70,6 +70,8 @@ class Backtester:
             long_exits,
             short_entries,
             short_exits,
-            long_entry_price.to_numpy(dtype=np.float32),
-            short_entry_price.to_numpy(dtype=np.float32),
+            # long_entry_price.to_numpy(dtype=np.float32),
+            # short_entry_price.to_numpy(dtype=np.float32),
+            long_entry_price,
+            short_entry_price,
         )
