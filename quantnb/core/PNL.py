@@ -1,14 +1,26 @@
 from numba import njit
 from typing import List, Tuple
 from quantnb.core import calculate_commission
-from quantnb.core.enums import OrderDirection, Trade, DataType
+from quantnb.core.enums import (
+    CommissionType,
+    OrderDirection,
+    Trade,
+    DataType,
+    CommissionType,
+)
 from quantnb.core.calculate_exit_price import calculate_exit_price
 
 
 @njit(cache=True)
 def update_trades_pnl(
-    active_trades, commission=0, slippage=0, price_value=0.0, bid=0.0, ask=0.0
-) -> Tuple[List[float], float]:
+    active_trades,
+    commission=0,
+    commission_type=CommissionType.FIXED,
+    slippage=0,
+    price_value=0.0,
+    bid=0.0,
+    ask=0.0,
+) -> float:
     cumulative_pnl = 0.0
     for i in range(len(active_trades)):
         # General Data on the Trade
@@ -19,6 +31,9 @@ def update_trades_pnl(
 
         # Calculate the PNL
         current_price = calculate_exit_price(slippage, direction, price_value, bid, ask)
+        commission = calculate_commission(
+            commission_type, commission, current_price, trade_volume
+        )
         if direction == OrderDirection.LONG.value:
             pnl = (current_price - entry_price) * trade_volume - commission
         else:
@@ -27,6 +42,7 @@ def update_trades_pnl(
         # Update Metrics
         cumulative_pnl += pnl
         active_trades[i][Trade.PNL.value] = pnl
+        active_trades[i][Trade.Commission.value] = commission
     # return active_trades, cumulative_pnl
     return cumulative_pnl
 

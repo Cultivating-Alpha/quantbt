@@ -1,5 +1,5 @@
 from quantnb.core import FromTrades, FromSignals
-from quantnb.core.enums import Trade
+from quantnb.core.enums import Trade, CommissionType
 from quantnb.core.data_module import DataModule
 from quantnb.core.trade_module import TradeModule
 from quantnb.core.enums import DataType, Trade
@@ -16,14 +16,16 @@ class Backtester:
         data_type=DataType.BID_ASK,
         multiplier=1,
         commission=0,
+        commission_type=CommissionType.FIXED,
         slippage=0,
         initial_capital=10000,
         max_active_trades=100,
     ):
         self.trade_module = TradeModule(
-            data_type=data_type,
+            data_type=data_type.value,
             multiplier=multiplier,
             commission=commission,
+            commission_type=commission_type.value,
             slippage=slippage,
             max_active_trades=max_active_trades,
         )
