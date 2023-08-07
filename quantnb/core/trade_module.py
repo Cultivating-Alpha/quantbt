@@ -62,7 +62,7 @@ class TradeModule:
     #                                PNL FUNCTIONS                                  #
     # ============================================================================= #
     def update_trades_pnl(self, price_value, bid, ask):
-        (self.active_trades, self.floating_pnl) = update_trades_pnl(
+        self.floating_pnl = update_trades_pnl(
             self.active_trades,
             commission=self.commission,
             slippage=self.slippage,
@@ -122,6 +122,7 @@ class TradeModule:
     ) -> None:
         if len(self.active_trades) >= self.max_active_trades:
             # DEBUG
+            debug = True
             print(
                 "You have reached the max amount of trades. Please increase the max_active_trades property"
             )
