@@ -27,7 +27,8 @@ def update_trades_pnl(
         # Update Metrics
         cumulative_pnl += pnl
         active_trades[i][Trade.PNL.value] = pnl
-    return active_trades, cumulative_pnl
+    # return active_trades, cumulative_pnl
+    return cumulative_pnl
 
 
 # @njit(cache=True)

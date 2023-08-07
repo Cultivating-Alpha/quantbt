@@ -4,12 +4,13 @@ from quantnb.core.data_module import DataModule
 from quantnb.core.trade_module import TradeModule
 from quantnb.core.enums import CommissionType, DataType, Trade
 from quantnb.lib.output_trades import output_trades
+from quantnb.lib.calculate_stats import calculate_stats
+from quantnb.lib.plotting import plotting
 import time
 
 ohlc = pd.read_parquet("./data/EURUSD.parquet")
 long = pd.read_parquet("./data/long_signals.parquet")
 short = pd.read_parquet("./data/short_signals.parquet")
-
 
 INITIAL_CAPITAL = 10000
 SLIPPAGE = 0
@@ -31,7 +32,7 @@ def backtest(data, trades, initial_capital=INITIAL_CAPITAL):
         bid=data["EURUSD.bid"].to_numpy(dtype=np.float32),
         ask=data["EURUSD.ask"].to_numpy(dtype=np.float32),
         date=time_manip.convert_datetime_to_ms(data["Date"]).values,
-        max_active_trades=1,
+        max_active_trades=100,
     )
     print("running trade function")
     start = time.time()
@@ -46,7 +47,7 @@ data.tail()
 time_manip.convert_ms_to_datetime(long["long_entry"]).head(10)
 time_manip.convert_ms_to_datetime(long["long_exit"]).head(15)
 long.columns
-
+long
 bt = backtest(data, long)
 #
 closed = bt.trade_module.closed_trades
@@ -59,16 +60,23 @@ print(len(closed + len(active)))
 # #
 # # #
 # # # #
-# # # # # stats = calculate_stats(data, bt)
 # # print(bt.trade_module.closed_trades)
 # # print(bt.trade_module.active_trades)
 # pnl = bt.trade_module.closed_trades[0][Trade.PNL.value]
 # pnl
 #
-# trades = output_trades(bt)
-# # # print("======================================")
-# # trades["PNL"]
-# trades
+trades, closed_trades, active_trades = output_trades(bt)
+# # print("======================================")
+# trades["PNL"]
+trades
+
+stats = calculate_stats(data, bt)
+
+# |%%--%%| <pqS1Eu9p5p|TpMPbSwUoE>
+
+equity = bt.data_module.equity
+
+plotting.plot_equity(equity, data, "EURUSD.bid")
 # trades["Direction"]
 # trades["EntryPrice"]
 # print(bt.data_module.close[-1])
@@ -93,7 +101,7 @@ print(len(closed + len(active)))
 # # trades
 # # data
 
-# |%%--%%| <pzU8rtj7OO|oEuBWcb7Ae>
+# |%%--%%| <TpMPbSwUoE|oEuBWcb7Ae>
 
 
 from numba import njit

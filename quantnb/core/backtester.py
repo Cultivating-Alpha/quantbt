@@ -6,6 +6,7 @@ from quantnb.core import print_bar
 from quantnb.core.enums import DataType, Trade
 from quantnb.core.specs_nb import backtester_specs
 from numba.experimental import jitclass
+import numpy as np
 
 TRADE_ITEMS_COUNT = Trade.__len__()
 
@@ -62,7 +63,7 @@ class Backtester_nb:
         close = self.data_module.close
         print("==========")
 
-        for i in range(len(close) - 1):
+        for i in range(len(close)):
             self.prev_percentage = print_bar(i, len(close), self.prev_percentage)
 
             # ### ==============================================================================  ####
@@ -73,13 +74,14 @@ class Backtester_nb:
                 if curr_trade[3] == 1
                 else OrderDirection.SHORT.value
             )
-            exit_time = curr_trade[1]
+            exit_time = curr_trade[1] if curr_trade[1] != -1 else np.inf
             volume = curr_trade[2]
 
             if self.was_trade_filled(
                 i, self.data_module.date, curr_trade[0], debug=False
             ):
                 entry_price = self.data_module.calculate_entry_price(i, direction)
+
                 self.trade_module.add_trade(
                     i,
                     direction,
@@ -90,6 +92,7 @@ class Backtester_nb:
                     0,
                     0,
                     exit_time,
+                    curr_trade[4],  # extra
                 )
                 last_trade_index += 1
 
@@ -125,8 +128,8 @@ class Backtester:
             slippage=slippage,
             initial_capital=initial_capital,
             close=close,
-            data_type=DataType.BID_ASK,
             bid=bid,
+            data_type=DataType.BID_ASK,
             ask=ask,
             date=date,
         )
