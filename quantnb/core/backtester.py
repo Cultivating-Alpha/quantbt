@@ -40,8 +40,8 @@ class Backtester:
         )
 
     def from_trades(self, trades):
-        print("Compiling")
-        print("Preparing")
+        # print("Compiling")
+        # print("Preparing")
         self.bt = FromTrades(
             self.data_module,
             self.trade_module,
@@ -58,8 +58,8 @@ class Backtester:
         long_entry_price=None,
         short_entry_price=None,
     ):
-        print("Compiling")
-        print("Preparing")
+        # print("Compiling")
+        # print("Preparing")
         self.bt = FromSignals(
             self.data_module,
             self.trade_module,
