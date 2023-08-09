@@ -67,6 +67,7 @@ class TradeModule:
             self.active_trades,
             commission=self.commission,
             commission_type=self.commission_type,
+            multiplier=self.multiplier,
             slippage=self.slippage,
             price_value=price_value,
             bid=bid,

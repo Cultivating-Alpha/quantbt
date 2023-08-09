@@ -9,8 +9,8 @@ import numpy as np
 class Backtester:
     def __init__(
         self,
-        close,
         date,
+        close,
         bid=None,
         ask=None,
         data_type=DataType.BID_ASK,
@@ -19,8 +19,11 @@ class Backtester:
         commission_type=CommissionType.FIXED,
         slippage=0,
         initial_capital=10000,
-        max_active_trades=100,
+        max_active_trades=-1,
     ):
+        if max_active_trades == -1:
+            max_active_trades = 1000000
+
         self.trade_module = TradeModule(
             data_type=data_type.value,
             multiplier=multiplier,

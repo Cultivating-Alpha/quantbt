@@ -65,11 +65,15 @@ class FromSignals:
         short_exits,
         long_entry_price,
         short_entry_price,
+        default_size=1,
     ):
         # print("Running")
         for i in range(len(long_entries)):
             if long_entries[i]:
-                entry_size = self.data_module.equity[i] / self.data_module.close[i]
+                if default_size != 1:
+                    entry_size = self.data_module.equity[i] / self.data_module.close[i]
+                else:
+                    entry_size = default_size
                 self.trade_module.add_trade(
                     i,
                     OrderDirection.LONG.value,
@@ -87,7 +91,14 @@ class FromSignals:
                 if len(self.trade_module.active_trades) == 0:
                     continue
                 trade = self.trade_module.active_trades[-1]
-                price_data = self.data_module.get_data_at_index(i)
+                (
+                    current_tick,
+                    price_value,
+                    bid,
+                    ask,
+                ) = self.data_module.get_data_at_index(i)
+
+                price_data = (current_tick, short_entry_price[i], bid, ask)
 
                 self.trade_module.close_trade(
                     trade, price_data, PositionCloseReason.SIGNAL.value

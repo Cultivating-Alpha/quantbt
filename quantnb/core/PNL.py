@@ -17,6 +17,7 @@ def update_trades_pnl(
     commission=0,
     commission_type=CommissionType.FIXED,
     slippage=0,
+    multiplier=1,
     price_value=0.0,
     bid=0.0,
     ask=0.0,
@@ -35,9 +36,11 @@ def update_trades_pnl(
             commission_type, commission, current_price, trade_volume
         )
         if direction == OrderDirection.LONG.value:
-            pnl = (current_price - entry_price) * trade_volume - commission
+            pnl = ((current_price - entry_price) * trade_volume) * multiplier
+            pnl -= commission
         else:
-            pnl = (entry_price - current_price) * trade_volume - commission
+            pnl = ((entry_price - current_price) * trade_volume) * multiplier
+            pnl -= commission
 
         # Update Metrics
         cumulative_pnl += pnl
