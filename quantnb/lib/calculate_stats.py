@@ -65,8 +65,7 @@ def calculate_dd(equity):
     return max_drawdown_pct
 
 
-def calculate_stats(data, bt):
-    trades, closed_trades, active_trades = output_trades(bt)
+def calculate_stats(data, trades, closed_trades, equity, initial_capital):
     t = PrettyTable(["Label", "Value"])
 
     closed_trades["Duration"] = closed_trades["ExitTime"] - closed_trades["EntryTime"]
@@ -77,8 +76,8 @@ def calculate_stats(data, bt):
         (last_data_day - first_data_day).total_seconds() / (24 * 3600)
     )
 
-    equity = bt.data_module.equity
-    initial_capital = bt.data_module.initial_capital
+    equity = equity
+    initial_capital = initial_capital
 
     dd = np.round(calculate_dd(equity), 2)
 
@@ -116,7 +115,7 @@ def calculate_stats(data, bt):
     t.add_row(["Largest trade volume: ($)", largest_trade_volume])
     t.add_row(["Smallest trade volume: ($)", smallest_trade_volume])
     t.add_row(["Total Trades: ", len(trades)])
-    t.add_row(["Closed Trades: ", len(bt.trade_module.closed_trades)])
+    t.add_row(["Closed Trades: ", len(closed_trades)])
     t.add_row(["Average number of trades per day: ", average_number_of_trades_per_day])
     t.add_row(["", ""])
     t.add_row(["CAGR: ", f"{cagr:.2%}"])
