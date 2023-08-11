@@ -60,40 +60,43 @@ class FromTrades:
     def from_trades(self, trades):
         last_trade_index = 0
         close = self.data_module.close
-        print("==========")
+        print("========== FROM TRADES")
 
         for i in range(len(close)):
             self.prev_percentage = print_bar(i, len(close), self.prev_percentage)
 
             # ### ==============================================================================  ####
-
-            curr_trade = trades[last_trade_index]
-            direction = (
-                OrderDirection.LONG.value
-                if curr_trade[3] == 1
-                else OrderDirection.SHORT.value
-            )
-            exit_time = curr_trade[1] if curr_trade[1] != -1 else np.inf
-            volume = curr_trade[2]
-
-            if self.was_trade_filled(
-                i, self.data_module.date, curr_trade[0], debug=False
-            ):
-                entry_price = self.data_module.calculate_entry_price(i, direction)
-
-                self.trade_module.add_trade(
-                    i,
-                    direction,
-                    OrderType.MARKET.value,
-                    self.data_module.date[i],
-                    entry_price,
-                    volume,
-                    0,
-                    0,
-                    exit_time,
-                    curr_trade[4],  # extra
+            no_more_trades = False
+            while not no_more_trades:
+                curr_trade = trades[last_trade_index]
+                direction = (
+                    OrderDirection.LONG.value
+                    if curr_trade[3] == 1
+                    else OrderDirection.SHORT.value
                 )
-                last_trade_index += 1
+                exit_time = curr_trade[1] if curr_trade[1] != -1 else np.inf
+                volume = curr_trade[2]
+
+                if self.was_trade_filled(
+                    i, self.data_module.date, curr_trade[0], debug=False
+                ):
+                    entry_price = self.data_module.calculate_entry_price(i, direction)
+
+                    self.trade_module.add_trade(
+                        i,
+                        direction,
+                        OrderType.MARKET.value,
+                        self.data_module.date[i],
+                        entry_price,
+                        volume,
+                        0,
+                        0,
+                        exit_time,
+                        curr_trade[4],  # extra
+                    )
+                    last_trade_index += 1
+                else:
+                    no_more_trades = True
 
             # Update PNL | Check trades to close | Update Equity
             self.loop_updates(i)

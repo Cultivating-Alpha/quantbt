@@ -44,12 +44,10 @@ class Backtester:
 
     def from_trades(self, trades):
         # print("Compiling")
-        # print("Preparing")
         self.bt = FromTrades(
             self.data_module,
             self.trade_module,
         )
-
         return self.bt.from_trades(trades)
 
     def from_signals(
