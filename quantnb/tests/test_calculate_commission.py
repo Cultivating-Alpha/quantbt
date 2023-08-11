@@ -21,4 +21,4 @@ class TestCalculatePrice:
             CommissionType.PERCENTAGE, self.commission_percentage, self.price, volume
         )
 
-        assert value == self.price * self.commission_percentage * 0.4 / 100
+        assert value == self.price * self.commission_percentage * 0.4
