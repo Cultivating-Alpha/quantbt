@@ -70,6 +70,7 @@ class FromSignals:
         # print("Running")
         for i in range(len(long_entries)):
             if long_entries[i]:
+                print("long_entry")
                 if default_size != 1:
                     entry_size = self.data_module.equity[i] / self.data_module.close[i]
                 else:
@@ -104,30 +105,41 @@ class FromSignals:
                     trade, price_data, PositionCloseReason.SIGNAL.value
                 )
 
-            # if short_entries[i]:
-            #     print("Need to go short")
-            #     self.trade_module.add_trade(
-            #         i,
-            #         OrderDirection.SHORT.value,
-            #         OrderType.MARKET.value,
-            #         self.data_module.date[i],
-            #         long_entry_price[i],
-            #         1,
-            #         0,
-            #         0,
-            #     )
-            # elif short_exits[i]:
-            #     # UPDATE PNL OF TRADES
-            #     self.trade_module.update_trades_pnl(self.data_module.close[i], 0, 0)
-            #
-            #     if len(self.trade_module.active_trades) == 0:
-            #         continue
-            #     trade = self.trade_module.active_trades[-1]
-            #     price_data = self.data_module.get_data_at_index(i)
-            #
-            #     self.trade_module.close_trade(
-            #         trade, price_data, PositionCloseReason.SIGNAL.value
-            #     )
+            if short_entries[i]:
+                print("short_entry")
+                if default_size != 1:
+                    entry_size = self.data_module.equity[i] / self.data_module.close[i]
+                else:
+                    entry_size = default_size
+                self.trade_module.add_trade(
+                    i,
+                    OrderDirection.LONG.value,
+                    OrderType.MARKET.value,
+                    self.data_module.date[i],
+                    long_entry_price[i],
+                    entry_size,
+                    0,
+                    0,
+                )
+            elif short_exits[i]:
+                # UPDATE PNL OF TRADES
+                self.trade_module.update_trades_pnl(self.data_module.close[i], 0, 0)
+
+                if len(self.trade_module.active_trades) == 0:
+                    continue
+                trade = self.trade_module.active_trades[-1]
+                (
+                    current_tick,
+                    price_value,
+                    bid,
+                    ask,
+                ) = self.data_module.get_data_at_index(i)
+
+                price_data = (current_tick, short_entry_price[i], bid, ask)
+
+                self.trade_module.close_trade(
+                    trade, price_data, PositionCloseReason.SIGNAL.value
+                )
 
             self.loop_updates(i)
         self.trade_module.reconcile()

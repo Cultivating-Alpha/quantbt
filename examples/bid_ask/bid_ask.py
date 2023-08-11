@@ -46,31 +46,40 @@ def backtest(data, trades, initial_capital=INITIAL_CAPITAL):
 data.tail()
 time_manip.convert_ms_to_datetime(long["long_entry"]).head(10)
 time_manip.convert_ms_to_datetime(long["long_exit"]).head(15)
-long.columns
-long
 bt = backtest(data, long)
-#
-closed = bt.trade_module.closed_trades
-active = bt.trade_module.active_trades
-print(len(closed))
-print(len(active))
-# # len(bt.active_trades)
-print(len(closed + len(active)))
-# #
-# #
-# # #
-# # # #
-# # print(bt.trade_module.closed_trades)
-# # print(bt.trade_module.active_trades)
-# pnl = bt.trade_module.closed_trades[0][Trade.PNL.value]
-# pnl
-#
-trades, closed_trades, active_trades = output_trades(bt)
-# # print("======================================")
-# trades["PNL"]
-trades
+long_pnl = bt.data_module.equity[-1] - INITIAL_CAPITAL
 
-stats = calculate_stats(data, bt)
+
+bt = backtest(data, short)
+short_pnl = bt.data_module.equity[-1] - INITIAL_CAPITAL
+
+all = pd.DataFrame(
+    {
+        "entry": np.concatenate(
+            (long["long_entry"].values, short["short_entry"].values)
+        ),
+        "exit": np.concatenate((long["long_exit"].values, short["short_exit"].values)),
+        "volume": np.concatenate((long["volume"].values, short["volume"].values)),
+        "direction": np.concatenate(
+            (long["direction"].values, short["direction"].values)
+        ),
+        "ticket": np.concatenate((long["ticket"].values, short["ticket"].values)),
+    }
+)
+all.sort_values(by=["entry"], inplace=True)
+
+
+all
+bt = backtest(data, all)
+combined_pnl = bt.data_module.equity[-1] - INITIAL_CAPITAL
+print("==========")
+print(long_pnl)
+print(short_pnl)
+print(combined_pnl)
+print(long_pnl + short_pnl)
+
+
+# stats = calculate_stats(data, bt)
 
 # |%%--%%| <pqS1Eu9p5p|TpMPbSwUoE>
 
