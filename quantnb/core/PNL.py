@@ -11,7 +11,7 @@ from quantnb.core.enums import (
 from quantnb.core.calculate_exit_price import calculate_exit_price
 
 
-@njit(cache=True)
+@njit
 def update_trades_pnl(
     active_trades,
     commission=0,
@@ -32,20 +32,20 @@ def update_trades_pnl(
 
         # Calculate the PNL
         current_price = calculate_exit_price(slippage, direction, price_value, bid, ask)
-        commission = calculate_commission(
+        trade_commission = calculate_commission(
             commission_type, commission, current_price, trade_volume
         )
         if direction == OrderDirection.LONG.value:
             pnl = ((current_price - entry_price) * trade_volume) * multiplier
-            pnl -= commission
+            pnl -= trade_commission
         else:
             pnl = ((entry_price - current_price) * trade_volume) * multiplier
-            pnl -= commission
+            pnl -= trade_commission
 
         # Update Metrics
         cumulative_pnl += pnl
         active_trades[i][Trade.PNL.value] = pnl
-        active_trades[i][Trade.Commission.value] = commission
+        active_trades[i][Trade.Commission.value] = trade_commission
     # return active_trades, cumulative_pnl
     return cumulative_pnl
 

@@ -65,7 +65,9 @@ def calculate_dd(equity):
     return max_drawdown_pct
 
 
-def calculate_stats(data, trades, closed_trades, equity, initial_capital):
+def calculate_stats(
+    data, trades, closed_trades, equity, initial_capital, display=True, index=None
+):
     t = PrettyTable(["Label", "Value"])
 
     closed_trades["Duration"] = closed_trades["ExitTime"] - closed_trades["EntryTime"]
@@ -121,4 +123,14 @@ def calculate_stats(data, trades, closed_trades, equity, initial_capital):
     t.add_row(["CAGR: ", f"{cagr:.2%}"])
 
     t.align = "l"
-    print(t)
+
+    if display:
+        print(t)
+
+    if index == None:
+        index = [0]
+    stats = pd.DataFrame(
+        {"End Value": equity[-1], "ROI: (%)": ROI, "DD": dd, "ratio": ROI / dd},
+        index=index,
+    )
+    return stats
