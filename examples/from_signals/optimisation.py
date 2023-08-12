@@ -1,5 +1,6 @@
 from quantnb.lib.time_manip import time_manip
 from quantnb.lib import np, pd, find_files, optimize
+from quantnb.lib.plotting import plotting
 from quantnb.lib.calculate_stats import calculate_stats
 from quantnb.lib.output_trades import output_trades
 from quantnb.core.enums import CommissionType, DataType
@@ -110,6 +111,7 @@ def strategy(ohlc, params):
         display=False,
         index=[(params)],
     )
+    plotting.plot_equity(backtester, ohlc, "close")
     return stats
 
 
@@ -119,6 +121,11 @@ def strategy(ohlc, params):
 #             for rsi in range(3, 15, 1):
 #                 stats = strategy(ohlc, (long, short, rsi))
 #                 print(stats)
+
+ohlc
+
+params = (163, 29, 7)
+strategy(ohlc, params)
 
 # |%%--%%| <QgQzeXd36C|B71b17sxwt>
 
@@ -163,4 +170,7 @@ for opti in optiz:
     df = pd.concat([df, newdf])
 
 df
-df.sort_values("ratio", ascending=True)
+
+df = df[df["ratio"] > 3]
+df = df.sort_values("DD", ascending=True)
+df

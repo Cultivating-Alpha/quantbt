@@ -72,9 +72,7 @@ class FromSignals:
         for i in range(len(self.data_module.close)):
             if long_entries[i]:
                 if default_size != 1:
-                    entry_size = (
-                        self.data_module.equity[i] / self.data_module.close[i] / 4
-                    )
+                    entry_size = self.data_module.equity[i] / self.data_module.close[i]
                 else:
                     entry_size = default_size
                 self.trade_module.add_trade(
