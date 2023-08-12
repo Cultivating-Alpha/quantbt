@@ -63,7 +63,7 @@ def get_signals(params):
 
 
 # params = (123, 11, 10, 2.5)
-params = (410, 27, 14)
+params = (164, 29, 7)
 entries, exits, ma_long, ma_short, rsi = get_signals(params)
 
 
@@ -134,7 +134,7 @@ trades.drop(
     columns=["IDX", "Index", "Direction", "CloseReason", "Extra", "SL", "TIME_SL"],
     inplace=True,
 )
-# print(trades)
+print(trades)
 
 
 ohlc["Date"] = time_manip.convert_s_to_datetime(ohlc["Date"])
@@ -278,3 +278,4 @@ for i in range(0, 1):
 #             optimisation.to_parquet(f"./optimisation/{sym}-RSI-{i}.parquet")
 # print(optimisation)
 # optimisation.sort_values("ratio", ascending=False)
+# |%%--%%| <B71b17sxwt|wKaYjtFVdf>
