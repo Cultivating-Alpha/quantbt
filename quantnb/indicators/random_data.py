@@ -47,10 +47,10 @@ def random_data(seed=None):
 
     date = time_manip.convert_datetime_to_s(ohlc_data.index).values
     return (
+        ohlc_data,
         date,
         ohlc_data.open.to_numpy(dtype=np.float32),
         ohlc_data.high.to_numpy(dtype=np.float32),
         ohlc_data.low.to_numpy(dtype=np.float32),
         ohlc_data.close.to_numpy(dtype=np.float32),
-        ohlc_data,
     )
