@@ -36,6 +36,10 @@ ohlc
 
 # ohlc = ohlc[0:210]
 
+ohlc = ohlc[3250:3430]
+ohlc
+14221 / 10000 * 0.25 
+
 
 def get_signals(params):
     # long, short, cutoff, atr_distance = params
@@ -100,6 +104,9 @@ Uncomment this if you want to see the OHLC data with indicators and signals of e
 
 backtester = qnb.core.backtester.Backtester(
     close=ohlc.close.to_numpy(dtype=np.float32),
+    open=ohlc.open.to_numpy(dtype=np.float32),
+    high=ohlc.high.to_numpy(dtype=np.float32),
+    low=ohlc.low.to_numpy(dtype=np.float32),
     data_type=DataType.OHLC,
     date=time_manip.convert_datetime_to_ms(ohlc.Date).values,
     initial_capital=INITIAL_CAPITAL,
@@ -121,17 +128,19 @@ backtester.from_signals(
     long_exits=exits,
     short_entries=exits,
     short_exits=entries,
-    # short_entry_price=shift(ohlc.open),
-    # long_entry_price=shift(ohlc.open),
-    short_entry_price=ohlc.close.to_numpy(dtype=np.float32),
-    long_entry_price=ohlc.close.to_numpy(dtype=np.float32),
+    short_entry_price=shift(ohlc.open),
+    long_entry_price=shift(ohlc.open),
+    # short_entry_price=ohlc.close.to_numpy(dtype=np.float32),
+    # long_entry_price=ohlc.close.to_numpy(dtype=np.float32),
 )
 end = time.time()
-print(f"Time taken: {end-start}")
+# print(f"Time taken: {end-start}")
+print()
+print()
 
 trades, closed_trades, active_trades = output_trades(backtester.bt)
 trades.drop(
-    columns=["IDX", "Index", "Direction", "CloseReason", "Extra", "SL", "TIME_SL"],
+    columns=["IDX", "Index", "Direction", "CloseReason", "Extra", "SL", "TIME_SL", "Active", "TP", "SL"],
     inplace=True,
 )
 print(trades)
@@ -150,11 +159,22 @@ stats = calculate_stats(
     index=[(params)],
 )
 
-stats
+# stats
+#
+# plotting.plot_equity(backtester, ohlc, "close")
+print(len(trades))
+trades
 
-plotting.plot_equity(backtester, ohlc, "close")
+#|%%--%%| <R24nG346eC|oA6RIRV0Ag>
 
-# |%%--%%| <iUIDnbK3rX|3OsunbokuX>
+test = pd.DataFrame()
+test['Com'] = trades['EntryPrice'] * trades['Volume'] * 0.0005 + trades['ExitPrice'] * trades['Volume'] * 0.0005 
+test['PnL'] = (trades['ExitPrice'] - trades['EntryPrice']) * trades['Volume'] - test['Com']
+test['PnL'].sum()
+trades['PNL'].sum()
+test
+
+# |%%--%%| <oA6RIRV0Ag|3OsunbokuX>
 
 
 equity = bt.data_module.equity
@@ -179,7 +199,6 @@ assets
 
 
 ohlc
-
 
 def strategy(ohlc, params):
     def get_signals(params):
