@@ -64,6 +64,7 @@ class Backtester:
         long_exits=None,
         long_entry_price=None,
         short_entry_price=None,
+        default_size=-1,
     ):
         # print("Compiling")
         # print("Preparing")
@@ -81,4 +82,5 @@ class Backtester:
             # short_entry_price.to_numpy(dtype=np.float32),
             long_entry_price,
             short_entry_price,
+            default_size
         )
