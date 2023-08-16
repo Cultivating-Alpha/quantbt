@@ -17,22 +17,7 @@ def optimize(data, strategy, **kwargs):
         pbar = tqdm(total=len(params * NUMBER_OF_CPU), ncols=40)
 
         for param in params:
-            # bt = strategy(data, *strategy_params)
             stats = strategy(data, param)
-            #
-            # bt = strategy(
-            #     data,
-            #     commission_type="fixed",
-            #     initial_capital=INITIAL_CAPITAL,
-            #     # commission=0.6,
-            #     # multiplier=2,
-            #     commission=1.2,
-            #     multiplier=20,
-            #     default_size=1,
-            # )
-            # bt.backtest(param)
-            #
-            # stats.index = [param]
 
             df = pd.concat([df, stats])
             if iteration == 0:
