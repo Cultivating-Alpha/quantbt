@@ -62,6 +62,7 @@ class FromTrades:
         close = self.data_module.close
         print("========== FROM TRADES")
         max_active_trades = 0
+        last_index = 0
         print(trades)
 
         for i in range(len(close)):
@@ -105,7 +106,9 @@ class FromTrades:
             # Update PNL | Check trades to close | Update Equity
             self.loop_updates(i)
             max_active_trades = max(max_active_trades, len(self.trade_module.active_trades))
+            last_index = i
 
         print(max_active_trades)
         self.trade_module.reconcile()
+        self.data_module.equity = self.data_module.equity[: last_index + 1]
         return 0
