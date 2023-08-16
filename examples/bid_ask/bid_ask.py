@@ -69,6 +69,14 @@ bt = backtest(data, signals)
 
 
 output_trades(bt)[0]
+bt.trade_module.closed_pnl
+
+
+df = pd.DataFrame(bt.data_module.equity)
+df.plot()
+plt.show()
+
+df.tail(10)
 
 # |%%--%%| <B3OnFOAtZc|TpMPbSwUoE>
 
