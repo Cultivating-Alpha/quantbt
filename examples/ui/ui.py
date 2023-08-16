@@ -21,6 +21,7 @@ exits = rsi > 70
 rsi_scatter_high = create_scatter_df(data['high'] * 1.01, exits)
 rsi_scatter_low = create_scatter_df(data['low'] * 0.99, entries)
 
+#|%%--%%| <9dYaZhxcfT|DtKrqPsRfU>
 
 
 """
@@ -69,11 +70,12 @@ indicators = [{
   }
 ]
 
+#|%%--%%| <DtKrqPsRfU|vlAMStIg3O>
+
+
 """
 Save the data and config to the location of the UI
 """
 UI_LOCATION = "/home/alpha/workspace/cultivating-alpha/candles-ui/public"
-
-
 
 save_data(UI_LOCATION, df, indicators, indicators_data)
