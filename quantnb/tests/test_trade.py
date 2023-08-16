@@ -166,6 +166,9 @@ class TestCalculatePrice:
         # df.plot()
         # plt.show()
 
+    def test_extra(self):
+        print("Need to make sure that equity is cut off if for some reason the by stops")
+
 
 #
 #
