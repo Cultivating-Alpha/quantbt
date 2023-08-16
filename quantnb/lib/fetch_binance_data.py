@@ -1,47 +1,27 @@
 from binance.client import Client
 import pandas as pd
 import mplfinance as mpf
-from .multiprocess import multiprocess
-from .create_binance_dataframe import create_binance_dataframe
+from quantnb.lib.create_binance_dataframe import create_binance_dataframe
 
 
-def get_data(asset, tf=Client.KLINE_INTERVAL_1HOUR, days="3000 day ago UTC"):
+def get_data(asset, tf=Client.KLINE_INTERVAL_1HOUR, days="3000 day ago UTC", save_location="data"):
     # asset = asset[0]
     print(f"Getting data for {asset} on {tf}")
     client = Client()
     klines = client.get_historical_klines(asset, tf, days)
 
     df = create_binance_dataframe(klines)
-    df.to_parquet(f"data/binance-{asset}-{tf}.parquet")
+    df.to_parquet(f"{save_location}/binance-{asset}-{tf}.parquet")
 
 
-assets = [
-    "ETHUSDT",
-    "BTCUSDT",
-    "DOGEUSDT",
-    "BNBUSDT",
-    "ATOMUSDT",
-    "NEOUSDT",
-    "NEOUSDT",
-    "XRPUSDT",
-    "LTCUSDT",
-    "TRXUSDT",
-    "AVAXUSDT",
-    "SHIBUSDT",
-    "ATOMUSDT",
-    "LINKUSDT",
-    "UNIUSDT",
-    "ADAUSDT",
-    "DOTUSDT",
-    "SOLUSDT",
-    "MATICUSDT",
-    "XLMUSDT",
-]
 
 
 def fetch_binance_data(
-    assets=assets, tf=Client.KLINE_INTERVAL_1HOUR, days="3000 day ago UTC"
+    assets=None, tf=Client.KLINE_INTERVAL_5MINUTE, days="3 day ago UTC", save_location="data"
 ):
-    # multiprocess(assets, get_data, tf, days)
-    for asset in assets:
-        get_data(asset, tf, days)
+    if assets is None:
+        print("Please provide at least one asset item")
+    else:
+        for asset in assets:
+            get_data(asset, tf, days, save_location)
+
