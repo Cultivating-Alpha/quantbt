@@ -61,13 +61,17 @@ class FromTrades:
         last_trade_index = 0
         close = self.data_module.close
         print("========== FROM TRADES")
+        max_active_trades = 0
+        print(trades)
 
         for i in range(len(close)):
             self.prev_percentage = print_bar(i, len(close), self.prev_percentage)
+            if last_trade_index >= len(trades):
+                break
 
             # ### ==============================================================================  ####
             no_more_trades = False
-            while not no_more_trades:
+            while not no_more_trades and last_trade_index < len(trades):
                 curr_trade = trades[last_trade_index]
                 direction = (
                     OrderDirection.LONG.value
@@ -100,6 +104,8 @@ class FromTrades:
 
             # Update PNL | Check trades to close | Update Equity
             self.loop_updates(i)
+            max_active_trades = max(max_active_trades, len(self.trade_module.active_trades))
 
+        print(max_active_trades)
         self.trade_module.reconcile()
         return 0

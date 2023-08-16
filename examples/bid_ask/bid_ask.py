@@ -9,21 +9,47 @@ from quantnb.lib.plotting import plotting
 import time
 
 ohlc = pd.read_parquet("./data/EURUSD.parquet")
-long = pd.read_parquet("./data/long_signals.parquet")
-short = pd.read_parquet("./data/short_signals.parquet")
+
+
+
+# long = pd.read_parquet("./data/long_signals.parquet")
+# short = pd.read_parquet("./data/short_signals.parquet")
+signals = pd.read_parquet("./data/trades.parquet")
 
 INITIAL_CAPITAL = 10000
 SLIPPAGE = 0
-MAX_ACTIVE_TRADES = 10
+MAX_ACTIVE_TRADES = 100000
 COMMISSION = 0
 # data = ohlc[0:15830]
-data = ohlc[0:25830]
-data = ohlc[0:100000]
-# data = ohlc[0:1000000]
+# data = ohlc[0:25830]
+data = ohlc[0:1000000]
+# data = ohlc[0:57000]
 # data = ohlc
-data
 data.reset_index(inplace=True)
+data
 
+
+
+
+def strip_signals(data, signals):
+    converted = time_manip.convert_datetime_to_ms(data['Date'])
+    start = converted[0]
+    end = converted[len(converted) - 1]
+    signals = signals[signals['entry'] >= start]
+    signals = signals[signals['entry'] <= end]
+    return signals
+
+
+signals = strip_signals(data, signals)
+
+
+display = signals.copy()
+display['entry'] = time_manip.convert_ms_to_datetime(display['entry'])
+display
+#|%%--%%| <OtQtL9beIy|B3OnFOAtZc>
+
+
+# bt.trade_module
 
 def backtest(data, trades, initial_capital=INITIAL_CAPITAL):
     bt = Backtester(
@@ -32,56 +58,19 @@ def backtest(data, trades, initial_capital=INITIAL_CAPITAL):
         bid=data["EURUSD.bid"].to_numpy(dtype=np.float32),
         ask=data["EURUSD.ask"].to_numpy(dtype=np.float32),
         date=time_manip.convert_datetime_to_ms(data["Date"]).values,
-        max_active_trades=100,
+        max_active_trades=MAX_ACTIVE_TRADES,
     )
-    print("running trade function")
-    start = time.time()
     bt.from_trades(trades.values)
-    end = time.time()
-    print("Time taken: ", end - start)
 
     return bt
 
 
-data.tail()
-time_manip.convert_ms_to_datetime(long["long_entry"]).head(10)
-time_manip.convert_ms_to_datetime(long["long_exit"]).head(15)
-bt = backtest(data, long)
-long_pnl = bt.data_module.equity[-1] - INITIAL_CAPITAL
+bt = backtest(data, signals)
 
 
-bt = backtest(data, short)
-short_pnl = bt.data_module.equity[-1] - INITIAL_CAPITAL
+output_trades(bt)[0]
 
-all = pd.DataFrame(
-    {
-        "entry": np.concatenate(
-            (long["long_entry"].values, short["short_entry"].values)
-        ),
-        "exit": np.concatenate((long["long_exit"].values, short["short_exit"].values)),
-        "volume": np.concatenate((long["volume"].values, short["volume"].values)),
-        "direction": np.concatenate(
-            (long["direction"].values, short["direction"].values)
-        ),
-        "ticket": np.concatenate((long["ticket"].values, short["ticket"].values)),
-    }
-)
-all.sort_values(by=["entry"], inplace=True)
-
-
-all
-bt = backtest(data, all)
-combined_pnl = bt.data_module.equity[-1] - INITIAL_CAPITAL
-print("==========")
-print(long_pnl)
-print(short_pnl)
-print(combined_pnl)
-print(long_pnl + short_pnl)
-
-
-# stats = calculate_stats(data, bt)
-
-# |%%--%%| <pqS1Eu9p5p|TpMPbSwUoE>
+# |%%--%%| <B3OnFOAtZc|TpMPbSwUoE>
 
 equity = bt.data_module.equity
 
