@@ -33,7 +33,7 @@ def update_trades_pnl(
         # Calculate the PNL
         current_price = calculate_exit_price(slippage, direction, price_value, bid, ask)
         trade_commission = calculate_commission(
-            commission_type, commission, current_price, trade_volume
+            commission_type, commission, current_price, entry_price, trade_volume
         )
         if direction == OrderDirection.LONG.value:
             pnl = ((current_price - entry_price) * trade_volume) * multiplier

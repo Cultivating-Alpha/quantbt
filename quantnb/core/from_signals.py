@@ -44,7 +44,6 @@ class FromSignals:
             return False
 
     def loop_updates(self, index):
-        print("updating loop")
         # UPDATE PNL OF TRADES
         self.trade_module.update_trades_pnl(self.data_module.close[index], 0, 0)
 
@@ -77,10 +76,9 @@ class FromSignals:
                 can_trade = False
             if long_entries[i] and can_trade:
                 if default_size != 1:
-                    entry_size = self.data_module.equity[i] / self.data_module.close[i] * 0.10
+                    entry_size = self.data_module.equity[i - 1] / self.data_module.close[i]  * default_size
                 else:
                     entry_size = default_size
-                print("=================")
                 # close__1 = self.data_module.close[i - 1]
                 # open__1 = self.data_module.open[i - 1]
                 # close = self.data_module.close[i]
@@ -96,7 +94,6 @@ class FromSignals:
                 # print("Close at i+1: ", close_1)
                 # print("Open at i+1: ", open_1)
                 #
-                print(entry_size * long_entry_price[i])
                 max_active_trades = max(
                     max_active_trades, len(self.trade_module.active_trades)
                 )
@@ -134,5 +131,5 @@ class FromSignals:
             if self.data_module.equity[i] < 0:
                 # print("Account blown up")
                 break
-        print(max_active_trades)
+        # print(max_active_trades)
         self.trade_module.reconcile()
