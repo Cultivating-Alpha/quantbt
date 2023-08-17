@@ -3,6 +3,7 @@ from numba import float32, int32, int64, float64
 data_specs = [
     ("close", float32[:]),
     ("date", int64[:]),
+    # ("date", types.NPDatetime('s')[:]),
     ("data_type", int32),
     ("open", float32[:]),
     ("high", float32[:]),

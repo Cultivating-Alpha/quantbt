@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from quantnb.core.enums import CommissionType, Trade
+from quantnb.lib.time_manip import time_manip
 
 
 TRADE_ITEMS_COUNT = Trade.__len__()
@@ -18,7 +19,7 @@ def output_trades(bt, unit="ms"):
         trades,
         columns=all_names,
     )
-    trades["EntryTime"] = pd.to_datetime(trades["EntryTime"], unit=unit)
+    trades["EntryTime"] = time_manip.convert_ms_to_datetime(trades["EntryTime"])
     trades["ExitTime"] = pd.to_datetime(trades["ExitTime"], unit=unit)
     # trades["TIME_SL"] = pd.to_datetime(trades["TIME_SL"], unit=unit)
 
