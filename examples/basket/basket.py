@@ -2,53 +2,58 @@ import numpy as np
 import pandas as pd
 import mplfinance as mpf
 from quantnb.core.backtester import Backtester
+
 from quantnb.strategies.S_base import S_base
 from quantnb.lib import find_files, plotting
-from quantnb.indicators import supertrend, SMA, cross_below, cross_above
+from quantnb.indicators import supertrend, talib_SMA, cross_below, cross_above
 from quantnb.helpers.S_calculate_metrics import calculate_dd
+from quantnb.core.enums import DataType, CommissionType
 from quantnb.lib.output_trades import output_trades
 from quantnb.lib import plotting
 
-assets = find_files("./data", "quickswap")
-
 datas = {}
-for asset in assets:
-    print(asset)
-    df = pd.read_parquet(asset)
-    df.rename(
-        {"Open": "open", "High": "high", "Low": "low", "Close": "close"},
-        axis=1,
-        inplace=True,
-    )
-    datas[asset.split("/")[2]] = df
 
-assets = find_files("./data", "uniswap_v2")
-
-for asset in assets:
-    print(asset)
-    df = pd.read_parquet(asset)
-    df.rename(
-        {"Open": "open", "High": "high", "Low": "low", "Close": "close"},
-        axis=1,
-        inplace=True,
-    )
-    datas[asset.split("/")[2]] = df
-
-
-assets = find_files("./data", "uniswap_v3-ethereum-WETH-USDC-1h")
-# (ChainId.ethereum, "uniswap-v3", "WETH", "USDC", 0.0005) # Ether-USD Coin https://tradingstrategy.ai/trading-view/ethereum/uniswap-v3/eth-usdc-fee-5#30d
-
-
-for asset in assets:
-    print(asset)
-    df = pd.read_parquet(asset)
-    df.rename(
-        {"Open": "open", "High": "high", "Low": "low", "Close": "close"},
-        axis=1,
-        inplace=True,
-    )
-    datas[asset.split("/")[2]] = df
-
+# assets = find_files("./data", "quickswap")
+#
+# for asset in assets:
+#     print(asset)
+#     df = pd.read_parquet(asset)
+#     df.rename(
+#         {"Open": "open", "High": "high", "Low": "low", "Close": "close"},
+#         axis=1,
+#         inplace=True,
+#     )
+#     datas[asset.split("/")[2]] = df
+#
+# assets = find_files("./data", "uniswap_v2")
+#
+#
+#
+# for asset in assets:
+#     print(asset)
+#     df = pd.read_parquet(asset)
+#     df.rename(
+#         {"Open": "open", "High": "high", "Low": "low", "Close": "close"},
+#         axis=1,
+#         inplace=True,
+#     )
+#     datas[asset.split("/")[2]] = df
+#
+#
+# assets = find_files("./data", "uniswap_v3-ethereum-WETH-USDC-1h")
+# # (ChainId.ethereum, "uniswap-v3", "WETH", "USDC", 0.0005) # Ether-USD Coin https://tradingstrategy.ai/trading-view/ethereum/uniswap-v3/eth-usdc-fee-5#30d
+#
+#
+# for asset in assets:
+#     print(asset)
+#     df = pd.read_parquet(asset)
+#     df.rename(
+#         {"Open": "open", "High": "high", "Low": "low", "Close": "close"},
+#         axis=1,
+#         inplace=True,
+#     )
+#     datas[asset.split("/")[2]] = df
+#
 
 assets = find_files("./data", "binance")
 
@@ -60,12 +65,12 @@ keys = list(datas.keys())
 keys
 
 
-# |%%--%%| <h1NJ8eCQd7|s4tvHELefh>
+#|%%--%%| <QOLZRGlTWs|8Ff7T6o8dm>
 
 
 class S_basket(S_base):
-    def generate_signals(self, params=(10, 3, 200)):
-        supert_period, supert_multiplier, sma_period = params
+    def generate_signals(self):
+        supert_period, supert_multiplier, sma_period = self.params
         df = self.data
         supert = supertrend(
             df.High.values,
@@ -74,19 +79,26 @@ class S_basket(S_base):
             period=supert_period,
             multiplier=supert_multiplier,
         )[0]
-        sma = SMA(df.Close.values, period=sma_period)
+        sma = talib_SMA(df.Close.values, period=sma_period)
 
         self.supert = supert
         self.sma = sma
-        a = cross_above(df.Close.values, supert)
-
         self.entries = np.logical_and(
-            cross_above(df.Close.values, supert), df.Close.values > sma
+            cross_above(df.Close, supert), df.Close> sma
         )
-        self.exits = cross_below(df.Close.values, supert)
+        self.exits = cross_below(df.Close, supert)
 
-    def get_signals(self, params):
-        self.generate_signals(params)
+        return {
+            'long_entries' : self.entries,
+            'long_exits' : self.exits,
+            'short_entries' : self.exits,
+            'short_exits' : self.entries,
+            'long_entry_price' : df.Close.values,
+            'short_entry_price' : df.Close.values,
+            'default_size': 0.99
+        }
+
+        return 
 
     def plot(self):
         data = self.data.copy()
@@ -103,7 +115,7 @@ class S_basket(S_base):
         )
 
 
-MAIN_OFFSET = 20000
+MAIN_OFFSET = -1
 print(f"Data length is {MAIN_OFFSET}")
 
 
@@ -119,39 +131,49 @@ def backtest(datas, key, offset, params):
     # data = data[offset:]
     data = data[-MAIN_OFFSET:]
 
-    st = S_basket(data, commission=0.0005, initial_capital=initial_capital)
-    st.backtest(params)
-    bt = st.bt
-
-    trades = output_trades(st.bt, concatenate=False)
-    print(len(trades))
-    # print(st.stats)
-    # print(data)
+    st = S_basket(data, 
+                  commission=0.0005, 
+                  commission_type=CommissionType.PERCENTAGE,
+                  data_type=DataType.OHLC,
+                  initial_capital=initial_capital
+                  )
+    st.from_signals(params)
     return st
 
 
 key = keys[0]
-print("=======================================================", key)
-backtest(datas, key, 0, (10, 3, 200))
+print("========================", key)
+st = backtest(datas, key, 0, (10, 3, 200))
+print(st.stats())
+st.plot_equity()
+
+# trades = st.trades()
+
 
 print()
 key = keys[1]
-print("=======================================================", key)
-backtest(datas, key, 3050, (10, 3, 200))
+print("========================", key)
+st = backtest(datas, key, 3050, (10, 3, 200))
+print(st.stats())
+st.plot_equity()
 
 
 print()
 key = keys[2]
-print("=======================================================", key)
-uni_bt = backtest(datas, key, 27448, (10, 3, 200))
-
-print()
-key = keys[3]
-print("=======================================================", key)
-bnb_bt = backtest(datas, key, 27448, (10, 3, 200))
+print("========================", key)
+st = backtest(datas, key, 27448, (10, 3, 200))
+print(st.stats())
+st.plot_equity()
 
 
-# |%%--%%| <s4tvHELefh|PhNdvFWLZe>
+# print()
+# key = keys[3]
+# print("========================", key)
+# bnb_bt = backtest(datas, key, 27448, (10, 3, 200))
+# bnb_bt.stats()
+
+
+# |%%--%%| <8Ff7T6o8dm|tyKjQNkEFs>
 
 
 #
@@ -175,6 +197,7 @@ df = pd.DataFrame(
 )
 df.tail()
 
+
 # plotting.mpf_plot(quick, [])
 plotting.mpf_plot(
     bnb,
@@ -190,7 +213,7 @@ plotting.mpf_plot(
 # plotting.mpf_plot(bnb, [])
 
 
-# |%%--%%| <PhNdvFWLZe|UaV6o1ZohE>
+# |%%--%%| <tyKjQNkEFs|UaV6o1ZohE>
 
 INITIAL_CAPITAL = 1000 * 13
 initial_capital = INITIAL_CAPITAL / len(datas.keys())

@@ -97,7 +97,6 @@ def strategy(ohlc, params, plot=False):
         # long_entry_price=ohlc.close.to_numpy(dtype=np.float32),
         default_size=0.99
     )
-    trades, closed_trades, active_trades = output_trades(backtester.bt)
     stats = calculate_stats(
         ohlc,
         trades,
