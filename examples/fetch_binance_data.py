@@ -36,3 +36,10 @@ fetch_binance_data(
 df = pd.read_parquet("data/binance-ETHUSDT-5m.parquet")
 print(df)
 
+
+#|%%--%%| <EC3imhK9Jp|xeubjc1Zyx>
+
+
+df['open'].plot()
+plt.show()
+
