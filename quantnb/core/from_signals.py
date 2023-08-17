@@ -79,21 +79,6 @@ class FromSignals:
                     entry_size = self.data_module.equity[i - 1] / self.data_module.close[i]  * default_size
                 else:
                     entry_size = default_size
-                # close__1 = self.data_module.close[i - 1]
-                # open__1 = self.data_module.open[i - 1]
-                # close = self.data_module.close[i]
-                # open = self.data_module.open[i]
-                # close_1 = self.data_module.close[i + 1]
-                # open_1 = self.data_module.open[i + 1]
-                # print("Close at i - 1: ", close__1)
-                # print("Open at i - 1: ", open__1)
-                # print()
-                # print("Close at i: ", close)
-                # print("Open at i: ", open)
-                # print()
-                # print("Close at i+1: ", close_1)
-                # print("Open at i+1: ", open_1)
-                #
                 max_active_trades = max(
                     max_active_trades, len(self.trade_module.active_trades)
                 )

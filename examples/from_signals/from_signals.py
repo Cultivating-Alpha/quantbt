@@ -23,8 +23,9 @@ import quantnb.indicators as ind
 # ==================================================================== #
 #                                                                      #
 # ==================================================================== #
-ohlc = pd.read_parquet("./data/binance-BTCUSDT-1h.parquet")
 ohlc = pd.read_parquet("./data/binance-ETHUSDT-1h.parquet")
+ohlc = pd.read_parquet("./data/kraken_btcusdt_1h.parquet")
+ohlc = pd.read_parquet("./data/binance-BTCUSDT-1h.parquet")
 ohlc.reset_index(inplace=True)
 
 """
@@ -38,11 +39,11 @@ ohlc
 # ohlc = ohlc[0:210]
 
 # ohlc = ohlc[3120:4600]
-ohlc = ohlc[3120:]
-ohlc
+# ohlc = ohlc[3120:]
+# ohlc
 
 
-# |%%--%%| <bKsjcb3XDl|QgQzeXd36C>
+# |%%--%%| <bKsjcb3XDl|pkuzKHVZ2t>
 
 import os
 from quantnb.lib import np, timeit, pd, find_files
@@ -97,6 +98,7 @@ def strategy(ohlc, params, plot=False):
         # long_entry_price=ohlc.close.to_numpy(dtype=np.float32),
         default_size=0.99
     )
+    trades, closed_trades, active_trades = output_trades(backtester.bt)
     stats = calculate_stats(
         ohlc,
         trades,
@@ -112,7 +114,30 @@ def strategy(ohlc, params, plot=False):
     return stats
 
 
-strategy(ohlc, (112, 6, 8), plot=True)
+binance = pd.read_parquet("./data/binance-BTCUSDT-1h.parquet")
+kraken = pd.read_parquet("./data/kraken_btcusdt_1h.parquet")
+kraken.reset_index(inplace=True)
+binance.reset_index(inplace=True)
+
+
+binance = binance[0:47000]
+
+kraken = kraken[-1 * len(binance):]
+kraken
+
+
+print("TESTING KRAKEN")
+# print(kraken)
+strategy(kraken, (112, 6, 8), plot=True)
+
+print("===================================================")
+
+print("TESTING BINANCE")
+# print(binance)
+strategy(binance, (112, 6, 8), plot=True)
+
+
+
 # strategy(ohlc, (526, 6, 10), plot=True)
 # for i in range(0, 1):
 #     for long in range(100 + i * 50, 150 + i * 50, 1):
@@ -120,7 +145,10 @@ strategy(ohlc, (112, 6, 8), plot=True)
 #             for rsi in range(3, 15, 1):
 #                 stats = strategy(ohlc, (long, short, rsi))
 
-# |%%--%%| <QgQzeXd36C|B71b17sxwt>
+
+
+
+# |%%--%%| <pkuzKHVZ2t|B71b17sxwt>
 
 
 assets = find_files("./data/", "binance-BTC")
