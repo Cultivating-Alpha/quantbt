@@ -1,19 +1,22 @@
 import numpy as np
 import pandas as pd
-from quantnb.core.backtester import Backtester
 import matplotlib.pyplot as plt
-
-from quantnb.helpers import save_to_csv, print_orders, print_trades, calculate_metrics
-
+from quantnb.lib.plotting import plotting
+from quantnb.lib.time_manip import time_manip
+from quantnb.core.backtester import Backtester
+from quantnb.lib.output_trades import output_trades
+from quantnb.lib.calculate_stats import calculate_stats
+from quantnb.core.enums import DataType, CommissionType
 
 class S_base:
     def __init__(
         self,
         data,
         offset=0,
-        commission=0.0002,
-        commission_type="percentage",
+        commission=0.0005,
+        commission_type=CommissionType.PERCENTAGE,
         initial_capital=10000,
+        data_type=DataType.OHLC,
         multiplier=1,
         default_size=None,
         use_sl=False,
@@ -32,98 +35,76 @@ class S_base:
         self.commmision_type = commission_type
         self.initial_capital = initial_capital
         self.use_sl = use_sl
+        self.data_type = data_type
+        self.params = ()
 
         self.set_bt_data()
 
     def set_bt_data(self):
-        df = self.data
+        df = time_manip.format_index(self.data)
         open = df.Open.to_numpy(dtype=np.float32)
         high = df.High.to_numpy(dtype=np.float32)
         low = df.Low.to_numpy(dtype=np.float32)
         close = df.Close.to_numpy(dtype=np.float32)
-        index = df.index.to_numpy(dtype=np.int64)
 
         self.bt = Backtester(
             initial_capital=self.initial_capital,
             commission=self.commmision,
             commission_type=self.commmision_type,
-            default_size=self.default_size,
             multiplier=self.multiplier,
-        )
-        self.bt.set_data(open, high, low, close, index)
-
-    def simulation(self, mode, use_sl):
-        close = self.data.Close
-
-        sl = None
-        if self.use_sl:
-            sl = self.sl.values
-
-        # size = np.full_like(close, 1)
-        # multiplier = 1
-        # size = size * multiplier
-
-        self.bt.from_signals(self.entries, self.exits, sl, use_sl)
-
-        return (
-            self.bt.final_value,
-            self.bt.equity,
-            self.bt.orders[: self.bt.order_idx, :],
-            self.bt.trades[: self.bt.trade_idx, :],
+            open=open,
+            high=high,
+            low=low,
+            close=close,
+            data_type=self.data_type,
+            date= time_manip.convert_datetime_to_ms(df['Date']).values
         )
 
-    def backtest_bid_ask(self, params):
-        pass
+    # ======================================================================================== #
+    #                                  BACKTESTING ITEMS                                       #
+    # ======================================================================================== #
+    def generate_signals(self, params=()):
+        print("Stub function for generating signals")
+        self.entries = np.full_like(self.data.Close, False)
+        self.exits = np.full_like(self.data.Close, False)
 
-    def backtest(self, params):
-        self.get_signals(params)
-        (final_value, equity, orders_arr, trades_arr) = self.simulation(
-            mode=1, use_sl=self.use_sl
+    def from_signals(self, params):
+        self.params = params
+        vals = self.generate_signals()
+        # print(vals)
+        # print(vals.keys())
+        self.bt.from_signals(**vals)
+
+    def from_trades(self, trades):
+        self.bt.from_trades(trades)
+
+    # ======================================================================================== #
+    #                                 STATISTICS & METRICS                                     #
+    # ======================================================================================== #
+    def stats(self, display=False):
+        params = self.params
+        trades, closed_trades, active_trades = output_trades(self.bt)
+        self.stats = calculate_stats(
+            self.data,
+            trades,
+            closed_trades,
+            self.bt.data_module.equity,
+            self.initial_capital,
+            display=display,
+            index=[params],
         )
-        self.orders_arr = orders_arr
+        return self.stats
 
-        dd, total_return, ratio, buy_and_hold = calculate_metrics(
-            equity, self.data, final_value, self.initial_capital
-        )
-
-        self.stats = pd.DataFrame(
-            {
-                "final_value": final_value,
-                "dd": dd,
-                "total_return": total_return,
-                "ratio": ratio,
-                "buy_and_hold": buy_and_hold,
-            },
-            index=[0],
-        )
-
-        self.trades_arr = trades_arr
-        self.equity = equity
-        # print(self.stats)
-
-    # HELPERS
-    def print_trades(self):
-        return print_trades(self.trades_arr)
+    # Trades
+    def trades(self):
+        trades, closed_trades, active_trades = output_trades(self.bt)
+        return trades
 
     def save_to_csv(self):
-        data = self.data.copy()
-        data.reset_index(inplace=True)
-        data.rename(columns={"timestamp": "Date"}, inplace=True)
-        data.set_index("Date", inplace=True)
+        print("Need to add CSV")
 
-        save_to_csv(
-            data,
-            self.ma_long,
-            self.ma_short,
-            self.rsi,
-            self.atr,
-            self.entries,
-            self.orders_arr,
-            self.equity,
-            "",
-        )
-
+   # ======================================================================================== #
+    #                                        Plotting                                          #
+    # ======================================================================================== #
     def plot_equity(self):
-        returns = pd.Series(self.equity, index=self.data.index)
-        returns.plot()
-        plt.show()
+        plotting.plot_equity(self.bt, self.data, "Close")

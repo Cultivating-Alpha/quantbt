@@ -3,6 +3,7 @@ from quantnb.core.enums import Trade, CommissionType
 from quantnb.core.data_module import DataModule
 from quantnb.core.trade_module import TradeModule
 from quantnb.core.enums import DataType, Trade
+from quantnb.lib.get_series_values import get_series_values
 import numpy as np
 
 
@@ -18,7 +19,7 @@ class Backtester:
         ask=None,
         data_type=DataType.BID_ASK,
         multiplier=1,
-        commission=0,
+        commission=0.0,
         commission_type=CommissionType.FIXED,
         slippage=0,
         initial_capital=10000,
@@ -54,7 +55,7 @@ class Backtester:
             self.data_module,
             self.trade_module,
         )
-        return self.bt.from_trades(trades)
+        self.bt.from_trades(trades)
 
     def from_signals(
         self,
@@ -73,14 +74,14 @@ class Backtester:
             self.trade_module,
         )
 
+        #
         self.bt.from_signals(
-            long_entries,
-            long_exits,
-            short_entries,
-            short_exits,
-            # long_entry_price.to_numpy(dtype=np.float32),
-            # short_entry_price.to_numpy(dtype=np.float32),
-            long_entry_price,
-            short_entry_price,
+            get_series_values(long_entries),
+            get_series_values(long_exits),
+            get_series_values(short_entries),
+            get_series_values(short_exits),
+            get_series_values(long_entry_price),
+            get_series_values(short_entry_price),
             default_size
         )
+
