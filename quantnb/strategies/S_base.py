@@ -77,8 +77,6 @@ class S_base:
     def from_signals(self, params):
         self.params = params
         vals = self.generate_signals()
-        # print(vals)
-        # print(vals.keys())
         self.bt.from_signals(**vals)
 
     def from_trades(self, trades):
@@ -104,6 +102,7 @@ class S_base:
     # Trades
     def trades(self):
         trades, closed_trades, active_trades = output_trades(self.bt)
+        trades.sort_values(by=["EntryTime"], inplace=True)
         return trades
 
     def save_to_csv(self):

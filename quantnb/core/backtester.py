@@ -4,6 +4,7 @@ from quantnb.core.data_module import DataModule
 from quantnb.core.trade_module import TradeModule
 from quantnb.core.enums import DataType, Trade
 from quantnb.lib.get_series_values import get_series_values
+from quantnb.lib.shift_data import shift_data
 import numpy as np
 
 
@@ -69,8 +70,9 @@ class Backtester:
         long_entries=None,
         long_exits=None,
         long_entry_price=None,
+        long_exit_price=None,
         short_entry_price=None,
-        default_size=-1,
+        short_exit_price=None,
     ):
         # print("Compiling")
         # print("Preparing")
@@ -79,14 +81,26 @@ class Backtester:
             self.trade_module,
         )
 
-        #
+        # Calculate Entry and exit prices, if not provided by user
+        shifted = shift_data(self.data_module.open, 1)
+        if long_entry_price is None:
+            long_entry_price = shifted
+        if long_exit_price is None:
+            long_exit_price = shifted
+        if short_entry_price is None:
+            short_entry_price = shifted
+        if short_exit_price is None:
+            short_exit_price = shifted
+
+        # Run the backtest
         self.bt.from_signals(
             get_series_values(long_entries),
             get_series_values(long_exits),
             get_series_values(short_entries),
             get_series_values(short_exits),
             get_series_values(long_entry_price),
+            get_series_values(long_exit_price),
             get_series_values(short_entry_price),
-            default_size
+            get_series_values(short_exit_price),
         )
 
