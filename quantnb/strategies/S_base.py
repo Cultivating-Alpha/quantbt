@@ -6,7 +6,7 @@ from quantnb.lib.time_manip import time_manip
 from quantnb.core.backtester import Backtester
 from quantnb.lib.output_trades import output_trades
 from quantnb.lib.calculate_stats import calculate_stats
-from quantnb.core.enums import DataType, CommissionType
+from quantnb.core.enums import DataType, CommissionType, TradeSizeType
 
 class S_base:
     def __init__(
@@ -20,6 +20,8 @@ class S_base:
         multiplier=1,
         default_size=None,
         use_sl=False,
+        default_trade_size=-1,
+        trade_size_type=TradeSizeType.PERCENTAGE,
     ):
         data = data[offset:]
 
@@ -37,6 +39,8 @@ class S_base:
         self.use_sl = use_sl
         self.data_type = data_type
         self.params = ()
+        self.default_trade_size= default_trade_size
+        self.trade_size_type= trade_size_type
 
         self.set_bt_data()
 
@@ -57,7 +61,9 @@ class S_base:
             low=low,
             close=close,
             data_type=self.data_type,
-            date= time_manip.convert_datetime_to_ms(df['Date']).values
+            date=time_manip.convert_datetime_to_ms(df['Date']).values,
+            default_trade_size=self.default_trade_size,
+            trade_size_type=self.trade_size_type,
         )
 
     # ======================================================================================== #
