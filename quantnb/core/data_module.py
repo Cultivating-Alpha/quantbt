@@ -1,7 +1,8 @@
 import numpy as np
 from numba import float64
 from typing import Optional, List
-from quantnb.core.enums import DataType
+from quantnb.core.enums import DataType, TradeSizeType
+
 from numba.experimental import jitclass
 from quantnb.core.specs_nb import data_specs
 
@@ -24,6 +25,8 @@ class DataModule:
         bid: Optional[List[float]] = None,
         ask: Optional[List[float]] = None,
         initial_capital=100000.0,
+        default_trade_size=-1,
+        trade_size_type=TradeSizeType.PERCENTAGE.value,
         slippage=0.0,
     ) -> None:
         if date is not None:
@@ -64,6 +67,11 @@ class DataModule:
         # SLIPPAGE
         self.slippage: float = slippage
 
+        # Trade Sizing
+        self.default_trade_size: float = default_trade_size
+        self.trade_size_type: int = trade_size_type
+
+
     def get_data_at_index(self, index):
         date = self.date[index]
         close = self.close[index]
@@ -71,6 +79,19 @@ class DataModule:
             return date, close, 0, 0
         else:
             return date, close, self.bid[index], self.ask[index]
+
+    # ============================================================================= #
+    #                               SIZE FUNCTIONS                                  #
+    # ============================================================================= #
+    def get_trade_size(self, index):
+        equity = self.equity[index - 1]
+        price_value = self.close[index]
+        # TODO this function needs to make sure we have enough equity to trade
+        if self.trade_size_type == TradeSizeType.PERCENTAGE.value:
+            return self.default_trade_size * equity / price_value
+        else:
+            return self.default_trade_size
+
 
     def calculate_entry_price(self, i, direction):
         price_value = 0

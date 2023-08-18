@@ -6,15 +6,9 @@ from quantnb.core import print_bar
 from quantnb.core.enums import DataType, Trade
 from quantnb.core.specs_nb import backtester_specs
 from numba.experimental import jitclass
-import numpy as np
-
 TRADE_ITEMS_COUNT = Trade.__len__()
 
 
-# from quantnb.core.trade_module import DataModule
-
-
-# pyright: reportGeneralTypeIssues=false
 @jitclass(backtester_specs)
 class FromSignals:
     data_module: DataModule.class_type.instance_type
@@ -44,9 +38,6 @@ class FromSignals:
             return False
 
     def loop_updates(self, index):
-        # UPDATE PNL OF TRADES
-        self.trade_module.update_trades_pnl(self.data_module.close[index], 0, 0)
-
         # CLOSE TRADES
         self.trade_module.check_trades_to_close(
             self.data_module.get_data_at_index(index)
@@ -64,24 +55,27 @@ class FromSignals:
         short_entries,
         short_exits,
         long_entry_price,
+        long_exit_price,
         short_entry_price,
-        default_size=-1,
+        short_exit_price,
     ):
-        # print("Running")
-        max_active_trades = 0
         last_trade_index = 0
-        for i in range(len(self.data_module.close)):
+        for i in range(len(self.data_module.close) - 1):
+            # UPDATE PNL OF TRADES
+            # TODO need to change how trade exit price is taken to be able to take next open for example
+            self.trade_module.update_trades_pnl(self.data_module.open[i + 1], 0, 0)
+
+            # Check if we are allowed to place more trades
             can_trade = True
-            if len(self.trade_module.active_trades) > 0:
-                can_trade = False
+            # if len(self.trade_module.active_trades) > 0:
+            #     can_trade = False
+
+
+            # ======================================================================================= #
+            #                                          Take Long Trades                               #
+            # ======================================================================================= #
             if long_entries[i] and can_trade:
-                if default_size != 1:
-                    entry_size = self.data_module.equity[i - 1] / self.data_module.close[i]  * default_size
-                else:
-                    entry_size = default_size
-                max_active_trades = max(
-                    max_active_trades, len(self.trade_module.active_trades)
-                )
+                entry_size = self.data_module.get_trade_size(i)
                 self.trade_module.add_trade(
                     i,
                     OrderDirection.LONG.value,
@@ -93,28 +87,64 @@ class FromSignals:
                     0,
                 )
                 last_trade_index += 1
-            elif long_exits[i]:
-                # UPDATE PNL OF TRADES
-                self.trade_module.update_trades_pnl(self.data_module.close[i], 0, 0)
 
+            elif long_exits[i]:
                 if len(self.trade_module.active_trades) != 0:
                     trade = self.trade_module.active_trades[-1]
+
+                    # Get the price data
                     (
                         current_tick,
                         price_value,
                         bid,
                         ask,
                     ) = self.data_module.get_data_at_index(i)
+                    price_data = (current_tick, long_exit_price[i], bid, ask)
 
-                    price_data = (current_tick, short_entry_price[i], bid, ask)
+                    # Close the trade
+                    self.trade_module.close_trade(
+                        trade, price_data, PositionCloseReason.SIGNAL.value
+                    )
 
+            # ======================================================================================= #
+            #                                          Take Short Trades                               #
+            # ======================================================================================= #
+            if short_entries[i] and can_trade:
+                entry_size = self.data_module.get_trade_size(i)
+                self.trade_module.add_trade(
+                    i,
+                    OrderDirection.SHORT.value,
+                    OrderType.MARKET.value,
+                    self.data_module.date[i],
+                    short_entry_price[i],
+                    entry_size,
+                    0,
+                    0,
+                )
+                last_trade_index += 1
+
+            elif short_exits[i]:
+                if len(self.trade_module.active_trades) != 0:
+                    trade = self.trade_module.active_trades[-1]
+
+                    # Get the price data
+                    (
+                        current_tick,
+                        price_value,
+                        bid,
+                        ask,
+                    ) = self.data_module.get_data_at_index(i)
+                    price_data = (current_tick, short_exit_price[i], bid, ask)
+
+                    # Close the trade
                     self.trade_module.close_trade(
                         trade, price_data, PositionCloseReason.SIGNAL.value
                     )
 
             self.loop_updates(i)
+
             if self.data_module.equity[i] < 0:
-                # print("Account blown up")
+                print("Account blown up")
                 break
-        # print(max_active_trades)
+
         self.trade_module.reconcile()

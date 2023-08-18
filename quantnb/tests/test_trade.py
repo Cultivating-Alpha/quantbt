@@ -168,6 +168,7 @@ class TestCalculatePrice:
 
     def test_extra(self):
         print("Need to make sure that equity is cut off if for some reason the by stops")
+        print("Need to make sure that there is enough cash left to be able to take a position")
 
 
 #
