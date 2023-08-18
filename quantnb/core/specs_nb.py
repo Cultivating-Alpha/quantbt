@@ -16,6 +16,8 @@ data_specs = [
     ("total_pnl", float32),
     ("equity", float32[:]),
     ("slippage", float32),
+    ("default_trade_size", float32),
+    ("trade_size_type", int32),
 ]
 
 trade_specs = [

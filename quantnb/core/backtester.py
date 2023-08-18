@@ -1,5 +1,5 @@
 from quantnb.core import FromTrades, FromSignals
-from quantnb.core.enums import Trade, CommissionType
+from quantnb.core.enums import Trade, CommissionType, TradeSizeType
 from quantnb.core.data_module import DataModule
 from quantnb.core.trade_module import TradeModule
 from quantnb.core.enums import DataType, Trade
@@ -23,6 +23,8 @@ class Backtester:
         commission_type=CommissionType.FIXED,
         slippage=0,
         initial_capital=10000,
+        default_trade_size=-1,
+        trade_size_type=TradeSizeType.PERCENTAGE,
         max_active_trades=-1,
     ):
         if max_active_trades == -1:
@@ -47,7 +49,10 @@ class Backtester:
             data_type=data_type,
             ask=ask,
             date=date,
+            default_trade_size=default_trade_size,
+            trade_size_type=trade_size_type.value,
         )
+
 
     def from_trades(self, trades):
         # print("Compiling")

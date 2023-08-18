@@ -75,10 +75,7 @@ class FromSignals:
             if len(self.trade_module.active_trades) > 0:
                 can_trade = False
             if long_entries[i] and can_trade:
-                if default_size != 1:
-                    entry_size = self.data_module.equity[i - 1] / self.data_module.close[i]  * default_size
-                else:
-                    entry_size = default_size
+                entry_size = self.data_module.get_trade_size(i)
                 max_active_trades = max(
                     max_active_trades, len(self.trade_module.active_trades)
                 )
