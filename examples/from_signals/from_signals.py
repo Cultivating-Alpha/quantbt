@@ -4,8 +4,9 @@ from quantnb.lib.time_manip import time_manip
 from quantnb.lib import np, timeit, pd, find_files
 from quantnb.lib.calculate_stats import calculate_stats
 from quantnb.lib.output_trades import output_trades
-from quantnb.core.enums import CommissionType, DataType
+from quantnb.core.enums import CommissionType, DataType, TradeSizeType
 from quantnb.lib import pd, find_files, np, optimize
+from quantnb.lib.data_to_csv import save_data, create_scatter_df
 
 import quantnb as qnb
 
@@ -23,173 +24,141 @@ import quantnb.indicators as ind
 # ==================================================================== #
 #                                                                      #
 # ==================================================================== #
-ohlc = pd.read_parquet("./data/binance-ETHUSDT-1h.parquet")
-ohlc = pd.read_parquet("./data/kraken_btcusdt_1h.parquet")
-ohlc = pd.read_parquet("./data/binance-BTCUSDT-1h.parquet")
-ohlc.reset_index(inplace=True)
-
-"""
-Uncomment this if you want to see how it would look like on arbitrum equivalent data, which start in Dec 2022
-"""
-# ohlc = ohlc[-6000:]
-
-INITIAL_CAPITAL = 10000
-ohlc
-
-# ohlc = ohlc[0:210]
-
-# ohlc = ohlc[3120:4600]
-# ohlc = ohlc[3120:]
-# ohlc
+# ohlc = pd.read_parquet("./data/binance-BTCUSDT-1h.parquet")
+# ohlc.reset_index(inplace=True)
 
 
-# |%%--%%| <bKsjcb3XDl|pkuzKHVZ2t>
+datas = {}
+assets = find_files("./data/", "@ENQ")
+assets
+for asset in assets:
+    datas[asset.split("/")[2].split(".")[0]] = pd.read_parquet(asset)
+
+data = datas['@ENQ-M1'].copy()
+data["Date"] = time_manip.convert_s_to_datetime(data['time'])
+data.drop(["time"], inplace=True, axis=1)
+data
+
+data = data[-1000:-950]
+
+#|%%--%%| <1tMhyNzPrG|7W30XJ9kt4>
 
 import os
 from quantnb.lib import np, timeit, pd, find_files
+from quantnb.indicators import cross_above, cross_below
 
-def strategy(ohlc, params, plot=False):
-    def get_signals(params):
-        # long, short, cutoff, atr_distance = params
+class S_signals(S_base):
+    def generate_signals(self):
         long, short, cutoff = params
-        close = ohlc.close
-        # ma_long = ind.talib_SMA(ohlc.close, long)
-        # ma_short = ind.talib_SMA(close, short)
-        # rsi = talib.RSI(close, timeperiod=2)
-        # atr = talib.ATR(ohlc.high, ohlc.low, close, 14)
+        close = data.close
 
-        ma_long = ta.sma(ohlc.close, length=long)
-        ma_short = ta.sma(ohlc.close, length=short)
-        rsi = ta.rsi(ohlc.close, length=2)
-        atr = ta.atr(ohlc.high, ohlc.low, close, 14)
-        #
-        entries = np.logical_and(
-            close <= ma_short,
-            np.logical_and(close >= ma_long, rsi <= cutoff),
-        ).values
-        exits = ind.cross_above(close, ma_short)
+        self.ma_long = ta.sma(close, length=long)
+        self.ma_short = ta.sma(close, length=short)
 
-        # sl = ohlc.low - atr * atr_distance
+        self.long = cross_above(self.ma_short, self.ma_long)
+        self.short = cross_below(self.ma_short, self.ma_long)
 
-        return entries, exits, ma_long, ma_short, rsi
+        return {
+            'long_entries' : self.long,
+            'long_exits' : self.short,
+            'short_entries' : self.short,
+            'short_exits' : self.long,
+            # 'long_entries' : np.full(self.long.shape, False),
+            # 'long_exits' : np.full(self.long.shape, False),
+            # 'short_entries' : np.full(self.long.shape, False),
+            # 'short_exits' : np.full(self.long.shape, False),
+        }
 
-    entries, exits, ma_long, ma_short, rsi = get_signals(params)
-    backtester = qnb.core.backtester.Backtester(
-        close=ohlc.close.to_numpy(dtype=np.float32),
-        data_type=DataType.OHLC,
-        date=time_manip.convert_datetime_to_ms(ohlc["Date"]).values,
-        initial_capital=INITIAL_CAPITAL,
-        commission=0.0005,
-        commission_type=CommissionType.PERCENTAGE,
-    )
+st = S_signals(
+  data, 
+  commission=1.2,
+  commission_type=CommissionType.FIXED,
+  multiplier=4,
+  data_type=DataType.OHLC,
+  initial_capital=100_000,
+  default_trade_size=1,
+  trade_size_type=TradeSizeType.FIXED,
+)
 
-    # Shift the array one position to the left
-    def shift(arr, index=1):
-        return np.concatenate((arr[index:], arr[:index]))
+params = (10, 5, 4)
+st.from_signals(params)
 
-    backtester.from_signals(
-        long_entries=entries,
-        long_exits=exits,
-        short_entries=exits,
-        short_exits=entries,
-        short_entry_price=shift(ohlc.open),
-        long_entry_price=shift(ohlc.open),
-        # short_entry_price=ohlc.close.to_numpy(dtype=np.float32),
-        # long_entry_price=ohlc.close.to_numpy(dtype=np.float32),
-        default_size=0.99
-    )
-    trades, closed_trades, active_trades = output_trades(backtester.bt)
-    stats = calculate_stats(
-        ohlc,
-        trades,
-        closed_trades,
-        backtester.data_module.equity,
-        INITIAL_CAPITAL,
-        display=False,
-        index=[(params)],
-    )
-    print(stats)
-    if plot:
-        plotting.plot_equity(backtester, ohlc, "close")
-    return stats
+st.stats()
+trades = st.trades()
+trades.drop(["IDX", "TIME_SL", "SL", "TP", "Direction", "CloseReason", "Extra"], inplace=True, axis=1)
 
+df = pd.DataFrame({'entry': st.long, 'exit': st.short}, index=data['Date'])
+# df.index = time_manip.convert_datetime_to_ms(df.index)
+df[df['exit']]
+df.reset_index(inplace=True)
 
-binance = pd.read_parquet("./data/binance-BTCUSDT-1h.parquet")
-kraken = pd.read_parquet("./data/kraken_btcusdt_1h.parquet")
-kraken.reset_index(inplace=True)
-binance.reset_index(inplace=True)
-
-
-binance = binance[0:47000]
-
-kraken = kraken[-1 * len(binance):]
-kraken
-
-
-print("TESTING KRAKEN")
-# print(kraken)
-strategy(kraken, (112, 6, 8), plot=True)
-
-print("===================================================")
-
-print("TESTING BINANCE")
-# print(binance)
-strategy(binance, (112, 6, 8), plot=True)
+# data['Date'][df[df['exit']]]
+# trades['EntryTime'] = time_manip.convert_datetime_to_ms(trades['EntryTime'])
+# print((15681.5 - 15683.5 ) * 4  - 1.2 * 2)
+trades['PNL'].sum()
+trades
 
 
 
-# strategy(ohlc, (526, 6, 10), plot=True)
-# for i in range(0, 1):
-#     for long in range(100 + i * 50, 150 + i * 50, 1):
-#         for short in range(5, 55, 1):
-#             for rsi in range(3, 15, 1):
-#                 stats = strategy(ohlc, (long, short, rsi))
+#|%%--%%| <7W30XJ9kt4|Ufsl8mlq0u>
 
 
+"""
+Create the dataframes needed for the UI
+"""
+df = pd.DataFrame({
+    'date': data['Date'],
+    'open': data.open,
+    'high': data.high,
+    'low': data.low,
+    'close': data.close,
+    'long': st.long,
+    'short': st.short,
+    'equity': st.bt.data_module.equity
+})
+df
+data
+time_manip.convert_datetime_to_ms(data['Date'])
+
+# Apply the function to create the new column
 
 
-# |%%--%%| <pkuzKHVZ2t|B71b17sxwt>
+# rsi_scatter_high = data['high']
+# rsi_scatter_low = data['high']
+
+indicators_data = pd.DataFrame({
+    'ma1': st.ma_long,
+    'ma2': st.ma_short,
+    'equity': st.bt.data_module.equity
+})
+
+"""
+Create the configuration that tells the UI which indicators to draw
+"""
+indicators = [{
+    "name": "EMA Long",
+    "type": "line",
+    "panel": 0,
+    "dataIndex": 0
+  }, {
+    "name": "MA Short",
+    "type": "line",
+    'color': "black",
+    "panel": 0,
+    "dataIndex": 1
+  }, {
+    "name": "Equity",
+    "type": "line",
+    'color': "black",
+    "panel": 1,
+    "dataIndex": 2
+  }
+]
 
 
-assets = find_files("./data/", "binance-BTC")
-assets
+"""
+Save the data and config to the location of the UI
+"""
+UI_LOCATION = "/home/alpha/workspace/cultivating-alpha/candles-ui/public"
 
-step = 50
-for asset in assets:
-    sym = asset.split("/")[-1].split(".")[0]
-    data = pd.read_parquet(asset)
-    print(asset)
-    print(data)
-    for i in range(0, 9):
-        print(i)
-        out = f"./optimisation/{sym}-RSI-{i}.parquet"
-        if not os.path.exists(out):
-            optimisation = optimize(
-                ohlc,
-                strategy,
-                # long=range(100, 101, 1),
-                # short=range(5, 55, 1),
-                # rsi=range(3, 15, 1),
-                long=range(100 + i * step, 150 + i * step, 1),
-                short=range(5, 55, 1),
-                rsi=range(3, 15, 1),
-                # atr_distance=np.arange(0.5, 10.5, 0.5),
-            )
-            print(optimisation)
-            # optimisation = optimisation.sort_values("ratio", ascending=False)
-            optimisation.to_parquet(f"./optimisation/{sym}-RSI-{i}.parquet")
-# print(optimisation)
-# optimisation.sort_values("ratio", ascending=False)
-# |%%--%%| <B71b17sxwt|wKaYjtFVdf>
-
-
-newdf = pd.DataFrame()
-
-opti = find_files("./optimisation/", "RSI")
-for opt in opti:
-    df = pd.read_parquet(opt)
-    newdf = pd.concat([newdf, df])
-
-# newdf.sort_values("RIO: (%)", ascending=False)
-newdf.sort_values("ratio", ascending=False)
-newdf.sort_values("End Value", ascending=False)
+save_data(UI_LOCATION, df, indicators, indicators_data)

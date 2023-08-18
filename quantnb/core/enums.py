@@ -6,6 +6,11 @@ class OrderDirection(IntEnum):
     LONG = 1
 
 
+class TradeSizeType(IntEnum):
+    FIXED = 0
+    PERCENTAGE = 1
+
+
 class CommissionType(IntEnum):
     FIXED = 0
     PERCENTAGE = 1
