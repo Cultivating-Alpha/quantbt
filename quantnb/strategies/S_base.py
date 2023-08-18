@@ -20,7 +20,7 @@ class S_base:
         multiplier=1,
         default_size=None,
         use_sl=False,
-        default_trade_size=-1,
+        default_trade_size=-1.0,
         trade_size_type=TradeSizeType.PERCENTAGE,
     ):
         data = data[offset:]

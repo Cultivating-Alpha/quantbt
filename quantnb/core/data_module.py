@@ -57,7 +57,7 @@ class DataModule:
 
         # PORTFOLIO
         length = len(self.close)
-        self.equity = np.full(length, initial_capital, dtype=np.float32)
+        self.equity = np.full(length, np.inf, dtype=np.float32)
         self.equity[0] = initial_capital
 
         self.initial_capital = float64(initial_capital)
@@ -79,6 +79,12 @@ class DataModule:
             return date, close, 0, 0
         else:
             return date, close, self.bid[index], self.ask[index]
+
+    # ============================================================================= #
+    #                               HELPER FUNCTIONS                                  #
+    # ============================================================================= #
+    # def reconcile_equity(self):
+
 
     # ============================================================================= #
     #                               SIZE FUNCTIONS                                  #
