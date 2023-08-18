@@ -39,9 +39,9 @@ data["Date"] = time_manip.convert_s_to_datetime(data['time'])
 data.drop(["time"], inplace=True, axis=1)
 data
 
-data = data[-1000:]
+data = data[-1000:-950]
 
-# |%%--%%| <bKsjcb3XDl|pkuzKHVZ2t>
+#|%%--%%| <1tMhyNzPrG|7W30XJ9kt4>
 
 import os
 from quantnb.lib import np, timeit, pd, find_files
@@ -52,8 +52,8 @@ class S_signals(S_base):
         long, short, cutoff = params
         close = data.close
 
-        self.ma_long = ta.sma(data.close, length=long)
-        self.ma_short = ta.sma(data.close, length=short)
+        self.ma_long = ta.sma(close, length=long)
+        self.ma_short = ta.sma(close, length=short)
 
         self.long = cross_above(self.ma_short, self.ma_long)
         self.short = cross_below(self.ma_short, self.ma_long)
@@ -63,39 +63,51 @@ class S_signals(S_base):
             'long_exits' : self.short,
             'short_entries' : self.short,
             'short_exits' : self.long,
-            'long_entry_price' : data.close.values,
-            'short_entry_price' : data.close.values,
-            'default_size': 0.99
+            # 'long_entries' : np.full(self.long.shape, False),
+            # 'long_exits' : np.full(self.long.shape, False),
+            # 'short_entries' : np.full(self.long.shape, False),
+            # 'short_exits' : np.full(self.long.shape, False),
         }
-
 
 st = S_signals(
   data, 
   commission=1.2,
   commission_type=CommissionType.FIXED,
+  multiplier=4,
   data_type=DataType.OHLC,
   initial_capital=100_000,
   default_trade_size=1,
   trade_size_type=TradeSizeType.FIXED,
 )
 
-params = (100, 50, 4)
+params = (10, 5, 4)
 st.from_signals(params)
 
 st.stats()
 trades = st.trades()
-trades.drop(["IDX", "Direction", "Active", "CloseReason", "Extra"], inplace=True, axis=1)
-trades['Commission']
+trades.drop(["IDX", "TIME_SL", "SL", "TP", "Direction", "CloseReason", "Extra"], inplace=True, axis=1)
+
+df = pd.DataFrame({'entry': st.long, 'exit': st.short}, index=data['Date'])
+# df.index = time_manip.convert_datetime_to_ms(df.index)
+df[df['exit']]
+df.reset_index(inplace=True)
+
+# data['Date'][df[df['exit']]]
+# trades['EntryTime'] = time_manip.convert_datetime_to_ms(trades['EntryTime'])
+# print((15681.5 - 15683.5 ) * 4  - 1.2 * 2)
+trades['PNL'].sum()
+trades
 
 
-#|%%--%%| <pkuzKHVZ2t|Ufsl8mlq0u>
+
+#|%%--%%| <7W30XJ9kt4|Ufsl8mlq0u>
 
 
 """
 Create the dataframes needed for the UI
 """
 df = pd.DataFrame({
-    'date': data.index,
+    'date': data['Date'],
     'open': data.open,
     'high': data.high,
     'low': data.low,
@@ -104,6 +116,9 @@ df = pd.DataFrame({
     'short': st.short,
     'equity': st.bt.data_module.equity
 })
+df
+data
+time_manip.convert_datetime_to_ms(data['Date'])
 
 # Apply the function to create the new column
 
