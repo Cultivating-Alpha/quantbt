@@ -6,6 +6,7 @@ from quantnb.core import print_bar
 from quantnb.core.enums import DataType, Trade
 from quantnb.core.specs_nb import backtester_specs
 from numba.experimental import jitclass
+
 TRADE_ITEMS_COUNT = Trade.__len__()
 
 
@@ -46,8 +47,6 @@ class FromSignals:
         # UPDATE EQUITY
         self.data_module.update_equity(
             index, self.trade_module.closed_pnl, self.trade_module.floating_pnl
-
-
         )
 
     def close_trade(self, index, trade, exit_price):
@@ -65,7 +64,6 @@ class FromSignals:
             trade, price_data, PositionCloseReason.SIGNAL.value
         )
 
-
     def create_trade(self, direction, i, entry_price):
         entry_size = self.data_module.get_trade_size(i)
         self.trade_module.add_trade(
@@ -76,7 +74,7 @@ class FromSignals:
             entry_price,
             entry_size,
             0,
-            0
+            0,
         )
 
     def from_signals(
@@ -98,9 +96,8 @@ class FromSignals:
 
             # Check if we are allowed to place more trades
             can_trade = True
-            if len(self.trade_module.active_trades) > 0:
-                can_trade = False
-
+            # if len(self.trade_module.active_trades) > 0:
+            #     can_trade = False
 
             # ======================================================================================= #
             #                                          Take Long Trades                               #
@@ -119,7 +116,7 @@ class FromSignals:
             #                                          Take Short Trades                               #
             # ======================================================================================= #
             if short_entries[i] and can_trade:
-                self.create_trade(OrderDirection.LONG.value, i, short_entry_price[i])
+                self.create_trade(OrderDirection.SHORT.value, i, short_entry_price[i])
                 last_trade_index += 1
 
             elif short_exits[i]:
