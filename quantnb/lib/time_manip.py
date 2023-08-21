@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 
 class TimeManip:
@@ -24,8 +25,7 @@ class TimeManip:
             else:
                 # print("Timestamp might be in milliseconds")
                 row = time_manip.convert_ms_to_datetime(row)
-
-        df['Date'] = row
+        df["Date"] = row
         return df
 
     # ================================================================================= #
@@ -45,6 +45,21 @@ class TimeManip:
 
     def convert_duration_to_timestamp(self, df, unit="ms"):
         return pd.to_timedelta(df, unit=unit)
+
+    # ================================================================================= #
+    #                             Resample Methods                                      #
+    # ================================================================================= #
+    def hours_ago(self, df, hours=0):
+        today = df["Date"].iloc[-1]
+        hours_ago = today - pd.DateOffset(hours=hours)
+
+        return df[df["Date"] >= hours_ago]
+
+    def months_ago(self, df, months=0):
+        today = df["Date"].iloc[-1]
+        months_ago = today - pd.DateOffset(months=months)
+
+        return df[df["Date"] >= months_ago]
 
 
 time_manip = TimeManip()

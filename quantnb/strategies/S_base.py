@@ -7,6 +7,10 @@ from quantnb.core.backtester import Backtester
 from quantnb.lib.output_trades import output_trades
 from quantnb.lib.calculate_stats import calculate_stats
 from quantnb.core.enums import DataType, CommissionType, TradeSizeType
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
 
 class S_base:
     def __init__(
@@ -61,7 +65,7 @@ class S_base:
             low=low,
             close=close,
             data_type=self.data_type,
-            date=time_manip.convert_datetime_to_ms(df['Date']).values,
+            date=time_manip.convert_datetime_to_ms(df["Date"]).values,
             default_trade_size=self.default_trade_size,
             trade_size_type=self.trade_size_type,
         )
@@ -108,7 +112,7 @@ class S_base:
     def save_to_csv(self):
         print("Need to add CSV")
 
-   # ======================================================================================== #
+    # ======================================================================================== #
     #                                        Plotting                                          #
     # ======================================================================================== #
     def plot_equity(self):
