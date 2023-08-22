@@ -64,7 +64,7 @@ class FromSignals:
             trade, price_data, PositionCloseReason.SIGNAL.value
         )
 
-    def create_trade(self, direction, i, entry_price):
+    def create_trade(self, direction, i, entry_price, sl=0.0, tp=0.0):
         entry_size = self.data_module.get_trade_size(i)
         self.trade_module.add_trade(
             i,
@@ -73,8 +73,8 @@ class FromSignals:
             self.data_module.date[i],
             entry_price,
             entry_size,
-            0,
-            0,
+            sl,
+            tp,
         )
 
     def from_signals(
@@ -87,6 +87,7 @@ class FromSignals:
         long_exit_price,
         short_entry_price,
         short_exit_price,
+        sl,
     ):
         last_trade_index = 0
         for i in range(len(self.data_module.close) - 1):
@@ -102,8 +103,11 @@ class FromSignals:
             # ======================================================================================= #
             #                                          Take Long Trades                               #
             # ======================================================================================= #
-            if long_entries[i] and can_trade:
-                self.create_trade(OrderDirection.LONG.value, i, long_entry_price[i])
+            number_of_long_trades = self.trade_module.active_long_trades
+            number_of_short_trades = self.trade_module.active_short_trades
+
+            if long_entries[i] and can_trade and number_of_long_trades == 0:
+                self.create_trade(OrderDirection.LONG.value, i, long_entry_price[i], sl[i])
                 last_trade_index += 1
 
             elif long_exits[i]:
@@ -115,15 +119,15 @@ class FromSignals:
             # ======================================================================================= #
             #                                          Take Short Trades                               #
             # ======================================================================================= #
-            if short_entries[i] and can_trade:
-                self.create_trade(OrderDirection.SHORT.value, i, short_entry_price[i])
+            if short_entries[i] and can_trade and number_of_short_trades == 0:
+                self.create_trade(OrderDirection.SHORT.value, i, short_entry_price[i], sl[i])
                 last_trade_index += 1
 
             elif short_exits[i]:
                 if len(self.trade_module.active_trades) != 0:
                     for trade in self.trade_module.active_trades:
                         if trade[Trade.Direction.value] == OrderDirection.SHORT.value:
-                            self.close_trade(i, trade, long_exit_price[i])
+                            self.close_trade(i, trade, short_exit_price[i])
 
             self.loop_updates(i)
 

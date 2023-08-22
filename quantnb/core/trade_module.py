@@ -59,6 +59,11 @@ class TradeModule:
         self.floating_pnl: float = 0.0
         self.closed_pnl: float = 0.0
 
+        # Active Trade Stats
+        self.active_long_trades: int = 0
+        self.active_short_trades: int = 0
+
+
 
     # ============================================================================= #
     #                                PNL FUNCTIONS                                  #
@@ -101,8 +106,14 @@ class TradeModule:
         if len(self.active_trades) == 0:
             return
 
+        self.active_long_trades = 0
+        self.active_short_trades = 0
         for trade in self.active_trades:
             need_to_close, close_reason = should_trade_close(trade, price_data)
+            if trade[Trade.Direction.value] == OrderDirection.LONG.value:
+                self.active_long_trades += 1
+            else:
+                self.active_short_trades += 1
 
             if need_to_close:
                 self.close_trade(trade, price_data, close_reason)
@@ -116,8 +127,8 @@ class TradeModule:
         entry_time=0.0,
         entry_price=0.0,
         volume=0.0,
-        tp=0.0,
         sl=0.0,
+        tp=0.0,
         time_sl=np.inf,
         extra=-1,
     ) -> None:
@@ -136,8 +147,8 @@ class TradeModule:
                     entry_time,
                     entry_price,
                     volume,
-                    tp,
                     sl,
+                    tp,
                     time_sl,
                     self.commission,
                     extra,

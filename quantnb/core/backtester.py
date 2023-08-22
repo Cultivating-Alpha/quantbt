@@ -73,6 +73,7 @@ class Backtester:
         long_exit_price=None,
         short_entry_price=None,
         short_exit_price=None,
+        sl=None
     ):
         # print("Compiling")
         # print("Preparing")
@@ -102,5 +103,6 @@ class Backtester:
             get_series_values(long_exit_price),
             get_series_values(short_entry_price),
             get_series_values(short_exit_price),
+            get_series_values(sl),
         )
 

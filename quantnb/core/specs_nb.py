@@ -33,6 +33,8 @@ trade_specs = [
     ("max_active_trades", int32),
     ("floating_pnl", float64),
     ("closed_pnl", float64),
+    ("active_long_trades", int32),
+    ("active_short_trades", int32),
 ]
 
 backtester_specs = [

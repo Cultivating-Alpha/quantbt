@@ -5,7 +5,6 @@ class OrderDirection(IntEnum):
     SHORT = 0
     LONG = 1
 
-
 class TradeSizeType(IntEnum):
     FIXED = 0
     PERCENTAGE = 1
@@ -49,8 +48,8 @@ class Trade(IntEnum):
     ExitTime = 5
     ExitPrice = 6
     Volume = 7
-    TP = 8
-    SL = 9
+    SL = 8
+    TP = 9
     TIME_SL = 10
     PNL = 11
     Commission = 12

@@ -74,10 +74,18 @@ class S_base:
         print("Stub function for generating signals")
         self.entries = np.full_like(self.data.Close, False)
         self.exits = np.full_like(self.data.Close, False)
+        return {}
 
     def from_signals(self, params):
         self.params = params
         vals = self.generate_signals()
+        if 'long_exits' not in vals:
+            vals['long_exits'] = np.full_like(self.data.Close, False)
+        if 'short_exits' not in vals:
+            vals['short_exits'] = np.full_like(self.data.Close, False)
+        if 'sl' not in vals:
+            vals['sl'] = np.full_like(self.data.Close, 0.0)
+
         self.bt.from_signals(**vals)
 
     def from_trades(self, trades):

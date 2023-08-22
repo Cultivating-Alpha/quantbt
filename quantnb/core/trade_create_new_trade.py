@@ -16,8 +16,8 @@ def create_new_trade(
     entry_time,
     entry_price,
     volume=0,
-    tp=0,
     sl=0,
+    tp=0,
     time_sl=np.inf,
     commission=0,
     extra=0,
@@ -32,8 +32,8 @@ def create_new_trade(
     trade[Trade.ExitTime.value] = -1
     trade[Trade.ExitPrice.value] = -1
     trade[Trade.Volume.value] = volume
-    trade[Trade.TP.value] = tp
     trade[Trade.SL.value] = sl
+    trade[Trade.TP.value] = tp
     trade[Trade.TIME_SL.value] = time_sl
     trade[Trade.PNL.value] = commission * -1
     trade[Trade.Commission.value] = commission

@@ -1,5 +1,5 @@
 from numba import njit
-from quantnb.core.enums import Trade
+from quantnb.core.enums import Trade, PositionCloseReason
 from quantnb.core.calculate_exit_price import calculate_exit_price
 
 
@@ -12,7 +12,11 @@ def close_trade(
     # print(trade[Trade.Index.value])
     # print(trade[Trade.IDX.value])
     direction = trade[Trade.Direction.value]
-    exit_price = calculate_exit_price(slippage, direction, price_value, bid, ask)
+
+    if close_reason == PositionCloseReason.SL.value:
+        exit_price = calculate_exit_price(slippage, direction, trade[Trade.SL.value], bid, ask)
+    else:
+        exit_price = calculate_exit_price(slippage, direction, price_value, bid, ask)
     # print("==========")
     # print(self.slippage)
     # print(price_value)
