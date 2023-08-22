@@ -63,8 +63,6 @@ class TradeModule:
         self.active_long_trades: int = 0
         self.active_short_trades: int = 0
 
-
-
     # ============================================================================= #
     #                                PNL FUNCTIONS                                  #
     # ============================================================================= #
@@ -84,10 +82,18 @@ class TradeModule:
         self.closed_trades = self.closed_trades[: self.last_closed_trade_index]
 
     # ============================================================================= #
+    #                              TRADE FUNCTIONS                                  #
+    # ============================================================================= #
+    def update_trailing_sl(self, trailing_sl):
+        for trade in self.active_trades:
+            trade[Trade.SL.value] = trailing_sl
+
+    # ============================================================================= #
     #                               LOOP FUNCTIONS                                  #
     # ============================================================================= #
     def close_trade(self, trade, price_data, close_reason):
         current_tick, price_value, bid, ask = price_data
+
         trade, new_pnl, index = close_trade(
             trade, self.slippage, price_value, bid, ask, current_tick, close_reason
         )
@@ -101,6 +107,7 @@ class TradeModule:
 
         # Set Active state of trade
         self.active_trades = remove_from_active_trades(self.active_trades, index)
+        print("closing trade")
 
     def check_trades_to_close(self, price_data):
         if len(self.active_trades) == 0:
@@ -117,6 +124,10 @@ class TradeModule:
 
             if need_to_close:
                 self.close_trade(trade, price_data, close_reason)
+                if trade[Trade.Direction.value] == OrderDirection.LONG.value:
+                    self.active_long_trades -= 1
+                else:
+                    self.active_short_trades -= 1
         return
 
     def add_trade(

@@ -107,9 +107,6 @@ class FromSignals:
             number_of_long_trades = self.trade_module.active_long_trades
             number_of_short_trades = self.trade_module.active_short_trades
 
-            if trailing_sl[i] > 0:
-                print(trailing_sl[i])
-
             if long_entries[i] and can_trade and number_of_long_trades == 0:
                 self.create_trade(
                     OrderDirection.LONG.value, i, long_entry_price[i], sl[i]
@@ -138,6 +135,15 @@ class FromSignals:
                             self.close_trade(i, trade, short_exit_price[i])
 
             self.loop_updates(i)
+
+            if trailing_sl[i] > 0:
+                if len(self.trade_module.active_trades) > 1:
+                    print(
+                        "Please take care of traling SL going over more than one trade"
+                    )
+                    print(len(self.trade_module.active_trades))
+
+                self.trade_module.update_trailing_sl(trailing_sl[i])
 
             if self.data_module.equity[i] < 0:
                 print("Account blown up")

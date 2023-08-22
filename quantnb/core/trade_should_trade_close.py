@@ -15,6 +15,7 @@ def should_trade_close(trade, price_data):
                 return True, PositionCloseReason.SL.value
         else:
             if trade[Trade.SL.value] <= high:
+                print(trade[Trade.SL.value], price_value, high)
                 return True, PositionCloseReason.SL.value
         return False, None
     # elif trade[Trade.TP.value] != 0:

@@ -76,7 +76,7 @@ class S_base:
         self.exits = np.full_like(self.data.Close, False)
         return {}
 
-    def from_signals(self, params):
+    def from_signals(self, params, use_trailing_sl=True):
         self.params = params
         vals = self.generate_signals()
 
@@ -86,6 +86,9 @@ class S_base:
             "sl": np.full_like(self.data.Close, 0.0),
             "trailing_sl": np.full_like(self.data.Close, 0.0),
         }
+
+        if not use_trailing_sl:
+            vals["trailing_sl"] = default_values["trailing_sl"]
 
         for key in default_values.keys():
             if key not in vals:
