@@ -71,12 +71,13 @@ class DataModule:
         self.default_trade_size: float = default_trade_size
         self.trade_size_type: int = trade_size_type
 
-
     def get_data_at_index(self, index):
         date = self.date[index]
         close = self.close[index]
+        high = self.high[index]
+        low = self.low[index]
         if self.data_type == DataType.OHLC.value:
-            return date, close, 0, 0
+            return date, close, low, high
         else:
             return date, close, self.bid[index], self.ask[index]
 
@@ -84,7 +85,6 @@ class DataModule:
     #                               HELPER FUNCTIONS                                  #
     # ============================================================================= #
     # def reconcile_equity(self):
-
 
     # ============================================================================= #
     #                               SIZE FUNCTIONS                                  #
@@ -97,7 +97,6 @@ class DataModule:
             return self.default_trade_size * equity / price_value
         else:
             return self.default_trade_size
-
 
     def calculate_entry_price(self, i, direction):
         price_value = 0

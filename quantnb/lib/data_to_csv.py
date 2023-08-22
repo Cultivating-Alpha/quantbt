@@ -1,6 +1,7 @@
 import json
 import numpy as np
 
+
 def save_data(UI_LOCATION, df, indicators, indicators_data):
     def save_to_csv(df, path):
         array_of_arrays = df.values.tolist()
@@ -12,8 +13,9 @@ def save_data(UI_LOCATION, df, indicators, indicators_data):
     save_to_csv(df, f"{UI_LOCATION}/ohlc.csv")
     save_to_csv(indicators_data, f"{UI_LOCATION}/indicators.csv")
 
-    with open(f"{UI_LOCATION}/indicators.json", 'w') as f:
+    with open(f"{UI_LOCATION}/indicators.json", "w") as f:
         json.dump(indicators, f)
+
 
 def create_scatter_df(data, mask):
     new_df = np.empty(len(data))
@@ -23,4 +25,3 @@ def create_scatter_df(data, mask):
         else:
             new_df[i] = np.nan
     return new_df
-
