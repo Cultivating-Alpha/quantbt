@@ -105,7 +105,9 @@ class FromTrades:
 
             # Update PNL | Check trades to close | Update Equity
             self.loop_updates(i)
-            max_active_trades = max(max_active_trades, len(self.trade_module.active_trades))
+            max_active_trades = max(
+                max_active_trades, len(self.trade_module.active_trades)
+            )
             last_index = i
 
         print(max_active_trades)

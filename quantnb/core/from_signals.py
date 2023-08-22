@@ -77,34 +77,6 @@ class FromSignals:
             tp,
         )
 
-    def close_trade(self, index, trade, exit_price):
-        # Get the price data
-        (
-            current_tick,
-            price_value,
-            bid,
-            ask,
-        ) = self.data_module.get_data_at_index(index)
-        price_data = (current_tick, exit_price, bid, ask)
-
-        # Close the trade
-        self.trade_module.close_trade(
-            trade, price_data, PositionCloseReason.SIGNAL.value
-        )
-
-    def create_trade(self, direction, i, entry_price):
-        entry_size = self.data_module.get_trade_size(i)
-        self.trade_module.add_trade(
-            i,
-            direction,
-            OrderType.MARKET.value,
-            self.data_module.date[i],
-            entry_price,
-            entry_size,
-            0,
-            0,
-        )
-
     def from_signals(
         self,
         long_entries,
@@ -135,7 +107,9 @@ class FromSignals:
             number_of_short_trades = self.trade_module.active_short_trades
 
             if long_entries[i] and can_trade and number_of_long_trades == 0:
-                self.create_trade(OrderDirection.LONG.value, i, long_entry_price[i], sl[i])
+                self.create_trade(
+                    OrderDirection.LONG.value, i, long_entry_price[i], sl[i]
+                )
                 last_trade_index += 1
 
             elif long_exits[i]:
@@ -148,7 +122,9 @@ class FromSignals:
             #                                          Take Short Trades                               #
             # ======================================================================================= #
             if short_entries[i] and can_trade and number_of_short_trades == 0:
-                self.create_trade(OrderDirection.SHORT.value, i, short_entry_price[i], sl[i])
+                self.create_trade(
+                    OrderDirection.SHORT.value, i, short_entry_price[i], sl[i]
+                )
                 last_trade_index += 1
 
             elif short_exits[i]:

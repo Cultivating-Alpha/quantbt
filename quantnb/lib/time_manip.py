@@ -50,16 +50,16 @@ class TimeManip:
     #                             Resample Methods                                      #
     # ================================================================================= #
     def hours_ago(self, df, hours=0):
-        today = df["Date"].iloc[-1]
+        today = df.index.values[-1]
         hours_ago = today - pd.DateOffset(hours=hours)
 
-        return df[df["Date"] >= hours_ago]
+        return df[df.index >= hours_ago]
 
     def months_ago(self, df, months=0):
-        today = df["Date"].iloc[-1]
+        today = df.index.values[-1]
         months_ago = today - pd.DateOffset(months=months)
 
-        return df[df["Date"] >= months_ago]
+        return df[df.index >= months_ago]
 
 
 time_manip = TimeManip()
