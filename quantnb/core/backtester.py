@@ -22,7 +22,7 @@ class Backtester:
         multiplier=1,
         commission=0.0,
         commission_type=CommissionType.FIXED,
-        slippage=0,
+        slippage=0.0,
         initial_capital=10000,
         default_trade_size=-1,
         trade_size_type=TradeSizeType.PERCENTAGE,
@@ -54,7 +54,6 @@ class Backtester:
             trade_size_type=trade_size_type.value,
         )
 
-
     def from_trades(self, trades):
         # print("Compiling")
         self.bt = FromTrades(
@@ -73,7 +72,8 @@ class Backtester:
         long_exit_price=None,
         short_entry_price=None,
         short_exit_price=None,
-        sl=None
+        sl=None,
+        trailing_sl=None,
     ):
         # print("Compiling")
         # print("Preparing")
@@ -104,5 +104,5 @@ class Backtester:
             get_series_values(short_entry_price),
             get_series_values(short_exit_price),
             get_series_values(sl),
+            get_series_values(trailing_sl),
         )
-

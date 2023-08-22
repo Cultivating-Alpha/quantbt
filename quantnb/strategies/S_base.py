@@ -19,6 +19,7 @@ class S_base:
         initial_capital=10000,
         data_type=DataType.OHLC,
         multiplier=1,
+        slippage=0.0,
         default_size=None,
         use_sl=False,
         default_trade_size=-1.0,
@@ -38,14 +39,12 @@ class S_base:
         self.commmision_type = commission_type
         self.initial_capital = initial_capital
         self.use_sl = use_sl
+        self.slippage = slippage
         self.data_type = data_type
         self.params = ()
         self.default_trade_size = default_trade_size
         self.trade_size_type = trade_size_type
 
-        self.set_bt_data()
-
-    def set_bt_data(self):
         df = time_manip.format_index(self.data)
         open = df.Open.to_numpy(dtype=np.float32)
         high = df.High.to_numpy(dtype=np.float32)
@@ -65,6 +64,7 @@ class S_base:
             date=time_manip.convert_datetime_to_ms(df["Date"]).values,
             default_trade_size=self.default_trade_size,
             trade_size_type=self.trade_size_type,
+            slippage=self.slippage,
         )
 
     # ======================================================================================== #
@@ -79,12 +79,17 @@ class S_base:
     def from_signals(self, params):
         self.params = params
         vals = self.generate_signals()
-        if "long_exits" not in vals:
-            vals["long_exits"] = np.full_like(self.data.Close, False)
-        if "short_exits" not in vals:
-            vals["short_exits"] = np.full_like(self.data.Close, False)
-        if "sl" not in vals:
-            vals["sl"] = np.full_like(self.data.Close, 0.0)
+
+        default_values = {
+            "long_exits": np.full_like(self.data.Close, False),
+            "short_exits": np.full_like(self.data.Close, False),
+            "sl": np.full_like(self.data.Close, 0.0),
+            "trailing_sl": np.full_like(self.data.Close, 0.0),
+        }
+
+        for key in default_values.keys():
+            if key not in vals:
+                vals[key] = default_values[key]
 
         self.bt.from_signals(**vals)
 

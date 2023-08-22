@@ -88,6 +88,7 @@ class FromSignals:
         short_entry_price,
         short_exit_price,
         sl,
+        trailing_sl,
     ):
         last_trade_index = 0
         for i in range(len(self.data_module.close) - 1):
@@ -105,6 +106,9 @@ class FromSignals:
             # ======================================================================================= #
             number_of_long_trades = self.trade_module.active_long_trades
             number_of_short_trades = self.trade_module.active_short_trades
+
+            if trailing_sl[i] > 0:
+                print(trailing_sl[i])
 
             if long_entries[i] and can_trade and number_of_long_trades == 0:
                 self.create_trade(
