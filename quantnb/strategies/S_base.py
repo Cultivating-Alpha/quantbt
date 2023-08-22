@@ -7,7 +7,10 @@ from quantnb.core.backtester import Backtester
 from quantnb.lib.output_trades import output_trades
 from quantnb.lib.calculate_stats import calculate_stats
 from quantnb.core.enums import DataType, CommissionType, TradeSizeType
+<<<<<<< HEAD
+=======
 
+>>>>>>> master
 
 class S_base:
     def __init__(
@@ -40,8 +43,8 @@ class S_base:
         self.use_sl = use_sl
         self.data_type = data_type
         self.params = ()
-        self.default_trade_size = default_trade_size
-        self.trade_size_type = trade_size_type
+        self.default_trade_size= default_trade_size
+        self.trade_size_type= trade_size_type
 
         self.set_bt_data()
 

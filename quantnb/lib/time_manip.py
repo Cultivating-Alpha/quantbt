@@ -25,7 +25,6 @@ class TimeManip:
             else:
                 # print("Timestamp might be in milliseconds")
                 row = time_manip.convert_ms_to_datetime(row)
-
         df["Date"] = row
         return df
 

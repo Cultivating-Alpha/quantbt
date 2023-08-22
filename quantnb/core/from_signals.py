@@ -77,6 +77,34 @@ class FromSignals:
             tp,
         )
 
+    def close_trade(self, index, trade, exit_price):
+        # Get the price data
+        (
+            current_tick,
+            price_value,
+            bid,
+            ask,
+        ) = self.data_module.get_data_at_index(index)
+        price_data = (current_tick, exit_price, bid, ask)
+
+        # Close the trade
+        self.trade_module.close_trade(
+            trade, price_data, PositionCloseReason.SIGNAL.value
+        )
+
+    def create_trade(self, direction, i, entry_price):
+        entry_size = self.data_module.get_trade_size(i)
+        self.trade_module.add_trade(
+            i,
+            direction,
+            OrderType.MARKET.value,
+            self.data_module.date[i],
+            entry_price,
+            entry_size,
+            0,
+            0,
+        )
+
     def from_signals(
         self,
         long_entries,
