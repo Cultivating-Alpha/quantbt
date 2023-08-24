@@ -1,57 +1,66 @@
-from quantnb.core import FromTrades, FromSignals
-from quantnb.core.enums import Trade, CommissionType, TradeSizeType
+import numpy as np
+
+from quantnb.core import FromSignals, FromTrades
 from quantnb.core.data_module import DataModule
+from quantnb.core.enums import CommissionType, DataType, Trade, TradeSizeType
 from quantnb.core.trade_module import TradeModule
-from quantnb.core.enums import DataType, Trade
 from quantnb.lib.get_series_values import get_series_values
 from quantnb.lib.shift_data import shift_data
-import numpy as np
+
+
+default_arguments = {
+    "open": None,
+    "high": None,
+    "low": None,
+    "bid": None,
+    "ask": None,
+    "data_type": DataType.BID_ASK,
+    "multiplier": 1,
+    "commission": 0.0,
+    "commission_type": CommissionType.FIXED,
+    "slippage": 0.0,
+    "initial_capital": 10000,
+    "default_trade_size": -1,
+    "trade_size_type": TradeSizeType.PERCENTAGE,
+    "max_active_trades": -1,
+}
 
 
 class Backtester:
-    def __init__(
-        self,
-        date,
-        close,
-        open=None,
-        high=None,
-        low=None,
-        bid=None,
-        ask=None,
-        data_type=DataType.BID_ASK,
-        multiplier=1,
-        commission=0.0,
-        commission_type=CommissionType.FIXED,
-        slippage=0.0,
-        initial_capital=10000,
-        default_trade_size=-1,
-        trade_size_type=TradeSizeType.PERCENTAGE,
-        max_active_trades=-1,
-    ):
-        if max_active_trades == -1:
-            max_active_trades = 1000000
+    def __init__(self, date, close, **args):
+        self.date = date
+        self.close = close
+        for arg in default_arguments.keys():
+            if arg not in args.keys():
+                setattr(self, arg, default_arguments[arg])
+            else:
+                setattr(self, arg, args[arg])
+        self.reset_backtester()
 
+    def reset_backtester(self):
+        if self.max_active_trades == -1:
+            self.max_active_trades = 1000000
         self.trade_module = TradeModule(
-            data_type=data_type.value,
-            multiplier=multiplier,
-            commission=commission,
-            commission_type=commission_type.value,
-            slippage=slippage,
-            max_active_trades=max_active_trades,
+            data_type=self.data_type.value,
+            multiplier=self.multiplier,
+            commission=self.commission,
+            commission_type=self.commission_type.value,
+            slippage=self.slippage,
+            max_active_trades=self.max_active_trades,
         )
         self.data_module = DataModule(
-            slippage=slippage,
-            initial_capital=initial_capital,
-            close=close,
-            open=open,
-            high=high,
-            low=low,
-            bid=bid,
-            data_type=data_type,
-            ask=ask,
-            date=date,
-            default_trade_size=default_trade_size,
-            trade_size_type=trade_size_type.value,
+            slippage=self.slippage,
+            initial_capital=self.initial_capital,
+            close=self.close,
+            open=self.open,
+            high=self.high,
+            low=self.low,
+            bid=self.bid,
+            data_type=self.data_type,
+            ask=self.ask,
+            date=self.date,
+            default_trade_size=self.default_trade_size,
+            trade_size_type=self.trade_size_type.value,
         )
 
     def from_trades(self, trades):

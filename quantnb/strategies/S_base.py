@@ -33,10 +33,6 @@ class S_base:
         )
         data.index = data.index.astype(int) // 10**9
         self.data = data
-        self.commmision = commission
-        self.multiplier = multiplier
-        self.default_size = default_size
-        self.commmision_type = commission_type
         self.initial_capital = initial_capital
         self.use_sl = use_sl
         self.slippage = slippage
@@ -52,18 +48,18 @@ class S_base:
         close = df.Close.to_numpy(dtype=np.float32)
 
         self.bt = Backtester(
-            initial_capital=self.initial_capital,
-            commission=self.commmision,
-            commission_type=self.commmision_type,
-            multiplier=self.multiplier,
+            initial_capital=initial_capital,
+            commission=commission,
+            commission_type=commission_type,
+            multiplier=multiplier,
             open=open,
             high=high,
             low=low,
             close=close,
-            data_type=self.data_type,
+            data_type=data_type,
             date=time_manip.convert_datetime_to_ms(df["Date"]).values,
-            default_trade_size=self.default_trade_size,
-            trade_size_type=self.trade_size_type,
+            default_trade_size=default_trade_size,
+            trade_size_type=trade_size_type,
             slippage=self.slippage,
         )
 
@@ -77,6 +73,7 @@ class S_base:
         return {}
 
     def from_signals(self, params, use_trailing_sl=True):
+        self.bt.reset_backtester()
         self.params = params
         vals = self.generate_signals()
 
@@ -102,7 +99,7 @@ class S_base:
     # ======================================================================================== #
     #                                 STATISTICS & METRICS                                     #
     # ======================================================================================== #
-    def stats(self, display=False):
+    def get_stats(self, display=False):
         params = self.params
         trades, closed_trades, active_trades = output_trades(self.bt)
         self.stats = calculate_stats(
@@ -117,13 +114,12 @@ class S_base:
         return self.stats
 
     # Trades
-    def trades(self):
+    def get_trades(self, columns_to_drop=[]):
         trades, closed_trades, active_trades = output_trades(self.bt)
         trades.sort_values(by=["EntryTime"], inplace=True)
-        return trades
 
-    def save_to_csv(self):
-        print("Need to add CSV")
+        trades.drop(columns=columns_to_drop, inplace=True, axis=1)
+        return trades
 
     # ======================================================================================== #
     #                                        Plotting                                          #
