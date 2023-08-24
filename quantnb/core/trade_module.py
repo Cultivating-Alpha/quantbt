@@ -107,6 +107,7 @@ class TradeModule:
 
         # Set Active state of trade
         self.active_trades = remove_from_active_trades(self.active_trades, index)
+        print(new_pnl)
         print("closing trade")
 
     def check_trades_to_close(self, price_data):
