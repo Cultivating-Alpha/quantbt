@@ -84,9 +84,10 @@ class TradeModule:
     # ============================================================================= #
     #                              TRADE FUNCTIONS                                  #
     # ============================================================================= #
-    def update_trailing_sl(self, trailing_sl):
+    def update_trailing_sl(self, direction, trailing_sl):
         for trade in self.active_trades:
-            trade[Trade.SL.value] = trailing_sl
+            if trade[Trade.Direction.value] == direction:
+                trade[Trade.TSL.value] = trailing_sl
 
     # ============================================================================= #
     #                               LOOP FUNCTIONS                                  #
@@ -114,7 +115,6 @@ class TradeModule:
 
         # Set Active state of trade
         self.active_trades = remove_from_active_trades(self.active_trades, index)
-        print(new_pnl)
         print("closing trade")
 
     def check_trades_to_close(self, price_data):

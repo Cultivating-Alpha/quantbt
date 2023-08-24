@@ -72,7 +72,7 @@ class S_base:
         self.exits = np.full_like(self.data.Close, False)
         return {}
 
-    def from_signals(self, params, use_trailing_sl=True):
+    def from_signals(self, params, use_trailing_sl=True, trade_allowed=True):
         self.bt.reset_backtester()
         self.params = params
         vals = self.generate_signals()
@@ -81,7 +81,8 @@ class S_base:
             "long_exits": np.full_like(self.data.Close, False),
             "short_exits": np.full_like(self.data.Close, False),
             "sl": np.full_like(self.data.Close, 0.0),
-            "trailing_sl": np.full_like(self.data.Close, 0.0),
+            "trailing_sl_long": np.full_like(self.data.Close, 0.0),
+            "trailing_sl_short": np.full_like(self.data.Close, 0.0),
         }
 
         if not use_trailing_sl:
@@ -90,6 +91,8 @@ class S_base:
         for key in default_values.keys():
             if key not in vals:
                 vals[key] = default_values[key]
+
+        vals["trade_allowed"] = trade_allowed
 
         self.bt.from_signals(**vals)
 
@@ -114,8 +117,10 @@ class S_base:
         return self.stats
 
     # Trades
-    def get_trades(self, columns_to_drop=[]):
-        trades, closed_trades, active_trades = output_trades(self.bt)
+    def get_trades(self, columns_to_drop=[], close_active_trades=False):
+        trades, closed_trades, active_trades = output_trades(
+            self.bt, close_active_trades=close_active_trades
+        )
         trades.sort_values(by=["EntryTime"], inplace=True)
 
         trades.drop(columns=columns_to_drop, inplace=True, axis=1)

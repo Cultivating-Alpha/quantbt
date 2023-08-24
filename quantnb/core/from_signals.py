@@ -88,7 +88,9 @@ class FromSignals:
         short_entry_price,
         short_exit_price,
         sl,
-        trailing_sl,
+        trailing_sl_long,
+        trailing_sl_short,
+        trade_allowed,
     ):
         last_trade_index = 0
         for i in range(len(self.data_module.close) - 1):
@@ -97,7 +99,7 @@ class FromSignals:
             self.trade_module.update_trades_pnl(self.data_module.open[i + 1], 0, 0)
 
             # Check if we are allowed to place more trades
-            can_trade = True
+            can_trade = trade_allowed
             # if len(self.trade_module.active_trades) > 0:
             #     can_trade = False
 
@@ -136,14 +138,27 @@ class FromSignals:
 
             self.loop_updates(i)
 
-            if trailing_sl[i] > 0:
+            if trailing_sl_long[i] > 0:
                 if len(self.trade_module.active_trades) > 1:
                     print(
                         "Please take care of traling SL going over more than one trade"
                     )
                     print(len(self.trade_module.active_trades))
 
-                self.trade_module.update_trailing_sl(trailing_sl[i])
+                self.trade_module.update_trailing_sl(
+                    OrderDirection.LONG.value, trailing_sl_long[i]
+                )
+            if trailing_sl_short[i] > 0:
+                if len(self.trade_module.active_trades) > 1:
+                    print(
+                        "Please take care of traling SL going over more than one trade"
+                    )
+                    print(len(self.trade_module.active_trades))
+                print("Updating short TSL", trailing_sl_short[i])
+
+                self.trade_module.update_trailing_sl(
+                    OrderDirection.SHORT.value, trailing_sl_short[i]
+                )
 
             if self.data_module.equity[i] < 0:
                 print("Account blown up")

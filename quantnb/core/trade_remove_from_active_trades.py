@@ -6,11 +6,12 @@ from quantnb.core.enums import Trade
 TRADE_ITEMS_COUNT = Trade.__len__()
 
 
-@njit(cache=True)
+@njit
 def remove_from_active_trades(active_trades: ndarray, index: int) -> ndarray:
     new_active_trades: ndarray = np.zeros(
         (len(active_trades), TRADE_ITEMS_COUNT), dtype=np.float64
     )
+
     count: int = 0
     for i in range(len(active_trades)):
         trade = active_trades[i]

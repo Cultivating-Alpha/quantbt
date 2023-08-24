@@ -6,7 +6,7 @@ from quantnb.core.enums import Trade
 TRADE_ITEMS_COUNT = Trade.__len__()
 
 
-@njit(cache=True)
+@njit
 def add_trade_to_active_trades(active_trades, trade) -> ndarray:
     new_active_trades: ndarray = np.zeros(
         (len(active_trades) + 1, TRADE_ITEMS_COUNT), dtype=np.float64

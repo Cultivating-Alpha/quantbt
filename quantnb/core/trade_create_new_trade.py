@@ -8,7 +8,7 @@ from quantnb.core.calculate_commission import calculate_commission
 TRADE_ITEMS_COUNT = Trade.__len__()
 
 
-@njit(cache=True)
+@njit
 def create_new_trade(
     idx,
     index,
@@ -34,11 +34,12 @@ def create_new_trade(
     trade[Trade.Volume.value] = volume
     trade[Trade.SL.value] = sl
     trade[Trade.TP.value] = tp
+    trade[Trade.TSL.value] = np.inf
     trade[Trade.TIME_SL.value] = time_sl
     trade[Trade.PNL.value] = commission * -1
     trade[Trade.Commission.value] = commission
     trade[Trade.Active.value] = True
-    trade[Trade.Extra.value] = extra
     trade[Trade.CloseReason.value] = -1
+    trade[Trade.Extra.value] = extra
 
     return trade

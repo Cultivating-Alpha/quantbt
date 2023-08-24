@@ -12,11 +12,9 @@ def close_trade(
     entry_price = trade[Trade.EntryPrice.value]
 
     if close_reason == PositionCloseReason.SL.value:
-        print("Close because of SL")
         exit_price = calculate_exit_price(
             slippage, direction, trade[Trade.SL.value], bid, ask
         )
-        print(exit_price)
     else:
         exit_price = calculate_exit_price(slippage, direction, price_value, bid, ask)
 
@@ -37,6 +35,7 @@ def close_trade(
 
     # Update Closed PNL
     trade[Trade.PNL.value] = new_pnl
+    new_pnl = trade[Trade.PNL.value]
 
     # Set Active state of trade
     index = int(trade[Trade.IDX.value])

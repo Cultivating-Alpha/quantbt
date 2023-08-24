@@ -82,7 +82,9 @@ class Backtester:
         short_entry_price=None,
         short_exit_price=None,
         sl=None,
-        trailing_sl=None,
+        trailing_sl_long=None,
+        trailing_sl_short=None,
+        trade_allowed=True,
     ):
         # print("Compiling")
         # print("Preparing")
@@ -113,5 +115,7 @@ class Backtester:
             get_series_values(short_entry_price),
             get_series_values(short_exit_price),
             get_series_values(sl),
-            get_series_values(trailing_sl),
+            get_series_values(trailing_sl_long),
+            get_series_values(trailing_sl_short),
+            trade_allowed,
         )
