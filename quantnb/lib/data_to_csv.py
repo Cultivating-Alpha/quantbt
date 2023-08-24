@@ -1,8 +1,42 @@
 import json
 import numpy as np
+import pandas as pd
+from numba import njit
+from quantnb.core.enums import Trade
 
 
-def save_data(UI_LOCATION, df, indicators, indicators_data):
+def create_trade_arrows(trades):
+    data = []
+    for trade in trades:
+        data.append(
+            [
+                {
+                    "name": trade[Trade.Index],
+                    "coord": [
+                        trade[Trade.EntryTime].isoformat(),
+                        trade[Trade.EntryPrice],
+                    ],
+                },
+                {
+                    "coord": [
+                        trade[Trade.ExitTime].isoformat(),
+                        trade[Trade.ExitPrice],
+                    ]
+                },
+            ]
+        )
+
+    return data
+
+
+@njit(cache=True, parallel=True)
+def format_array_to_tick(array, tick_size):
+    for i in range(len(array)):
+        array[i] = round(array[i] / tick_size) * tick_size
+    return array
+
+
+def save_data(UI_LOCATION, df, indicators, indicators_data, trade_arrows):
     def save_to_csv(df, path):
         array_of_arrays = df.values.tolist()
         # Write the list of lists to a CSV file
@@ -16,6 +50,9 @@ def save_data(UI_LOCATION, df, indicators, indicators_data):
     with open(f"{UI_LOCATION}/indicators.json", "w") as f:
         json.dump(indicators, f)
 
+    with open(f"{UI_LOCATION}/trade_arrows.json", "w") as f:
+        json.dump(trade_arrows, f)
+
 
 def create_scatter_df(data, mask):
     new_df = np.empty(len(data))
@@ -25,3 +62,43 @@ def create_scatter_df(data, mask):
         else:
             new_df[i] = np.nan
     return new_df
+
+
+def create_trades_array(trades, data):
+    entries = pd.DataFrame({"date": trades["EntryTime"], "price": trades["EntryPrice"]})
+    exits = pd.DataFrame({"date": trades["ExitTime"], "price": trades["ExitPrice"]})
+    exits = exits[exits["price"] > 0]
+
+    @njit
+    def combine_trades(date, trade_date, trade_price):
+        _trades = np.full(len(date), np.nan)
+        last_trade = 0
+        for i in range(len(date)):
+            if date[i] == trade_date[last_trade]:
+                _trades[i] = trade_price[last_trade]
+                last_trade += 1
+        return _trades
+
+    entry_trades = combine_trades(
+        data.index.values, entries["date"].values, entries["price"].values
+    )
+    exit_trades = combine_trades(
+        data.index.values, exits["date"].values, exits["price"].values
+    )
+    return entry_trades, exit_trades
+
+
+def create_fixed_lines(values):
+    data = []
+    for index, val in enumerate(values):
+        data.append(
+            {
+                "symbol": "none",
+                "name": val["name"] if "name" in val else f"Fixed line {index}",
+                "yAxis": val["value"],
+                "lineStyle": {
+                    "color": val["color"] if "color" in val else "#000000",
+                },
+            }
+        )
+    return {"data": data}
