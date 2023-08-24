@@ -1,28 +1,34 @@
 from numba import njit
-from quantnb.core.enums import Trade, PositionCloseReason
+from quantnb.core.enums import Trade, PositionCloseReason, OrderDirection
 from quantnb.core.calculate_exit_price import calculate_exit_price
 
 
-@njit(cache=True)
+@njit
 def close_trade(
-    trade, slippage, price_value, bid, ask, current_tick, close_reason
+    trade, slippage, price_value, bid, ask, current_tick, close_reason, multiplier
 ) -> tuple[dict, float, int]:
     # GENERATE DEBUG
-    # print("Should close trade")
-    # print(trade[Trade.Index.value])
-    # print(trade[Trade.IDX.value])
     direction = trade[Trade.Direction.value]
+    entry_price = trade[Trade.EntryPrice.value]
 
     if close_reason == PositionCloseReason.SL.value:
+        print("Close because of SL")
         exit_price = calculate_exit_price(
             slippage, direction, trade[Trade.SL.value], bid, ask
         )
+        print(exit_price)
     else:
         exit_price = calculate_exit_price(slippage, direction, price_value, bid, ask)
-    # print("==========")
-    # print(self.slippage)
-    # print(price_value)
-    # print(exit_price)
+
+    new_pnl = 0
+    if direction == OrderDirection.LONG.value:
+        new_pnl = (exit_price - entry_price) * multiplier - trade[
+            Trade.Commission.value
+        ]
+    else:
+        new_pnl = (entry_price - exit_price) * multiplier - trade[
+            Trade.Commission.value
+        ]
 
     trade[Trade.ExitPrice.value] = exit_price
     trade[Trade.ExitTime.value] = current_tick
@@ -30,7 +36,7 @@ def close_trade(
     trade[Trade.CloseReason.value] = close_reason
 
     # Update Closed PNL
-    new_pnl = trade[Trade.PNL.value]
+    trade[Trade.PNL.value] = new_pnl
 
     # Set Active state of trade
     index = int(trade[Trade.IDX.value])

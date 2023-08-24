@@ -95,7 +95,14 @@ class TradeModule:
         current_tick, price_value, bid, ask = price_data
 
         trade, new_pnl, index = close_trade(
-            trade, self.slippage, price_value, bid, ask, current_tick, close_reason
+            trade,
+            self.slippage,
+            price_value,
+            bid,
+            ask,
+            current_tick,
+            close_reason,
+            self.multiplier,
         )
 
         # Update Closed Trades
