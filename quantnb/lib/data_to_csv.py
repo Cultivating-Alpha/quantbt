@@ -5,21 +5,23 @@ from numba import njit
 from quantnb.core.enums import Trade
 
 
-def create_trade_arrows(trades):
+def create_trade_arrows(ohlc, trades):
     data = []
     for trade in trades:
+        color = "teal" if trade[Trade.PNL] > 0 else "red"
         data.append(
             [
                 {
-                    "name": trade[Trade.Index],
+                    "name": np.round(trade[Trade.PNL], 2),
                     "coord": [
-                        trade[Trade.EntryTime].isoformat(),
+                        ohlc.index.get_loc(trade[Trade.EntryTime]),
                         trade[Trade.EntryPrice],
                     ],
+                    "lineStyle": {"color": color},
                 },
                 {
                     "coord": [
-                        trade[Trade.ExitTime].isoformat(),
+                        ohlc.index.get_loc(trade[Trade.ExitTime]),
                         trade[Trade.ExitPrice],
                     ]
                 },
