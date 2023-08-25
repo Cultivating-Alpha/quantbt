@@ -5,6 +5,19 @@ from numba import njit
 from quantnb.core.enums import Trade
 
 
+def create_equity_on_close(ohlc, trades, equity):
+    equity_on_close = np.full(len(equity), 0)
+    equity_on_close[0] = equity[0]
+    for trade in trades:
+        index = ohlc.index.get_loc(trade[Trade.EntryTime])
+        equity_on_close[index] = equity[index]
+
+    for i in range(len(equity)):
+        if equity_on_close[i] == 0:
+            equity_on_close[i] = equity_on_close[i - 1]
+    return equity_on_close
+
+
 def create_trade_arrows(ohlc, trades):
     data = []
     for trade in trades:
