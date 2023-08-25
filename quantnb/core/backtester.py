@@ -85,6 +85,7 @@ class Backtester:
         trailing_sl_long=None,
         trailing_sl_short=None,
         trade_allowed=True,
+        stop_to_be=None,
     ):
         # print("Compiling")
         # print("Preparing")
@@ -118,4 +119,5 @@ class Backtester:
             get_series_values(trailing_sl_long),
             get_series_values(trailing_sl_short),
             trade_allowed,
+            stop_to_be,
         )

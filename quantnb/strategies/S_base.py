@@ -72,7 +72,9 @@ class S_base:
         self.exits = np.full_like(self.data.Close, False)
         return {}
 
-    def from_signals(self, params, use_trailing_sl=True, trade_allowed=True):
+    def from_signals(
+        self, params, use_trailing_sl=True, trade_allowed=True, stop_to_be=None
+    ):
         self.bt.reset_backtester()
         self.params = params
         vals = self.generate_signals()
@@ -86,14 +88,15 @@ class S_base:
         }
 
         if not use_trailing_sl:
-            vals["trailing_sl"] = default_values["trailing_sl"]
+            vals["trailing_sl_long"] = default_values["trailing_sl_long"]
+            vals["trailing_sl_short"] = default_values["trailing_sl_short"]
 
         for key in default_values.keys():
             if key not in vals:
                 vals[key] = default_values[key]
 
         vals["trade_allowed"] = trade_allowed
-
+        vals["stop_to_be"] = stop_to_be
         self.bt.from_signals(**vals)
 
     def from_trades(self, trades):

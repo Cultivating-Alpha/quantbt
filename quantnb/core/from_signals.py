@@ -91,6 +91,7 @@ class FromSignals:
         trailing_sl_long,
         trailing_sl_short,
         trade_allowed,
+        stop_to_be,
     ):
         last_trade_index = 0
         for i in range(len(self.data_module.close) - 1):
@@ -137,6 +138,8 @@ class FromSignals:
                             self.close_trade(i, trade, short_exit_price[i])
 
             self.loop_updates(i)
+            if stop_to_be is not None:
+                stop_to_be(self.trade_module.active_trades, self.data_module, i)
 
             if trailing_sl_long[i] > 0:
                 if len(self.trade_module.active_trades) > 1:
@@ -154,7 +157,6 @@ class FromSignals:
                         "Please take care of traling SL going over more than one trade"
                     )
                     print(len(self.trade_module.active_trades))
-                print("Updating short TSL", trailing_sl_short[i])
 
                 self.trade_module.update_trailing_sl(
                     OrderDirection.SHORT.value, trailing_sl_short[i]

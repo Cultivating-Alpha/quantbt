@@ -18,8 +18,6 @@ def should_trade_close(trade, price_data):
             if trade[Trade.SL.value] <= high:
                 return True, PositionCloseReason.SL.value
     if trade[Trade.TSL.value] != np.inf:
-        print("Looking into TSL")
-        print(trade[Trade.TSL.value], low, high)
         if trade[Trade.Direction.value] == OrderDirection.LONG.value:
             if trade[Trade.TSL.value] >= low:
                 return True, PositionCloseReason.TSL.value
