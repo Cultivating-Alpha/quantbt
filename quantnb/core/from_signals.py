@@ -2,8 +2,7 @@ from quantnb.core.data_module import DataModule
 from quantnb.core.enums import OrderDirection, Trade, OrderType, PositionCloseReason
 from quantnb.core.data_module import DataModule
 from quantnb.core.trade_module import TradeModule
-from quantnb.core import print_bar
-from quantnb.core.enums import DataType, Trade
+from quantnb.core.enums import Trade, TradeMode
 from quantnb.core.specs_nb import backtester_specs
 from numba.experimental import jitclass
 
@@ -92,6 +91,8 @@ class FromSignals:
         trailing_sl_short,
         trade_allowed,
         stop_to_be,
+        one_trade_per_direction,
+        trade_mode,
     ):
         last_trade_index = 0
         for i in range(len(self.data_module.close) - 1):
@@ -107,14 +108,29 @@ class FromSignals:
             # ======================================================================================= #
             #                                          Take Long Trades                               #
             # ======================================================================================= #
-            number_of_long_trades = self.trade_module.active_long_trades
-            number_of_short_trades = self.trade_module.active_short_trades
 
-            if long_entries[i] and can_trade and number_of_long_trades == 0:
-                self.create_trade(
-                    OrderDirection.LONG.value, i, long_entry_price[i], sl[i]
-                )
-                last_trade_index += 1
+            if long_entries[i]:
+                if (
+                    can_trade
+                    and (
+                        not one_trade_per_direction
+                        or (
+                            one_trade_per_direction
+                            and self.trade_module.active_long_trades == 0
+                        )
+                    )
+                    and (
+                        trade_mode == TradeMode.HEDGE.value
+                        or (
+                            trade_mode == TradeMode.ONE_WAY.value
+                            and self.trade_module.active_short_trades == 0
+                        )
+                    )
+                ):
+                    self.create_trade(
+                        OrderDirection.LONG.value, i, long_entry_price[i], sl[i]
+                    )
+                    last_trade_index += 1
 
             elif long_exits[i]:
                 if len(self.trade_module.active_trades) != 0:
@@ -125,11 +141,29 @@ class FromSignals:
             # ======================================================================================= #
             #                                          Take Short Trades                               #
             # ======================================================================================= #
-            if short_entries[i] and can_trade and number_of_short_trades == 0:
-                self.create_trade(
-                    OrderDirection.SHORT.value, i, short_entry_price[i], sl[i]
-                )
-                last_trade_index += 1
+
+            if short_entries[i]:
+                if (
+                    can_trade
+                    and (
+                        not one_trade_per_direction
+                        or (
+                            one_trade_per_direction
+                            and self.trade_module.active_short_trades == 0
+                        )
+                    )
+                    and (
+                        trade_mode == TradeMode.HEDGE.value
+                        or (
+                            trade_mode == TradeMode.ONE_WAY.value
+                            and self.trade_module.active_long_trades == 0
+                        )
+                    )
+                ):
+                    self.create_trade(
+                        OrderDirection.SHORT.value, i, short_entry_price[i], sl[i]
+                    )
+                    last_trade_index += 1
 
             elif short_exits[i]:
                 if len(self.trade_module.active_trades) != 0:
@@ -142,21 +176,21 @@ class FromSignals:
                 stop_to_be(self.trade_module.active_trades, self.data_module, i)
 
             if trailing_sl_long[i] > 0:
-                if len(self.trade_module.active_trades) > 1:
+                if self.trade_module.active_long_trades > 1:
                     print(
                         "Please take care of traling SL going over more than one trade"
                     )
-                    print(len(self.trade_module.active_trades))
+                    print(self.trade_module.active_long_trades)
 
                 self.trade_module.update_trailing_sl(
                     OrderDirection.LONG.value, trailing_sl_long[i]
                 )
             if trailing_sl_short[i] > 0:
-                if len(self.trade_module.active_trades) > 1:
+                if self.trade_module.active_short_trades > 1:
                     print(
                         "Please take care of traling SL going over more than one trade"
                     )
-                    print(len(self.trade_module.active_trades))
+                    print(self.trade_module.active_short_trades)
 
                 self.trade_module.update_trailing_sl(
                     OrderDirection.SHORT.value, trailing_sl_short[i]

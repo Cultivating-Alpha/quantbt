@@ -2,7 +2,7 @@ import numpy as np
 
 from quantnb.core import FromSignals, FromTrades
 from quantnb.core.data_module import DataModule
-from quantnb.core.enums import CommissionType, DataType, Trade, TradeSizeType
+from quantnb.core.enums import CommissionType, DataType, Trade, TradeSizeType, TradeMode
 from quantnb.core.trade_module import TradeModule
 from quantnb.lib.get_series_values import get_series_values
 from quantnb.lib.shift_data import shift_data
@@ -86,6 +86,8 @@ class Backtester:
         trailing_sl_short=None,
         trade_allowed=True,
         stop_to_be=None,
+        one_trade_per_direction=True,
+        trade_mode=TradeMode.ONE_WAY,
     ):
         # print("Compiling")
         # print("Preparing")
@@ -120,4 +122,6 @@ class Backtester:
             get_series_values(trailing_sl_short),
             trade_allowed,
             stop_to_be,
+            one_trade_per_direction,
+            trade_mode.value,
         )

@@ -6,7 +6,7 @@ from quantnb.lib.time_manip import time_manip
 from quantnb.core.backtester import Backtester
 from quantnb.lib.output_trades import output_trades
 from quantnb.lib.calculate_stats import calculate_stats
-from quantnb.core.enums import DataType, CommissionType, TradeSizeType
+from quantnb.core.enums import DataType, CommissionType, TradeSizeType, TradeMode
 
 
 class S_base:
@@ -73,7 +73,13 @@ class S_base:
         return {}
 
     def from_signals(
-        self, params, use_trailing_sl=True, trade_allowed=True, stop_to_be=None
+        self,
+        params,
+        use_trailing_sl=True,
+        trade_allowed=True,
+        stop_to_be=None,
+        one_trade_per_direction=True,
+        trade_mode=TradeMode.ONE_WAY,
     ):
         self.bt.reset_backtester()
         self.params = params
@@ -97,6 +103,8 @@ class S_base:
 
         vals["trade_allowed"] = trade_allowed
         vals["stop_to_be"] = stop_to_be
+        vals["one_trade_per_direction"] = one_trade_per_direction
+        vals["trade_mode"] = trade_mode
         self.bt.from_signals(**vals)
 
     def from_trades(self, trades):

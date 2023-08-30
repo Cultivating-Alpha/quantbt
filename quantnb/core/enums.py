@@ -1,6 +1,11 @@
 from enum import IntEnum
 
 
+class TradeMode(IntEnum):
+    HEDGE = 0
+    ONE_WAY = 1
+
+
 class OrderDirection(IntEnum):
     SHORT = 0
     LONG = 1
