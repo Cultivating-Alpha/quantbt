@@ -1581,14 +1581,14 @@ files = [
 ]
 
 [[package]]
-name = "quantnb"
+name = "quantbt"
 version = "0.2.7"
 description = ""
 optional = false
 python-versions = ">=3.11,<4.0"
 files = [
-    {file = "quantnb-0.2.7-py3-none-any.whl", hash = "sha256:05f5e384248b25db577d37323930ff3e14a34d65f23ad7e5ad91376a1ed0defa"},
-    {file = "quantnb-0.2.7.tar.gz", hash = "sha256:54fb4dae1eed903ed3c305102d15699fbbfceb40733fd4bcbfae045ad167e03b"},
+    {file = "quantbt-0.2.7-py3-none-any.whl", hash = "sha256:05f5e384248b25db577d37323930ff3e14a34d65f23ad7e5ad91376a1ed0defa"},
+    {file = "quantbt-0.2.7.tar.gz", hash = "sha256:54fb4dae1eed903ed3c305102d15699fbbfceb40733fd4bcbfae045ad167e03b"},
 ]
 
 [package.dependencies]

@@ -43,7 +43,7 @@ patterns = ["*.py"]
 ignore_patterns = []
 
 [tool.pytest.ini_options]
-pythonpath = "quantnb"
+pythonpath = "quantbt"
 addopts = "-s"
 testpaths = [
     "tests",

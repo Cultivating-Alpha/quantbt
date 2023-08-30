@@ -1,4 +1,4 @@
-from quantnb.core.enums import OrderDirection
+from quantbt.core.enums import OrderDirection
 from numba import njit
 
 

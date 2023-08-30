@@ -1,7 +1,7 @@
 import numpy as np
 from numba import njit
 from numpy import ndarray
-from quantnb.core.enums import Trade
+from quantbt.core.enums import Trade
 
 TRADE_ITEMS_COUNT = Trade.__len__()
 

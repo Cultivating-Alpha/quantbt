@@ -1,7 +1,7 @@
-from quantnb.indicators import talib_SMA as SMA
-from quantnb.indicators.random_data import random_data
-from quantnb.lib import pd, np
-from quantnb.lib.data_to_csv import save_data, create_scatter_df
+from quantbt.indicators import talib_SMA as SMA
+from quantbt.indicators.random_data import random_data
+from quantbt.lib import pd, np
+from quantbt.lib.data_to_csv import save_data, create_scatter_df
 import talib
 
 data = random_data(seed=42)[0]

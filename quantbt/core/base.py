@@ -1,6 +1,6 @@
 from cycler import mul
 import numpy as np
-from quantnb.core.enums import OrderType
+from quantbt.core.enums import OrderType
 import numpy as np
 import numba as nb
 from numba import float32, int32, int64

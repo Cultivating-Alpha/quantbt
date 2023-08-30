@@ -1,11 +1,11 @@
-from quantnb.lib import np, pd, time_manip
-from quantnb.core.backtester import Backtester
-from quantnb.core.data_module import DataModule
-from quantnb.core.trade_module import TradeModule
-from quantnb.core.enums import CommissionType, DataType, Trade
-from quantnb.lib.output_trades import output_trades
-from quantnb.lib.calculate_stats import calculate_stats
-from quantnb.lib.plotting import plotting
+from quantbt.lib import np, pd, time_manip
+from quantbt.core.backtester import Backtester
+from quantbt.core.data_module import DataModule
+from quantbt.core.trade_module import TradeModule
+from quantbt.core.enums import CommissionType, DataType, Trade
+from quantbt.lib.output_trades import output_trades
+from quantbt.lib.calculate_stats import calculate_stats
+from quantbt.lib.plotting import plotting
 import time
 
 ohlc = pd.read_parquet("./data/EURUSD.parquet")
@@ -87,7 +87,7 @@ plotting.plot_equity(equity, data, "EURUSD.bid")
 # trades["EntryPrice"]
 # print(bt.data_module.close[-1])
 
-# trades.to_parquet("./quantnb/tests/sample_trades.parquet")
+# trades.to_parquet("./quantbt/tests/sample_trades.parquet")
 
 # # trades[:-1]
 # #

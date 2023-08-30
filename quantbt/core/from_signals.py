@@ -1,9 +1,9 @@
-from quantnb.core.data_module import DataModule
-from quantnb.core.enums import OrderDirection, Trade, OrderType, PositionCloseReason
-from quantnb.core.data_module import DataModule
-from quantnb.core.trade_module import TradeModule
-from quantnb.core.enums import Trade, TradeMode
-from quantnb.core.specs_nb import backtester_specs
+from quantbt.core.data_module import DataModule
+from quantbt.core.enums import OrderDirection, Trade, OrderType, PositionCloseReason
+from quantbt.core.data_module import DataModule
+from quantbt.core.trade_module import TradeModule
+from quantbt.core.enums import Trade, TradeMode
+from quantbt.core.specs_nb import backtester_specs
 from numba.experimental import jitclass
 
 TRADE_ITEMS_COUNT = Trade.__len__()

@@ -1,6 +1,6 @@
-from quantnb.indicators.supertrend import supertrend
-from quantnb.indicators.SMA import SMA
-from quantnb.indicators.random_data import random_data
+from quantbt.indicators.supertrend import supertrend
+from quantbt.indicators.SMA import SMA
+from quantbt.indicators.random_data import random_data
 import mplfinance as mpf
 import random
 import pandas as pd

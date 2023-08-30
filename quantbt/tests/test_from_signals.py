@@ -1,16 +1,16 @@
 from numba import njit
-from quantnb.lib.plotting import plotting
-from quantnb.lib.time_manip import time_manip
-from quantnb.lib import np, timeit, pd, find_files
-from quantnb.lib.calculate_stats import calculate_stats
-from quantnb.lib.output_trades import output_trades
+from quantbt.lib.plotting import plotting
+from quantbt.lib.time_manip import time_manip
+from quantbt.lib import np, timeit, pd, find_files
+from quantbt.lib.calculate_stats import calculate_stats
+from quantbt.lib.output_trades import output_trades
 
-import quantnb as qnb
+import quantbt as qnb
 
-from quantnb.strategies.S_base import S_base
-from quantnb.core.backtester import Backtester
-from quantnb.strategies.S_bid_ask import S_bid_ask
-from quantnb.core.place_orders_on_ohlc import place_orders_on_ohlc
+from quantbt.strategies.S_base import S_base
+from quantbt.core.backtester import Backtester
+from quantbt.strategies.S_bid_ask import S_bid_ask
+from quantbt.core.place_orders_on_ohlc import place_orders_on_ohlc
 import matplotlib
 
 # ==================================================================== #
@@ -24,7 +24,7 @@ ohlc = ohlc[-100:]
 # print(ohlc)
 
 
-from quantnb.indicators import talib_SMA
+from quantbt.indicators import talib_SMA
 
 sma = talib_SMA(ohlc.close, 20)
 
@@ -57,7 +57,7 @@ def plot():
 # files = find_files("./data", "binance-BTCUSD")
 # btc = pd.read_parquet(files[0])
 # btc
-from quantnb.core.enums import DataType
+from quantbt.core.enums import DataType
 
 
 backtester = qnb.core.backtester.Backtester(

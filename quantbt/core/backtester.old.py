@@ -1,11 +1,11 @@
 import numpy as np
 import numba as nb
-from quantnb.core.enums import (
+from quantbt.core.enums import (
     OrderDirection,
     Trade,
     DataType,
 )
-from quantnb.core import (
+from quantbt.core import (
     spec,
     print_bar,
     calculate_entry_price,
@@ -350,7 +350,7 @@ class Backtester:
         return 0
 
 
-# from quantnb.indicators.random_data import random_data
+# from quantbt.indicators.random_data import random_data
 #
 # date, open, high, low, close, df = random_data()
 # bt = Backtester(

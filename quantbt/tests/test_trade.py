@@ -1,10 +1,10 @@
-from quantnb.core.trade_module import TradeModule
-from quantnb.core.data_module import DataModule
-from quantnb.core.trade_create_new_trade import create_new_trade
-from quantnb.indicators.random_data import random_data
-from quantnb.lib.output_trades import output_trades
+from quantbt.core.trade_module import TradeModule
+from quantbt.core.data_module import DataModule
+from quantbt.core.trade_create_new_trade import create_new_trade
+from quantbt.indicators.random_data import random_data
+from quantbt.lib.output_trades import output_trades
 import pandas as pd
-from quantnb.core.enums import (
+from quantbt.core.enums import (
     DataType,
     CommissionType,
     OrderDirection,

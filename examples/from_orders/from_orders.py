@@ -1,10 +1,10 @@
 from numba import njit
-from quantnb.lib.plotting import plotting
-from quantnb.lib import np, timeit, pd
-from quantnb.strategies.S_base import S_base
-from quantnb.core.backtester import Backtester
-from quantnb.strategies.S_bid_ask import S_bid_ask
-from quantnb.core.place_orders_on_ohlc import place_orders_on_ohlc
+from quantbt.lib.plotting import plotting
+from quantbt.lib import np, timeit, pd
+from quantbt.strategies.S_base import S_base
+from quantbt.core.backtester import Backtester
+from quantbt.strategies.S_bid_ask import S_bid_ask
+from quantbt.core.place_orders_on_ohlc import place_orders_on_ohlc
 
 # ==================================================================== #
 #                        Default Preparation                           #

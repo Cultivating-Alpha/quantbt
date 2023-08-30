@@ -1,9 +1,9 @@
 import numpy as np
 from numba import float32, int32, int64, float64, njit
-from quantnb.core.enums import Trade
-from quantnb.core.enums import CommissionType
+from quantbt.core.enums import Trade
+from quantbt.core.enums import CommissionType
 
-from quantnb.core.calculate_commission import calculate_commission
+from quantbt.core.calculate_commission import calculate_commission
 
 TRADE_ITEMS_COUNT = Trade.__len__()
 

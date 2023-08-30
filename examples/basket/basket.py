@@ -1,15 +1,15 @@
 import numpy as np
 import pandas as pd
 import mplfinance as mpf
-from quantnb.core.backtester import Backtester
+from quantbt.core.backtester import Backtester
 
-from quantnb.strategies.S_base import S_base
-from quantnb.lib import find_files, plotting
-from quantnb.indicators import supertrend, talib_SMA, cross_below, cross_above
-from quantnb.helpers.S_calculate_metrics import calculate_dd
-from quantnb.core.enums import DataType, CommissionType
-from quantnb.lib.output_trades import output_trades
-from quantnb.lib import plotting
+from quantbt.strategies.S_base import S_base
+from quantbt.lib import find_files, plotting
+from quantbt.indicators import supertrend, talib_SMA, cross_below, cross_above
+from quantbt.helpers.S_calculate_metrics import calculate_dd
+from quantbt.core.enums import DataType, CommissionType
+from quantbt.lib.output_trades import output_trades
+from quantbt.lib import plotting
 
 datas = {}
 

@@ -1,7 +1,7 @@
 from binance.client import Client
 import pandas as pd
 import mplfinance as mpf
-from quantnb.lib.create_binance_dataframe import create_binance_dataframe
+from quantbt.lib.create_binance_dataframe import create_binance_dataframe
 
 
 def get_data(asset, tf=Client.KLINE_INTERVAL_1HOUR, days="3000 day ago UTC", save_location="data"):

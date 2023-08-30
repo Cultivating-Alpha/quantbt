@@ -1,10 +1,10 @@
 import numpy as np
 from typing import List
 from numba.experimental import jitclass
-from quantnb.core.specs_nb import trade_specs
-from quantnb.core.PNL import update_trades_pnl
-from quantnb.core.trade_create_new_trade import create_new_trade
-from quantnb.core.enums import (
+from quantbt.core.specs_nb import trade_specs
+from quantbt.core.PNL import update_trades_pnl
+from quantbt.core.trade_create_new_trade import create_new_trade
+from quantbt.core.enums import (
     Trade,
     DataType,
     OrderDirection,
@@ -12,11 +12,11 @@ from quantnb.core.enums import (
     CommissionType,
 )
 
-from quantnb.core.calculate_exit_price import calculate_exit_price
-from quantnb.core.trade_remove_from_active_trades import remove_from_active_trades
-from quantnb.core.trade_add_trade_to_active_trades import add_trade_to_active_trades
-from quantnb.core.trade_close_trade import close_trade
-from quantnb.core.trade_should_trade_close import should_trade_close
+from quantbt.core.calculate_exit_price import calculate_exit_price
+from quantbt.core.trade_remove_from_active_trades import remove_from_active_trades
+from quantbt.core.trade_add_trade_to_active_trades import add_trade_to_active_trades
+from quantbt.core.trade_close_trade import close_trade
+from quantbt.core.trade_should_trade_close import should_trade_close
 
 TRADE_ITEMS_COUNT = Trade.__len__()
 

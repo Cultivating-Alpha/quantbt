@@ -1,5 +1,5 @@
-import quantnb as qnb
-from quantnb.lib import find_files, optimize
+import quantbt as qnb
+from quantbt.lib import find_files, optimize
 import mplfinance as mpf
 import pandas as pd
 

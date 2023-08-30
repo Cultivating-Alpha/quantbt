@@ -1,13 +1,13 @@
 import numpy as np
 from numba import float64
 from typing import Optional, List
-from quantnb.core.enums import DataType, TradeSizeType
+from quantbt.core.enums import DataType, TradeSizeType
 
 from numba.experimental import jitclass
-from quantnb.core.specs_nb import data_specs
+from quantbt.core.specs_nb import data_specs
 
-from quantnb.core.calculate_entry_price import calculate_entry_price
-from quantnb.core.calculate_exit_price import calculate_exit_price
+from quantbt.core.calculate_entry_price import calculate_entry_price
+from quantbt.core.calculate_exit_price import calculate_exit_price
 
 
 # pyright: reportGeneralTypeIssues=false

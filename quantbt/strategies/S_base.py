@@ -1,12 +1,12 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from quantnb.lib.plotting import plotting
-from quantnb.lib.time_manip import time_manip
-from quantnb.core.backtester import Backtester
-from quantnb.lib.output_trades import output_trades
-from quantnb.lib.calculate_stats import calculate_stats
-from quantnb.core.enums import DataType, CommissionType, TradeSizeType, TradeMode
+from quantbt.lib.plotting import plotting
+from quantbt.lib.time_manip import time_manip
+from quantbt.core.backtester import Backtester
+from quantbt.lib.output_trades import output_trades
+from quantbt.lib.calculate_stats import calculate_stats
+from quantbt.core.enums import DataType, CommissionType, TradeSizeType, TradeMode
 
 
 class S_base:

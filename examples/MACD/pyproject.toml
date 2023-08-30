@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-quantnb = "0.2.7"
+quantbt = "0.2.7"
 
 
 [build-system]

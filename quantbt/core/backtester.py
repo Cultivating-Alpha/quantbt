@@ -1,11 +1,11 @@
 import numpy as np
 
-from quantnb.core import FromSignals, FromTrades
-from quantnb.core.data_module import DataModule
-from quantnb.core.enums import CommissionType, DataType, Trade, TradeSizeType, TradeMode
-from quantnb.core.trade_module import TradeModule
-from quantnb.lib.get_series_values import get_series_values
-from quantnb.lib.shift_data import shift_data
+from quantbt.core import FromSignals, FromTrades
+from quantbt.core.data_module import DataModule
+from quantbt.core.enums import CommissionType, DataType, Trade, TradeSizeType, TradeMode
+from quantbt.core.trade_module import TradeModule
+from quantbt.lib.get_series_values import get_series_values
+from quantbt.lib.shift_data import shift_data
 
 
 default_arguments = {

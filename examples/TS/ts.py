@@ -1,8 +1,8 @@
-from quantnb.lib import pd, find_files, np, optimize
-from quantnb.strategies.s_temp import S_Test
+from quantbt.lib import pd, find_files, np, optimize
+from quantbt.strategies.s_temp import S_Test
 import os
 
-# from quantnb.strategies.S_MACD import S_MACD
+# from quantbt.strategies.S_MACD import S_MACD
 
 # |%%--%%| <NaCTS8fbAy|96njygS0NI>
 
@@ -42,8 +42,8 @@ test(0)  # BTC
 # pf = single((2, 200, 14, 17, 99, 16, 26, 9), use_sl=False)
 # pf.stats
 
-from quantnb.lib import pd, find_files, np, optimize
-from quantnb.strategies.S_test import S_Test
+from quantbt.lib import pd, find_files, np, optimize
+from quantbt.strategies.S_test import S_Test
 import os
 
 
@@ -81,7 +81,7 @@ for asset in assets:
 # |%%--%%| <OlIp3y1SNo|fyEEXxs4h1>
 
 
-from quantnb.lib import pd, find_files, np, optimize
+from quantbt.lib import pd, find_files, np, optimize
 import time
 
 

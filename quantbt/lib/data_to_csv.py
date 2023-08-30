@@ -2,7 +2,7 @@ import json
 import numpy as np
 import pandas as pd
 from numba import njit
-from quantnb.core.enums import Trade
+from quantbt.core.enums import Trade
 
 
 def create_equity_on_close(ohlc, trades, equity):

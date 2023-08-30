@@ -1,5 +1,5 @@
-from quantnb.core import calculate_entry_price, calculate_exit_price
-from quantnb.core.enums import OrderDirection
+from quantbt.core import calculate_entry_price, calculate_exit_price
+from quantbt.core.enums import OrderDirection
 import timeit
 
 

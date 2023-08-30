@@ -1,8 +1,8 @@
 from numba import njit
 import numpy as np
 
-from quantnb.core.enums import Trade
-from quantnb.core.enums import PositionCloseReason, OrderDirection
+from quantbt.core.enums import Trade
+from quantbt.core.enums import PositionCloseReason, OrderDirection
 
 
 @njit(cache=True)

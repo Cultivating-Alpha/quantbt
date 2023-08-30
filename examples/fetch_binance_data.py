@@ -1,4 +1,4 @@
-from quantnb.lib.fetch_binance_data import fetch_binance_data
+from quantbt.lib.fetch_binance_data import fetch_binance_data
 from binance.client import Client
 import pandas as pd
 

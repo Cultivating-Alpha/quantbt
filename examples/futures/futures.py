@@ -2,11 +2,11 @@ import numpy as np
 import pandas as pd
 import os
 import mplfinance as mpf
-from quantnb.core.backtester import Backtester
-from quantnb.strategies.S_base import S_base
-from quantnb.lib import find_files, plotting, optimize
-from quantnb.indicators import supertrend, SMA, cross_below, cross_above
-from quantnb.helpers.S_calculate_metrics import calculate_dd
+from quantbt.core.backtester import Backtester
+from quantbt.strategies.S_base import S_base
+from quantbt.lib import find_files, plotting, optimize
+from quantbt.indicators import supertrend, SMA, cross_below, cross_above
+from quantbt.helpers.S_calculate_metrics import calculate_dd
 
 assets = find_files("./data", "@ENQ")
 
@@ -178,7 +178,7 @@ for i in range(0, 50):
 # |%%--%%| <ufVUlUi9za|7utj5xoVZm>
 
 
-from quantnb.lib import pd, find_files, np, optimize
+from quantbt.lib import pd, find_files, np, optimize
 import time
 
 

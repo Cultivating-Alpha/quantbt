@@ -1,5 +1,5 @@
 import pandas_ta as ta
-from quantnb.lib import find_files, pd
+from quantbt.lib import find_files, pd
 import talib
 import time
 import numpy as np

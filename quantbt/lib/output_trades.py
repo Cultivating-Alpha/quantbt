@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
-from quantnb.core.enums import CommissionType, Trade, PositionCloseReason
-from quantnb.lib.time_manip import time_manip
+from quantbt.core.enums import CommissionType, Trade, PositionCloseReason
+from quantbt.lib.time_manip import time_manip
 
 
 TRADE_ITEMS_COUNT = Trade.__len__()

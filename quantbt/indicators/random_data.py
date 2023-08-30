@@ -1,13 +1,13 @@
 """
 Given a seed, generate random candlesticks data
 """
-# from quantnb.indicators.supertrend import supertrend
-# from quantnb.indicators.SMA import SMA
+# from quantbt.indicators.supertrend import supertrend
+# from quantbt.indicators.SMA import SMA
 # import mplfinance as mpf
 # import random
 import pandas as pd
 import numpy as np
-from quantnb.lib.time_manip import time_manip
+from quantbt.lib.time_manip import time_manip
 
 
 def random_data(seed=None):

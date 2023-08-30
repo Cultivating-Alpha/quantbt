@@ -1,5 +1,5 @@
-from quantnb.core import calculate_commission
-from quantnb.core.enums import CommissionType
+from quantbt.core import calculate_commission
+from quantbt.core.enums import CommissionType
 
 
 class TestCalculatePrice:

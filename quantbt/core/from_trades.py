@@ -1,17 +1,17 @@
-from quantnb.core.data_module import DataModule
-from quantnb.core.enums import OrderDirection, Trade, OrderType
-from quantnb.core.data_module import DataModule
-from quantnb.core.trade_module import TradeModule
-from quantnb.core import print_bar
-from quantnb.core.enums import DataType, Trade
-from quantnb.core.specs_nb import backtester_specs
+from quantbt.core.data_module import DataModule
+from quantbt.core.enums import OrderDirection, Trade, OrderType
+from quantbt.core.data_module import DataModule
+from quantbt.core.trade_module import TradeModule
+from quantbt.core import print_bar
+from quantbt.core.enums import DataType, Trade
+from quantbt.core.specs_nb import backtester_specs
 from numba.experimental import jitclass
 import numpy as np
 
 TRADE_ITEMS_COUNT = Trade.__len__()
 
 
-# from quantnb.core.trade_module import DataModule
+# from quantbt.core.trade_module import DataModule
 
 
 # pyright: reportGeneralTypeIssues=false

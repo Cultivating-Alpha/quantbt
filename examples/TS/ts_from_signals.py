@@ -1,25 +1,25 @@
 from numba import njit
-from quantnb.lib.plotting import plotting
-from quantnb.lib.time_manip import time_manip
-from quantnb.lib import np, timeit, pd, find_files
-from quantnb.lib.calculate_stats import calculate_stats
-from quantnb.lib.output_trades import output_trades
-from quantnb.core.enums import CommissionType, DataType, TradeSizeType
-from quantnb.lib import pd, find_files, np, optimize
-from quantnb.lib.data_to_csv import save_data
+from quantbt.lib.plotting import plotting
+from quantbt.lib.time_manip import time_manip
+from quantbt.lib import np, timeit, pd, find_files
+from quantbt.lib.calculate_stats import calculate_stats
+from quantbt.lib.output_trades import output_trades
+from quantbt.core.enums import CommissionType, DataType, TradeSizeType
+from quantbt.lib import pd, find_files, np, optimize
+from quantbt.lib.data_to_csv import save_data
 
-import quantnb as qnb
+import quantbt as qnb
 
 # import talib
 import pandas_ta as ta
 
-from quantnb.strategies.S_base import S_base
-from quantnb.core.backtester import Backtester
-from quantnb.strategies.S_bid_ask import S_bid_ask
-from quantnb.core.place_orders_on_ohlc import place_orders_on_ohlc
+from quantbt.strategies.S_base import S_base
+from quantbt.core.backtester import Backtester
+from quantbt.strategies.S_bid_ask import S_bid_ask
+from quantbt.core.place_orders_on_ohlc import place_orders_on_ohlc
 import matplotlib
 
-import quantnb.indicators as ind
+import quantbt.indicators as ind
 
 # ==================================================================== #
 #                                                                      #
@@ -43,7 +43,7 @@ INITIAL_CAPITAL = 10000
 # |%%--%%| <bKsjcb3XDl|pkuzKHVZ2t>
 
 import os
-from quantnb.lib import np, timeit, pd, find_files
+from quantbt.lib import np, timeit, pd, find_files
 #
 # def strategy(ohlc, params, plot=False):
 #     def get_signals(params):
@@ -216,7 +216,7 @@ for i in range(0, 12):
 # |%%--%%| <B71b17sxwt|8eA7Xk4pw8>
 
 import pandas as pd
-from quantnb.lib import find_files
+from quantbt.lib import find_files
 
 
 newdf = pd.DataFrame()

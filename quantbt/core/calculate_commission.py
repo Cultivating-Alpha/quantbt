@@ -1,4 +1,4 @@
-from quantnb.core.enums import CommissionType
+from quantbt.core.enums import CommissionType
 from numba import njit
 
 

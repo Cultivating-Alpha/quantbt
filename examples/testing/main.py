@@ -1,3 +1,3 @@
-from quantnb.core.backtester import Backtester
+from quantbt.core.backtester import Backtester
 
 bt = Backtester()

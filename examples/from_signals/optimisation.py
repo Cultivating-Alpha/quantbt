@@ -1,26 +1,26 @@
-from quantnb.lib.time_manip import time_manip
-from quantnb.lib import np, pd, find_files, optimize
-from quantnb.lib.plotting import plotting
-from quantnb.lib.calculate_stats import calculate_stats
-from quantnb.lib.output_trades import output_trades
-from quantnb.core.enums import CommissionType, DataType
+from quantbt.lib.time_manip import time_manip
+from quantbt.lib import np, pd, find_files, optimize
+from quantbt.lib.plotting import plotting
+from quantbt.lib.calculate_stats import calculate_stats
+from quantbt.lib.output_trades import output_trades
+from quantbt.core.enums import CommissionType, DataType
 import time
 
-import quantnb as qnb
+import quantbt as qnb
 
 # import talib
 import pandas_ta as ta
 
-from quantnb.strategies.S_base import S_base
-from quantnb.core.backtester import Backtester
-from quantnb.strategies.S_bid_ask import S_bid_ask
-from quantnb.core.place_orders_on_ohlc import place_orders_on_ohlc
+from quantbt.strategies.S_base import S_base
+from quantbt.core.backtester import Backtester
+from quantbt.strategies.S_bid_ask import S_bid_ask
+from quantbt.core.place_orders_on_ohlc import place_orders_on_ohlc
 import matplotlib
 
-import quantnb.indicators as ind
+import quantbt.indicators as ind
 
 import os
-from quantnb.lib import np, timeit, pd, find_files
+from quantbt.lib import np, timeit, pd, find_files
 
 
 def file_exists(file_path):

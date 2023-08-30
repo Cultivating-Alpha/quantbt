@@ -1,14 +1,14 @@
 from numba import njit
 from typing import List, Tuple
-from quantnb.core import calculate_commission
-from quantnb.core.enums import (
+from quantbt.core import calculate_commission
+from quantbt.core.enums import (
     CommissionType,
     OrderDirection,
     Trade,
     DataType,
     CommissionType,
 )
-from quantnb.core.calculate_exit_price import calculate_exit_price
+from quantbt.core.calculate_exit_price import calculate_exit_price
 
 
 @njit

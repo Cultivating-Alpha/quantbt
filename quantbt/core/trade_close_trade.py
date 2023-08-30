@@ -1,6 +1,6 @@
 from numba import njit
-from quantnb.core.enums import Trade, PositionCloseReason, OrderDirection
-from quantnb.core.calculate_exit_price import calculate_exit_price
+from quantbt.core.enums import Trade, PositionCloseReason, OrderDirection
+from quantbt.core.calculate_exit_price import calculate_exit_price
 
 
 @njit
