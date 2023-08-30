@@ -1,7 +1,7 @@
-from quantnb.strategies.S_test import S_Test
+from quantbt.strategies.S_test import S_Test
 
-from quantnb.lib import np, timeit, pd
-from quantnb.lib import find_files, optimize
+from quantbt.lib import np, timeit, pd
+from quantbt.lib import find_files, optimize
 
 # df = pd.read_parquet("./binance-BTCUSDT-1h-RSI.parquet")
 # df
@@ -31,10 +31,10 @@ for asset in assets:
 
 # |%%--%%| <PSegVofl0P|W9pyX2nkWW>
 
-from quantnb.strategies.S_test import S_Test
+from quantbt.strategies.S_test import S_Test
 
-from quantnb.lib import np, timeit, pd
-from quantnb.lib import find_files, optimize
+from quantbt.lib import np, timeit, pd
+from quantbt.lib import find_files, optimize
 
 
 assets = find_files("./data/@ENQ.time", "1m")
