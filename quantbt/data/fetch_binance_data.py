@@ -1,10 +1,12 @@
 from binance.client import Client
 import pandas as pd
 import mplfinance as mpf
-from quantbt.lib.create_binance_dataframe import create_binance_dataframe
+from .create_binance_dataframe import create_binance_dataframe
 
 
-def get_data(asset, tf=Client.KLINE_INTERVAL_1HOUR, days="3000 day ago UTC", save_location="data"):
+def get_data(
+    asset, tf=Client.KLINE_INTERVAL_1HOUR, days="3000 day ago UTC", save_location="data"
+):
     # asset = asset[0]
     print(f"Getting data for {asset} on {tf}")
     client = Client()
@@ -14,14 +16,14 @@ def get_data(asset, tf=Client.KLINE_INTERVAL_1HOUR, days="3000 day ago UTC", sav
     df.to_parquet(f"{save_location}/binance-{asset}-{tf}.parquet")
 
 
-
-
 def fetch_binance_data(
-    assets=None, tf=Client.KLINE_INTERVAL_5MINUTE, days="3 day ago UTC", save_location="data"
+    assets=None,
+    tf=Client.KLINE_INTERVAL_5MINUTE,
+    days="3 day ago UTC",
+    save_location="data",
 ):
     if assets is None:
         print("Please provide at least one asset item")
     else:
         for asset in assets:
             get_data(asset, tf, days, save_location)
-

@@ -1,3 +1,11 @@
+import quantbt.lib as lib
+import quantbt.data as data
+
+dir(lib)
+
+
+# |%%--%%| <TqtZgItzAK|TC1G4fI77y>
+
 from quantbt.strategies.S_test import S_Test
 
 from quantbt.lib import np, timeit, pd
@@ -7,7 +15,7 @@ from quantbt.lib import find_files, optimize
 # df
 #
 #
-# # |%%--%%| <o5y8KFNmnb|PSegVofl0P>
+# # |%%--%%| <TC1G4fI77y|PSegVofl0P>
 
 
 assets = find_files("./data/", "binance")
