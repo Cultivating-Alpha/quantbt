@@ -1,0 +1,183 @@
+<!-- Custom HTML site displayed as the Home chapter -->
+
+{% extends "main.html" %}
+{% block tabs %}
+{{ super() }}
+<style>
+  /* Application header should be static for the landing page */
+  .md-header {
+      position: initial;
+  }
+
+  /* Remove spacing, as we cannot hide it completely */
+  .md-main__inner {
+      margin: 0;
+  }
+
+  /* Hide main content for now */
+  .md-content {
+      display: none;
+  }
+
+  /* Hide inner footer */
+  .md-footer__inner {
+      display: none;
+  }
+
+  /* Hide table of contents */
+  @media screen and (min-width: 60em) {
+      .md-sidebar--secondary {
+          display: none;
+      }
+  }
+
+  /* Hide navigation */
+  @media screen and (min-width: 76.25em) {
+      .md-sidebar--primary {
+          display: none;
+      }
+  }
+
+
+  .md-banner a,
+  .md-banner a:focus,
+  .md-banner a:hover {
+    color: currentColor
+  }
+
+  .md-banner strong {
+    white-space: nowrap
+  }
+
+  [dir=ltr] .md-banner .twitter {
+    margin-left: .2em
+  }
+
+  [dir=rtl] .md-banner .twitter {
+    margin-right: .2em
+  }
+
+
+  .mdx-hero {
+    color: var(--md-primary-bg-color);
+    margin: 0 .8rem
+  }
+
+  .mdx-hero h1 {
+    color: currentColor;
+    font-weight: 700;
+    margin-bottom: 1rem
+  }
+
+  @media screen and (max-width:29.9375em) {
+    .mdx-hero h1 {
+      font-size: 1.4rem
+    }
+  }
+
+  .mdx-hero__image {
+      margin-bottom: 1rem;
+      -webkit-filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, .2));
+      filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, .2));
+  }
+
+  .mdx-hero__content {
+    width: 100%;
+      padding-bottom: 20vw
+  }
+
+  @font-face {
+      font-family: UniNeueHeavy;
+      src: local('UniNeueHeavy'), url('/assets/fonts/UniNeueHeavy.otf') format('truetype');
+  }
+
+  .mdx-hero__content h1 {
+      font-size: 1.7rem;
+      font-family: 'UniNeueHeavy', sans-serif
+  }
+
+  @media screen and (min-width:60em) {
+    .mdx-hero {
+      align-items: stretch;
+      display: flex
+    }
+    .mdx-hero__content {
+      margin-left: 20px;
+      margin-top: 3.5rem;
+      order: 1;
+    }
+  }
+
+  @media screen and (min-width:76.25em) {
+    .mdx-hero__image {
+      transform: translateX(8rem)
+    }
+  }
+
+  .mdx-hero .md-button {
+    margin-right: .5rem;
+    margin-top: .5rem
+  }
+
+  .mdx-hero .md-button:focus,
+  .mdx-hero .md-button:hover {
+    background-color: var(--md-accent-fg-color);
+    border-color: var(--md-accent-fg-color);
+    color: var(--md-accent-bg-color)
+  }
+
+  .mdx-hero .md-button--primary {
+    background-color: white;
+    border-color: white;
+    color: black
+  }
+
+  .mdx-hero .md-button--primary:focus,
+  .mdx-hero .md-button--primary:hover {
+      background-color: white;
+      border-color: white;
+      color: black
+  }
+
+  .md-typeset .mdx-iconsearch {
+    background-color: var(--md-default-bg-color);
+    border-radius: .1rem;
+    box-shadow: var(--md-shadow-z1);
+    position: relative;
+    transition: box-shadow 125ms
+  }
+
+  .md-typeset .mdx-iconsearch:focus-within,
+  .md-typeset .mdx-iconsearch:hover {
+    box-shadow: var(--md-shadow-z2)
+  }
+
+  .md-typeset .mdx-iconsearch .md-input {
+    background: var(--md-default-bg-color);
+    box-shadow: none
+  }
+
+  [data-md-color-scheme=slate] .md-typeset .mdx-iconsearch .md-input {
+    background: var(--md-code-bg-color)
+  }
+
+
+
+</style>
+
+<section class="mdx-container">
+   <div class="md-grid md-typeset">
+      <div class="mdx-hero">
+         <div class="mdx-hero__content">
+            <h1>Next-Generation Quantitative Analysis Tool</h1>
+            <p>Get a competitive advantage in trading — be among the first to try the cutting-edge software!</p>
+            <a href="getting-started/" title="Getting started" class="md-button md-button--primary" data-bcup-haslogintext="no"> Quick start </a> <a href="/become-a-member" title="Become a member" class="md-button" data-bcup-haslogintext="no"> Become a member </a> 
+         </div>
+      </div>
+   </div>
+</section>
+
+{% endblock %}
+{% block content %}{% endblock %}
+{% block footer %}{% endblock %}
+

@@ -1,0 +1,30 @@
+ :root {
+  --md-primary-fg-color: #008080;
+  --md-accent-fg-color: #008080;
+  --md-default-bg-color: #303338;
+
+}
+
+body {
+  background: #303338;
+}
+
+.md-header, .md-tabs {
+  background-color: #25282B;
+}
+
+.md-nav--lifted>.md-nav__list>.md-nav__item--active>.md-nav__link {
+  background: transparent;
+  box-shadow: none;
+  font-size: 21px;
+}
+
+/* a:hover{ */
+/*   color: red !important; */
+/* } */
+.md-tabs__item.md-tabs__item--active {
+  font-weight: bold;
+}
+.md-header__title {
+  margin-left: 10px !important;
+}

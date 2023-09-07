@@ -1,6 +1,7 @@
 import pandas as pd
 from .time_manip import TimeManip
 import matplotlib.pyplot as plt
+import matplotlib
 import mplfinance as mpf
 from .convert_signal_to_markers import convert_signal_to_marker
 
@@ -15,7 +16,14 @@ class Plotting:
     def add_line_plot(self, data, panel=0, color="black"):
         return mpf.make_addplot(data, color=color, panel=panel)
 
-    def add_markers(self, markers, data, panel=0, color="black", marker_type="scatter"):
+    def add_markers(
+        self,
+        markers,
+        data,
+        panel=0,
+        color="black",
+        marker_type=matplotlib.markers.CARETDOWN,
+    ):
         markers = convert_signal_to_marker(markers, data, data.index)
         return mpf.make_addplot(
             markers,
@@ -26,7 +34,7 @@ class Plotting:
             markersize=50,
         )
 
-    def mpf_plot(self, data, subplots, type="candle"):
+    def mpf_plot(self, data, subplots=[], type="candle"):
         # # Create my own `marketcolors` to use with the `nightclouds` style:
         # mc = mpf.make_marketcolors(up="white", down="red", inherit=True)
         #

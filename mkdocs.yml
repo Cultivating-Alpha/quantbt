@@ -1,9 +1,13 @@
 site_name: Quant BT
 theme:
   name: material
+  logo: assets/chart-timeline-variant-shimmer.svg
+  favicon: assets/chart-timeline-variant-shimmer.svg
+
   custom_dir: docs/__overrides
   features:
     - content.code.copy
+    - content.code.annotate
     - toc.integrate 
     - content.tooltips
     - header.autohide
@@ -15,7 +19,8 @@ theme:
 
   palette:
     scheme: slate
-    accent: indigo
+    primary: cyan
+    accent: cyan
     # # Palette toggle for light mode
     # - media: "(prefers-color-scheme: light)"
     #   scheme: default
@@ -43,7 +48,11 @@ markdown_extensions:
   - md_in_html
   - pymdownx.highlight:
       anchor_linenums: true
-  - pymdownx.superfences 
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji 
       emoji_generator: !!python/name:materialx.emoji.to_svg
@@ -51,6 +60,9 @@ markdown_extensions:
 nav:
   - Home:
     - index.md
+  - Getting Started:
+    - getting_started/installation.md
+    - getting_started/usage.md
   - Features:
     - features/data.md
     - features/indicators.md
@@ -74,4 +86,4 @@ nav:
 
 
 extra_css:
-  - stylesheets/styles.css
+  - stylesheets/extra.css
