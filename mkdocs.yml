@@ -1,0 +1,77 @@
+site_name: Quant BT
+theme:
+  name: material
+  custom_dir: docs/__overrides
+  features:
+    - content.code.copy
+    - toc.integrate 
+    - content.tooltips
+    - header.autohide
+    - navigation.tabs
+    - navigation.path
+    - navigation.tracking
+    - navigation.top
+    - navigation.expand
+
+  palette:
+    scheme: slate
+    accent: indigo
+    # # Palette toggle for light mode
+    # - media: "(prefers-color-scheme: light)"
+    #   scheme: default
+    #   toggle:
+    #     icon: material/brightness-7
+    #     name: Switch to dark mode
+    #
+    # # Palette toggle for dark mode
+    # - media: "(prefers-color-scheme: dark)"
+    #   scheme: slate
+    #   toggle:
+    #     icon: material/brightness-4
+    #     name: Switch to light mode
+plugins:
+  - search
+  - glightbox
+markdown_extensions:
+  - abbr
+  - attr_list
+  - admonition
+  - def_list
+  - footnotes
+  - pymdownx.snippets
+  - attr_list
+  - md_in_html
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences 
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji 
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+nav:
+  - Home:
+    - index.md
+  - Features:
+    - features/data.md
+    - features/indicators.md
+    - features/signals-and-trades.md
+    - features/optimisation.md
+    - features/analysis.md
+    - features/performance.md
+    - features/live-trading.md
+
+  - Tutorials:
+    - Signal and Trades Generation:
+      - tutorials/signal_generation/index.md
+    - Trade Management:
+      - tutorials/trade_management/stop-to-be.md
+      - tutorials/trade_management/placing-sl-tp.md
+      - tutorials/trade_management/trade-expiry.md
+      - tutorials/trade_management/trailing-stop-loss.md
+      - tutorials/trade_management/simultaneous-trades.md
+
+
+
+
+extra_css:
+  - stylesheets/styles.css
