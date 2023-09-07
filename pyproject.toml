@@ -26,6 +26,9 @@ pytest-watcher = "^0.3.4"
 pyright = "^1.1.320"
 importlib-resources = "^6.0.1"
 pyarrow = "^13.0.0"
+mkdocs-glightbox = "^0.3.4"
+mkdocs-material = "^9.2.8"
+mkdocs = "^1.5.2"
 
 
 [build-system]
