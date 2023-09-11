@@ -64,3 +64,8 @@ class Trade(IntEnum):
     Active = 14
     CloseReason = 15
     Extra = 16
+
+
+class StrategyType:
+    FROM_SIGNALS = 0
+    FROM_TRADES = 0

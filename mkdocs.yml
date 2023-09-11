@@ -38,6 +38,7 @@ plugins:
   - search
   - glightbox
 markdown_extensions:
+  - tables
   - abbr
   - attr_list
   - admonition
@@ -76,12 +77,21 @@ nav:
     - Signal and Trades Generation:
       - tutorials/signal_generation/index.md
     - Trade Management:
+      - tutorials/trade_management/index.md
       - tutorials/trade_management/stop-to-be.md
       - tutorials/trade_management/placing-sl-tp.md
       - tutorials/trade_management/trade-expiry.md
       - tutorials/trade_management/trailing-stop-loss.md
       - tutorials/trade_management/simultaneous-trades.md
 
+  - API:
+    - api/data.md
+    - api/indicators.md
+    - api/strategy.md
+    - api/signals-and-trades.md
+    - api/optimisation.md
+    - api/analysis.md
+    - api/performance.md
 
 
 
