@@ -2917,7 +2917,7 @@ files = [
 name = "tqdm"
 version = "4.66.1"
 description = "Fast, Extensible Progress Meter"
-optional = true
+optional = false
 python-versions = ">=3.7"
 files = [
     {file = "tqdm-4.66.1-py3-none-any.whl", hash = "sha256:d302b3c5b53d47bce91fea46679d9c3c6508cf6332229aa1e7d8653723793386"},
@@ -3340,11 +3340,11 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy (>=0.9.1)", "pytest-ruff"]
 
 [extras]
-dev-tools = ["ipython", "pandas-ta", "python-binance", "quantstats", "seaborn", "tqdm"]
+dev-tools = ["ipython", "pandas-ta", "python-binance", "quantstats", "seaborn"]
 mkdocs = ["mkdocs", "mkdocs-glightbox", "mkdocs-material"]
 tools = ["importlib-resources", "pyright", "pytest", "pytest-watcher"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "2055b168c55b43096cdc2e74e1d378a6e137b13b0b6f0a202dcd3c1d9f9d8b16"
+content-hash = "8da26cc5b5b008237491d97bd4535d379cd5bd601c78593cbe00aae8bf6057b6"

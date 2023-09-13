@@ -1,7 +1,10 @@
+import quantbt as qbt
 import quantbt.lib as lib
 import quantbt.data as data
+import quantbt.indicators as indicators
 
 dir(lib)
+dir(qbt)
 
 
 # |%%--%%| <TqtZgItzAK|TC1G4fI77y>
