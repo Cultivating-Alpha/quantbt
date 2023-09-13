@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "quantbt"
-version = "0.8.5"
+version = "0.8.6"
 description = ""
 authors = ["Alpha <piotr@piotryordanov.com>"]
 readme = "README.md"
@@ -15,8 +15,8 @@ matplotlib = "^3.7.1"
 mplfinance = "^0.12.9b7"
 prettytable = "^3.8.0"
 pyarrow = "^13.0.0"
+tqdm = "^4.65.0"
 
-tqdm = {version = "^4.65.0", optional = true}
 python-binance = {version = "^1.0.17", optional = true}
 quantstats = {version = "^0.0.59", optional = true}
 seaborn = {version = "^0.12.2", extras = ["stats"], optional = true}
@@ -40,7 +40,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.extras]
 dev_tools = [
-    "tqdm",
     "python-binance",
     "quantstats",
     "seaborn",
