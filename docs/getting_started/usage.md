@@ -56,22 +56,14 @@ strategy_settings = {
     "initial_capital": 100_000, # (3)!
     "commission": 1.2, # (4)!
     "commission_type": CommissionType.FIXED, # (5)!
-    "multiplier": 4, # (6)
+    "multiplier": 20, # (6)
     "data_type": DataType.OHLC, # (7)! 
     "default_trade_size": 1, # (8)!
     "trade_size_type": TradeSizeType.FIXED, # (9)!
 }
 
-st = MyStrategy(
-    data,
-    commission=1.2, # (3)!
-    commission_type=CommissionType.FIXED, # (4)!
-    multiplier=4, # (5)!
-    data_type=DataType.OHLC, # (6)!
-    initial_capital=100000, # (7)!
-    default_trade_size=1, # (8)!
-    trade_size_type=TradeSizeType.FIXED, # (9)!
-)
+st = MyStrategy(data, **strategy_settings)
+
 ```
 
 1. You can use talib indicators, or you can use some of our custom [indicators](/features/indicators)
@@ -79,7 +71,10 @@ st = MyStrategy(
 3. Define the initial capital. In USD
 4. Set the commission amount in USD to be paid. More info [here](/api/strategy/#commissions)
 5. Set the commission type. More info [here](/api/strategy/#commissions)
-6. Set the Datatype. There are 2 modes: OHLC and Tick. Read moe [here](/api/strategy/#data-type)
+6. Use the multiplier to reflect leverage. This example uses $NQ Futures, where each point is worth 20$
+7. Set the Datatype. There are 2 modes: OHLC and Tick. Read moe [here](/api/strategy/#datatype)
+8. This means that no matter what, the backtester will always only take 1 contract per trade
+9. 2 Trade size types are supported: `Fixed` and `Percentage` . Read more [here](/api/strategy/#tradesize)
 
 ## Backtest signals
 
@@ -110,6 +105,8 @@ qbt.lib.plotting.mpf_plot(data, subplots=subplots)
 
 ## Optimize the parameters
 
+*TODO: WIP*
+
 ## All in one
 
 ---- 
@@ -117,6 +114,6 @@ qbt.lib.plotting.mpf_plot(data, subplots=subplots)
 # Next steps
 
 QuantBT is much more than just a cross over signal tester. 
-It can create [multiple trades](/tutorials/trade_management/simultaneous-trades/), [move to stop to Break-env](/tutorials/trade_management/stop-to-be/), add a [trailing Stop Loss](/tutorials/trade_management/trailing-stop-loss/) and much more that you can find [here](/tutorials/trade_management/)
+It can create [multiple trades](/tutorials/trade_management/simultaneous-trades/), [move stop to to Break-env](/tutorials/trade_management/stop-to-be/), add a [trailing Stop Loss](/tutorials/trade_management/trailing-stop-loss/) and much more that you can find [here](/tutorials/trade_management/)
 
 On top of that, you can also deploy your backtested strategies straight into a [live trading environment](/features/live-trading/)

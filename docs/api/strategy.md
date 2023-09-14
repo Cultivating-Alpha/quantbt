@@ -51,3 +51,39 @@ This is popular in crypto currencies where the commission is a percentage of vol
 | Exit  | 12000  | 1      | **2.4$** |
 
 Total Commission is: **4.4$**
+
+----
+
+## TradeSize
+QuantBT currently supports 2 type of trade sized.
+
+### Fixed:
+**Usage:** `TradeSize.FIXED`
+
+This is popular in Futures contracts where the contrats have to be full numbers.
+
+
+### Percentage:
+**Usage:** `TradeSize.PERCENTAGE`
+
+This is useful in crypto where you want the trade size to be a percentage of the total portfolio.
+
+----
+
+## DataType
+In the quant world, there are generally 2 types of data.
+
+### Bid Ask:
+The most raw type is the Bid-Ask data. 
+
+*note*: You can simulate a **tick** line chart, by setting bid and ask to the same value.
+**Usage:** `DataType.BID_ASK`
+
+This is popular when scalping of doing HFT.
+
+
+### OHLC:
+**Usage:** `DataType.OHLC`
+
+The most common datatype from which you can build more diverse charts such as renko, range bars, etc...
+
