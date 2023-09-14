@@ -3,7 +3,12 @@ icon: material/chart-scatter-plot-hexbin
 ---
 
 # Usage
+## Notebook and Source
+You can jump right into the Jupyter notebook [here](https://github.com/Cultivating-Alpha/quant.bt/blob/master/examples/usage/usage.ipynb).
 
+----
+
+## Code
 The following page will illustrate a very basic example where we will:
 
 1. Generate random OHLC data
