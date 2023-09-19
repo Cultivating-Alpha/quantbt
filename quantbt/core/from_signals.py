@@ -99,6 +99,7 @@ class FromSignals:
             # UPDATE PNL OF TRADES
             # TODO need to change how trade exit price is taken to be able to take next open for example
             self.trade_module.update_trades_pnl(self.data_module.open[i + 1], 0, 0)
+            self.loop_updates(i)
 
             # Check if we are allowed to place more trades
             can_trade = trade_allowed
@@ -141,7 +142,6 @@ class FromSignals:
             # ======================================================================================= #
             #                                          Take Short Trades                               #
             # ======================================================================================= #
-
             if short_entries[i]:
                 if (
                     can_trade
@@ -171,7 +171,6 @@ class FromSignals:
                         if trade[Trade.Direction.value] == OrderDirection.SHORT.value:
                             self.close_trade(i, trade, short_exit_price[i])
 
-            self.loop_updates(i)
             if stop_to_be is not None:
                 stop_to_be(self.trade_module.active_trades, self.data_module, i)
 

@@ -9,7 +9,7 @@ def create_equity_on_close(ohlc, trades, equity):
     equity_on_close = np.full(len(equity), 0)
     equity_on_close[0] = equity[0]
     for trade in trades:
-        index = ohlc.index.get_loc(trade[Trade.EntryTime])
+        index = ohlc.index.get_loc(trade[Trade.ExitTime])
         equity_on_close[index] = equity[index]
 
     for i in range(len(equity)):

@@ -105,7 +105,7 @@ class Plotting:
             }
         )
 
-        df["bnh"] = df["Bid"].diff().cumsum() + 10000
+        # df["bnh"] = df["Bid"].diff().cumsum() + 10000
         df["Open"] = df["equity"]
         df["High"] = df["equity"]
         df["Low"] = df["equity"]

@@ -112,6 +112,7 @@ class TradeModule:
         #
         # Update Closed PNL
         self.closed_pnl += new_pnl
+        self.floating_pnl -= new_pnl
 
         # Set Active state of trade
         self.active_trades = remove_from_active_trades(self.active_trades, index)
