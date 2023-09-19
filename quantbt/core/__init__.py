@@ -6,3 +6,5 @@ from quantbt.core.calculate_exit_price import calculate_exit_price
 
 from quantbt.core.from_trades import FromTrades
 from quantbt.core.from_signals import FromSignals
+
+from quantbt.core.backtest_each_month import backtest_each_month

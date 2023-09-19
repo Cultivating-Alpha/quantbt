@@ -72,8 +72,8 @@ def calculate_stats(
 
     closed_trades["Duration"] = closed_trades["ExitTime"] - closed_trades["EntryTime"]
 
-    first_data_day = data["Date"].iloc[0]
-    last_data_day = data["Date"].iloc[-1]
+    first_data_day = data["date"].iloc[0]
+    last_data_day = data["date"].iloc[-1]
     total_trading_days = np.round(
         (last_data_day - first_data_day).total_seconds() / (24 * 3600)
     )

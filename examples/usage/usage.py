@@ -85,26 +85,26 @@ subplots = [
 qbt.lib.plotting.mpf_plot(data, subplots=subplots)
 # |%%--%%| <IxcW591TUJ|rXAxJLw5iJ>
 
-# import os
-# from quantbt.lib import optimize
-# from quantbt.core.enums import StrategyType
-#
-# param_combinations = {
-#     "ma_short": range(8, 100, 1),
-#     "ma_long": range(2, 50, 1),
-# }
-#
-# optimisation = optimize(
-#     data,
-#     MyStrategy,
-#     strategy_settings,
-#     strategy_type=StrategyType.FROM_SIGNALS,
-#     **param_combinations
-#     # ma_short=range(8, 24, 1),
-#     # ma_long=range(2, 15, 1),
-#     # ma=range(100 + i * 10, 110 + i * 10, 1),
-# )
-# optimisation
+import os
+from quantbt.lib import optimize
+from quantbt.core.enums import StrategyType
+
+param_combinations = {
+    "ma_short": range(8, 100, 1),
+    "ma_long": range(2, 50, 1),
+}
+
+optimisation = optimize(
+    data,
+    MyStrategy,
+    strategy_settings,
+    strategy_type=StrategyType.FROM_SIGNALS,
+    **param_combinations
+    # ma_short=range(8, 24, 1),
+    # ma_long=range(2, 15, 1),
+    # ma=range(100 + i * 10, 110 + i * 10, 1),
+)
+optimisation
 #
 # # sym = "Random Data"
 # # for i in range(0, 50):

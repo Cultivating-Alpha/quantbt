@@ -6,3 +6,5 @@ from .S_print_trades import print_trades
 from .S_calculate_metrics import calculate_metrics
 
 from .save_to_csv import save_to_csv
+
+from .plot_returns_heatmap import plot_returns_heatmap

@@ -18,7 +18,7 @@ def Donchian(high, low, donchian_len, offset=0):
     return indicator
 
 
-@njit(cache=True, nogil=True)
+@njit(cache=True, nogil=True, parallel=True)
 def p_Donchian(high, low, donchian_len, offset=0):
     donchian = np.full_like(high, np.nan, dtype=np.float_)
     indicator = np.full_like(high, np.nan, dtype=np.float_)

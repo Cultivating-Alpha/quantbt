@@ -11,8 +11,8 @@ class TimeManip:
     def format_index(self, df):
         row = df.index
         if "Date" in df.columns:
-            row = df["Date"].values
-            df.drop("Date", axis=1, inplace=True)
+            row = df["date"].values
+            df.drop("date", axis=1, inplace=True)
         elif "date" in df.columns:
             row = df["date"].values
             df.drop("date", axis=1, inplace=True)
@@ -25,7 +25,7 @@ class TimeManip:
             else:
                 # print("Timestamp might be in milliseconds")
                 row = time_manip.convert_ms_to_datetime(row)
-        df["Date"] = row
+        df["date"] = row
         return df
 
     # ================================================================================= #

@@ -47,7 +47,6 @@ class Plotting:
             volume=False,
             ylabel="Price",
             addplot=subplots,
-            style="classic",
             title="Strategy Oupput",
         )
 
@@ -101,50 +100,23 @@ class Plotting:
         df = pd.DataFrame(
             {
                 "equity": equity,
-                "date": TimeManip().convert_ms_to_datetime(data.index.values),
+                "Date": TimeManip().convert_ms_to_datetime(data.index.values),
                 "Bid": data[bid_column].values,
             }
         )
-        # print(df)
 
         df["bnh"] = df["Bid"].diff().cumsum() + 10000
+        df["Open"] = df["equity"]
+        df["High"] = df["equity"]
+        df["Low"] = df["equity"]
+        df["Close"] = df["equity"]
+        df.set_index("Date", inplace=True)
 
-        plt.plot(df["date"], df["equity"], label="Equity")
-        plt.xlabel("X-axis")
-        plt.ylabel("Y-axis")
-        plt.title("Two Lines Plot")
-        plt.legend()
-        plt.show()
+        # subplots = self.add_line_plot(df["bnh"], panel=0, color="black")
+        subplots = []
 
-        # x = df["date"]
-        # y1 = df["equity"]
-        # y2 = df["bnh"]
-        #
-        # # Create the figure and the first Y-axis
-        # fig, ax1 = plt.subplots()
-        #
-        # # Plot the first line
-        # ax1.plot(x, y1, "black", label="Strategy")
-        # ax1.set_xlabel("X-axis")
-        # ax1.set_ylabel("Line 1 Y-axis", color="b")
-        # ax1.tick_params("y", colors="b")
-        #
-        # # Create the second Y-axis
-        # ax2 = ax1.twinx()
-        #
-        # # Plot the second line
-        # ax2.plot(x, y2, "gray", label="BnH")
-        # ax2.set_ylabel("Line 2 Y-axis", color="r")
-        # ax2.tick_params("y", colors="gray")
-        #
-        # # Add a legend
-        # lines = [ax2.get_lines()[0], ax1.get_lines()[0]]
-        # plt.legend(lines, [line.get_label() for line in lines])
-        #
-        # # Display the plot
-        # plt.title("Two Lines with Separate Y-Axes")
-        # plt.show()
-        # return df
+        self.mpf_plot(df, subplots=subplots, type="line")
+        return df
 
 
 plotting = Plotting()
