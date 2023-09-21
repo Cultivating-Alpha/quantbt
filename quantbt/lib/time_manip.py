@@ -16,6 +16,9 @@ class TimeManip:
         elif "date" in df.columns:
             row = df["date"].values
             df.drop("date", axis=1, inplace=True)
+        elif "time" in df.columns:
+            row = df["time"].values
+            df.drop("time", axis=1, inplace=True)
 
         # print(type(row[0]))
         if type(row[0]) == np.int64:
