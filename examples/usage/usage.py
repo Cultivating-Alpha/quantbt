@@ -1,9 +1,9 @@
 import quantbt as qbt
 
-data = qbt.data.random_data(seed=100)[0]
+data = qbt.data.random_data(seed=300)[0]
 print(data)
 
-# |%%--%%| <buvm7UY7E3|sER6Ds1yb6>
+# |%%--%%| <rXAxJLw5iJ|sER6Ds1yb6>
 
 import quantbt.indicators as ind
 from quantbt.strategies.S_base import S_base
@@ -44,6 +44,7 @@ This is how we actually backtest the strategy.
 We only need to set the parameters which will be automatically passed to the st.generate_signals() function
 """
 st = MyStrategy(data, **strategy_settings)
+st.set_backtester_settings()
 
 params = (5, 23)
 st.from_signals(params)
@@ -61,7 +62,6 @@ print(trades)
 # |%%--%%| <Ap4AM4XYjW|mCaJ4rxICW>
 
 st.plot_equity()
-
 
 # |%%--%%| <mCaJ4rxICW|IxcW591TUJ>
 
@@ -83,40 +83,58 @@ subplots = [
 
 
 qbt.lib.plotting.mpf_plot(data, subplots=subplots)
-# |%%--%%| <IxcW591TUJ|rXAxJLw5iJ>
+# |%%--%%| <IxcW591TUJ|Ufsl8mlq0u>
 
-import os
-from quantbt.lib import optimize
-from quantbt.core.enums import StrategyType
+import pandas as pd
+from quantbt.lib import time_manip
+from quantbt.lib.data_to_csv import save_data, create_scatter_df
 
-param_combinations = {
-    "ma_short": range(8, 100, 1),
-    "ma_long": range(2, 50, 1),
-}
 
-optimisation = optimize(
-    data,
-    MyStrategy,
-    strategy_settings,
-    strategy_type=StrategyType.FROM_SIGNALS,
-    **param_combinations
-    # ma_short=range(8, 24, 1),
-    # ma_long=range(2, 15, 1),
-    # ma=range(100 + i * 10, 110 + i * 10, 1),
+data["Date"] = time_manip.convert_datetime_to_ms(data.index)
+time_manip.convert_datetime_to_ms(data["Date"])
+
+"""
+Create the dataframes needed for the UI
+"""
+df = pd.DataFrame(
+    {
+        "date": data["Date"],
+        "open": data.open,
+        "high": data.high,
+        "low": data.low,
+        "close": data.close,
+        "long": st.long,
+        "short": st.short,
+        "equity": st.bt.data_module.equity,
+    }
 )
-optimisation
-#
-# # sym = "Random Data"
-# # for i in range(0, 50):
-# #     out = f"./optimisation/{sym}-super-{i}.parquet"
-# #     if not os.path.exists(out):
-# #         optimisation = optimize(
-# #             data,
-# #             MyStrategy,
-# #             # ma_short=range(8, 24, 1),
-# #             # ma_long=range(2, 15, 1),
-# #             # ma=range(100 + i * 10, 110 + i * 10, 1),
-# #         )
-# #         print(optimisation)
-# #         # optimisation = optimisation.sort_values("ratio", ascending=False)
-# #         # optimisation.to_parquet(f"./optimisations/{sym}-super-{i}.parquet")
+df.index = df["date"]
+
+# Apply the function to create the new column
+
+
+# rsi_scatter_high = data['high']
+# rsi_scatter_low = data['high']
+
+indicators_data = pd.DataFrame(
+    {"ma1": st.sma_long, "ma2": st.sma_short, "equity": st.bt.data_module.equity}
+)
+
+"""
+Create the configuration that tells the UI which indicators to draw
+"""
+indicators = [
+    {"name": "EMA Long", "type": "line", "panel": 0, "dataIndex": 0},
+    {"name": "MA Short", "type": "line", "color": "black", "panel": 0, "dataIndex": 1},
+    {"name": "Equity", "type": "line", "color": "black", "panel": 1, "dataIndex": 2},
+]
+
+
+"""
+Save the data and config to the location of the UI
+"""
+UI_LOCATION = "/home/alpha/workspace/cultivating-alpha/candles-ui/public"
+
+save_data(
+    UI_LOCATION, df, indicators, indicators_data, st.bt.trade_module.closed_trades
+)

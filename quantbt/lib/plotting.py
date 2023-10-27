@@ -47,7 +47,7 @@ class Plotting:
             volume=False,
             ylabel="Price",
             addplot=subplots,
-            title="Strategy Oupput",
+            title="Strategy Output",
         )
 
     # ================================================================================= #
@@ -100,7 +100,7 @@ class Plotting:
         df = pd.DataFrame(
             {
                 "equity": equity,
-                "Date": TimeManip().convert_ms_to_datetime(data.index.values),
+                "Date": TimeManip().convert_s_to_datetime(data.index.values),
                 "Bid": data[bid_column].values,
             }
         )
@@ -110,6 +110,7 @@ class Plotting:
         df["High"] = df["equity"]
         df["Low"] = df["equity"]
         df["Close"] = df["equity"]
+        print(df)
         df.set_index("Date", inplace=True)
 
         # subplots = self.add_line_plot(df["bnh"], panel=0, color="black")

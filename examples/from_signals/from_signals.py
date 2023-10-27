@@ -10,8 +10,9 @@ from quantbt.lib.data_to_csv import save_data, create_scatter_df
 
 import quantbt as qnb
 
-# import talib
-import pandas_ta as ta
+import talib
+
+# import pandas_ta as ta
 
 from quantbt.strategies.S_base import S_base
 from quantbt.core.backtester import Backtester
@@ -53,8 +54,10 @@ class S_signals(S_base):
         long, short, cutoff = params
         close = data.close
 
-        self.ma_long = ta.sma(close, length=long)
-        self.ma_short = ta.sma(close, length=short)
+        # self.ma_long = ta.sma(close, length=long)
+        # self.ma_short = ta.sma(close, length=short)
+        self.ma_short = talib.SMA(close, length=short)
+        self.ma_long = talib.SMA(close, length=long)
 
         self.long = cross_above(self.ma_short, self.ma_long)
         self.short = cross_below(self.ma_short, self.ma_long)

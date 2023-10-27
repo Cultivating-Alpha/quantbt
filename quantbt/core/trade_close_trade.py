@@ -15,6 +15,10 @@ def close_trade(
         exit_price = calculate_exit_price(
             slippage, direction, trade[Trade.SL.value], bid, ask
         )
+    elif close_reason == PositionCloseReason.TSL.value:
+        exit_price = calculate_exit_price(
+            slippage, direction, trade[Trade.TSL.value], bid, ask
+        )
     else:
         exit_price = calculate_exit_price(slippage, direction, price_value, bid, ask)
 

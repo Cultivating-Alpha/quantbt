@@ -9,7 +9,9 @@ def create_equity_on_close(ohlc, trades, equity):
     equity_on_close = np.full(len(equity), 0)
     equity_on_close[0] = equity[0]
     for trade in trades:
-        index = ohlc.index.get_loc(trade[Trade.ExitTime])
+        index = ohlc.index.get_loc(trade[Trade.ExitTime]) + 1
+        if index == len(equity):
+            index -= 1
         equity_on_close[index] = equity[index]
 
     for i in range(len(equity)):
@@ -51,7 +53,9 @@ def format_array_to_tick(array, tick_size):
     return array
 
 
-def save_data(UI_LOCATION, df, indicators, indicators_data, trade_arrows):
+def save_data(UI_LOCATION, df, indicators, indicators_data, trades):
+    trade_arrows = create_trade_arrows(df, trades)
+
     def save_to_csv(df, path):
         array_of_arrays = df.values.tolist()
         # Write the list of lists to a CSV file

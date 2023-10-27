@@ -7,7 +7,7 @@ def resample(df, tf="1H"):
                 "high": "max",
                 "low": "min",
                 "close": "last",
-                "volume": "sum",
+                # "volume": "sum",
             }
         )
         .fillna(method="ffill")

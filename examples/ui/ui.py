@@ -18,59 +18,47 @@ exits = rsi > 70
 
 
 # Apply the function to create the new column
-rsi_scatter_high = create_scatter_df(data['high'] * 1.01, exits)
-rsi_scatter_low = create_scatter_df(data['low'] * 0.99, entries)
+rsi_scatter_high = create_scatter_df(data["high"] * 1.01, exits)
+rsi_scatter_low = create_scatter_df(data["low"] * 0.99, entries)
 
-#|%%--%%| <9dYaZhxcfT|DtKrqPsRfU>
+# |%%--%%| <9dYaZhxcfT|DtKrqPsRfU>
 
 
 """
 Create the dataframes needed for the UI
 """
-df = pd.DataFrame({
-    'date': data.index,
-    'open': data.open,
-    'high': data.high,
-    'low': data.low,
-    'close': data.close,
-    'entries': entries,
-    'exits': exits,
-})
+df = pd.DataFrame(
+    {
+        "date": data.index,
+        "open": data.open,
+        "high": data.high,
+        "low": data.low,
+        "close": data.close,
+        "entries": entries,
+        "exits": exits,
+    }
+)
 
-indicators_data = pd.DataFrame({
-    'sma': sma,
-    'rsi': rsi,
-    'rsi_scatter_high': rsi_scatter_high,
-    'rsi_scatter_low': rsi_scatter_low,
-})
+indicators_data = pd.DataFrame(
+    {
+        "sma": sma,
+        "rsi": rsi,
+        "rsi_scatter_high": rsi_scatter_high,
+        "rsi_scatter_low": rsi_scatter_low,
+    }
+)
 
 """
 Create the configuration that tells the UI which indicators to draw
 """
-indicators = [{
-    "name": "Donchian",
-    "type": "line",
-    "panel": 0,
-    "dataIndex": 0
-  }, {
-    "name": "RSI",
-    "type": "line",
-    "panel": 1,
-    "dataIndex": 1
-  }, {
-    "name": "RSI Scatter High",
-    "type": "scatter",
-    "panel": 0,
-    "dataIndex": 2
-  }, {
-    "name": "RSI Scatter Low",
-    "type": "scatter",
-    "panel": 0,
-    "dataIndex": 3
-  }
+indicators = [
+    {"name": "Donchian", "type": "line", "panel": 0, "dataIndex": 0},
+    {"name": "RSI", "type": "line", "panel": 1, "dataIndex": 1},
+    {"name": "RSI Scatter High", "type": "scatter", "panel": 0, "dataIndex": 2},
+    {"name": "RSI Scatter Low", "type": "scatter", "panel": 0, "dataIndex": 3},
 ]
 
-#|%%--%%| <DtKrqPsRfU|vlAMStIg3O>
+# |%%--%%| <DtKrqPsRfU|vlAMStIg3O>
 
 
 """

@@ -8,7 +8,7 @@ from quantbt.lib.time_manip import time_manip
 from quantbt.core.backtester import Backtester
 from quantbt.lib.output_trades import output_trades
 from quantbt.lib.calculate_stats import calculate_stats
-from quantbt.core.enums import DataType, CommissionType, TradeSizeType
+from quantbt.core.enums import DataType, CommissionType, TradeSizeType, TradeMode
 
 
 class S_base:
@@ -94,9 +94,9 @@ class S_base:
     # ======================================================================================== #
     def set_backtester_settings(
         self,
-        use_trailing_sl,
-        one_trade_per_direction,
-        trade_mode,
+        use_trailing_sl=False,
+        one_trade_per_direction=True,
+        trade_mode=TradeMode.ONE_WAY,
         move_stop_to_be=False,
     ):
         self.use_trailing_sl = use_trailing_sl
