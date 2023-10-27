@@ -3,7 +3,6 @@ import quantbt as qbt
 data = qbt.data.random_data(seed=300)[0]
 print(data)
 
-# |%%--%%| <rXAxJLw5iJ|sER6Ds1yb6>
 
 import quantbt.indicators as ind
 from quantbt.strategies.S_base import S_base
@@ -31,12 +30,11 @@ strategy_settings = {
     "initial_capital": 100_000,
     "commission": 1.2,
     "commission_type": CommissionType.FIXED,
-    "multiplier": 4,
+    "multiplier": 20,
     "data_type": DataType.OHLC,
     "default_trade_size": 1,
     "trade_size_type": TradeSizeType.FIXED,
 }
-# |%%--%%| <sER6Ds1yb6|WYW5Ijm2uh>
 
 
 """
@@ -49,7 +47,7 @@ st.set_backtester_settings()
 params = (5, 23)
 st.from_signals(params)
 
-# |%%--%%| <WYW5Ijm2uh|dcbhkIt8T2>
+# |%%--%%| <sER6Ds1yb6|dcbhkIt8T2>
 
 stats = st.get_stats()
 print(stats)

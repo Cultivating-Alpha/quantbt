@@ -117,6 +117,11 @@ class TradeModule:
         # Set Active state of trade
         self.active_trades = remove_from_active_trades(self.active_trades, index)
 
+        if trade[Trade.Direction.value] == OrderDirection.LONG.value:
+            self.active_long_trades -= 1
+        else:
+            self.active_short_trades -= 1
+
     def check_trades_to_close(self, price_data):
         if len(self.active_trades) == 0:
             return

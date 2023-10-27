@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "quantbt"
-version = "0.8.8"
+version = "0.8.9"
 description = ""
 authors = ["Alpha <piotr@piotryordanov.com>"]
 readme = "README.md"
@@ -18,7 +18,7 @@ pyarrow = "^13.0.0"
 tqdm = "^4.65.0"
 
 python-binance = {version = "^1.0.17", optional = true}
-quantstats = {version = "^0.0.59", optional = true}
+quantstats = {version = "^0.0.59"}
 seaborn = {version = "^0.12.2", extras = ["stats"]}
 ipython = {version = "^8.14.0", optional = true}
 pandas-ta = {version = "^0.3.14b0", optional = true}
