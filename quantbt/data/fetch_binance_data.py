@@ -41,9 +41,9 @@ def fetch_futures_data(symbol="BTCUSDT", count=30, tf="1m", contract_type="PERPE
 
 
 class FuturesFetcher:
+    def __init__(self):
         self.client = Client()
         pass
-    def __init__(self):
 
     def _fetch(self, symbol, end, tf="1m", contract_type="PERPETUAL"):
         print(end)
