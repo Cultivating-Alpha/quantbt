@@ -1,6 +1,8 @@
-from binance.client import Client
 import pandas as pd
 import mplfinance as mpf
+from ..lib import time_manip
+from datetime import datetime
+from binance.client import Client
 from .create_binance_dataframe import create_binance_dataframe
 
 
@@ -27,3 +29,54 @@ def fetch_binance_data(
     else:
         for asset in assets:
             get_data(asset, tf, days, save_location)
+
+
+def fetch_futures_data(symbol="BTCUSDT", count=30, tf="1m", contract_type="PERPETUAL"):
+    fetcher = FuturesFetcher()
+
+    # Fetch PERPETUAL CONTRACTS
+    df = fetcher.fetch(symbol, count, tf, contract_type)
+    df.to_parquet(f"./data/binance-{symbol}-{contract_type}-{tf}.parquet")
+    print(df)
+
+
+class FuturesFetcher:
+        self.client = Client()
+        pass
+    def __init__(self):
+
+    def _fetch(self, symbol, end, tf="1m", contract_type="PERPETUAL"):
+        print(end)
+        r = self.client.futures_continous_klines(
+            pair=symbol,
+            contractType=contract_type,
+            interval=tf,
+            limit=1500,
+            endTime=int(end.timestamp() * 1000),
+        )
+        df = pd.DataFrame(r)
+
+        df.columns = [
+            "time",
+            "open",
+            "high",
+            "low",
+            "close",
+            "volume",
+            "close_time",
+            "quote_asset_volume",
+            "number_of_trades",
+            "taker_buy_volume",
+            "taker_buy_quote_asset_volume",
+            "ignore",
+        ]
+        df["time"] = time_manip.convert_ms_to_datetime(df["time"])
+        df.set_index("time", inplace=True)
+        return df
+
+    def fetch(self, symbol, count, tf, contract_type):
+        df = self._fetch(symbol, datetime.now(), tf, contract_type)
+        for i in range(count):
+            newdf = self._fetch(symbol, df.index[0], tf, contract_type)
+            df = pd.concat([newdf, df])
+        return df
