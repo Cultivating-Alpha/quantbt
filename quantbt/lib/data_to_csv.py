@@ -27,7 +27,6 @@ def create_trade_arrows(ohlc, trades):
         data.append(
             [
                 {
-                    "direction": trade[Trade.Direction],
                     "name": np.round(trade[Trade.PNL], 2),
                     "coord": [
                         ohlc.index.get_loc(trade[Trade.EntryTime]),
