@@ -9,6 +9,7 @@ def close_trade(
 ) -> tuple[dict, float, int]:
     # GENERATE DEBUG
     direction = trade[Trade.Direction.value]
+    volume = trade[Trade.Volume.value]
     entry_price = trade[Trade.EntryPrice.value]
 
     if close_reason == PositionCloseReason.SL.value:
@@ -24,11 +25,11 @@ def close_trade(
 
     new_pnl = 0
     if direction == OrderDirection.LONG.value:
-        new_pnl = (exit_price - entry_price) * multiplier - trade[
+        new_pnl = (exit_price - entry_price) * volume * multiplier - trade[
             Trade.Commission.value
         ]
     else:
-        new_pnl = (entry_price - exit_price) * multiplier - trade[
+        new_pnl = (entry_price - exit_price) * volume * multiplier - trade[
             Trade.Commission.value
         ]
 

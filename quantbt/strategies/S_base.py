@@ -44,6 +44,8 @@ class S_base:
         self.original_data = data[offset:]
         self.update_data(self.original_data.copy())
 
+        self.set_backtester_settings()
+
     # ======================================================================================== #
     #                                     DATA Items
     # ======================================================================================== #
@@ -96,7 +98,7 @@ class S_base:
         self,
         use_trailing_sl=False,
         one_trade_per_direction=True,
-        trade_mode=TradeMode.ONE_WAY,
+        trade_mode=TradeMode.HEDGE,
         move_stop_to_be=False,
     ):
         self.use_trailing_sl = use_trailing_sl
