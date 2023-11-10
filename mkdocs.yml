@@ -1,8 +1,13 @@
 site_name: Quant BT
+
+repo_url: https://github.com/Cultivating-Alpha/quantbt
+repo_name: quantbt
+
 theme:
   name: material
   logo: assets/chart-timeline-variant-shimmer.svg
   favicon: assets/chart-timeline-variant-shimmer.svg
+
 
   custom_dir: docs/__overrides
   features:

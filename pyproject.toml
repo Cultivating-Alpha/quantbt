@@ -68,3 +68,8 @@ addopts = "-s"
 testpaths = [
     "tests",
 ]
+
+[tool.poe.tasks]
+install = "poetry install --all-extras"
+docs = "poetry run mkdocs serve"
+
