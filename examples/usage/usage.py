@@ -42,7 +42,6 @@ This is how we actually backtest the strategy.
 We only need to set the parameters which will be automatically passed to the st.generate_signals() function
 """
 st = MyStrategy(data, **strategy_settings)
-st.set_backtester_settings()
 
 params = (5, 23)
 st.from_signals(params)
@@ -107,12 +106,6 @@ df = pd.DataFrame(
     }
 )
 df.index = df["date"]
-
-# Apply the function to create the new column
-
-
-# rsi_scatter_high = data['high']
-# rsi_scatter_low = data['high']
 
 indicators_data = pd.DataFrame(
     {"ma1": st.sma_long, "ma2": st.sma_short, "equity": st.bt.data_module.equity}

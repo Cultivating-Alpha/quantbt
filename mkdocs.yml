@@ -7,6 +7,8 @@ theme:
   name: material
   logo: assets/chart-timeline-variant-shimmer.svg
   favicon: assets/chart-timeline-variant-shimmer.svg
+  icon:
+    repo: fontawesome/brands/github
 
 
   custom_dir: docs/__overrides
