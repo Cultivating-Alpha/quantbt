@@ -99,13 +99,13 @@ class S_base:
         use_trailing_sl=False,
         one_trade_per_direction=True,
         trade_mode=TradeMode.HEDGE,
-        move_stop_to_be=False,
     ):
         self.use_trailing_sl = use_trailing_sl
         self.one_trade_per_direction = one_trade_per_direction
         self.trade_mode = trade_mode
         self.trade_allowed = True
-        if move_stop_to_be:
+
+        if self.stop_to_be is not None:
             self.stop_to_be = self.stop_to_be
         else:
             self.stop_to_be = None

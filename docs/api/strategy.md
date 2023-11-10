@@ -5,7 +5,7 @@ icon:
 
 The base strategy allows the construction of powerful portoflios based on different kind of signals. You can use it this way:
 
-```python
+``` python title="Usage exmple of Base Strategy" linenums="1"
 from quantbt.strategies.S_base import S_base
 
 Class MyStrategy(S_base):
