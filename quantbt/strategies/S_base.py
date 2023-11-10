@@ -24,6 +24,7 @@ class S_base:
         slippage=0.0,
         default_size=None,
         use_sl=False,
+        use_trailing_sl=False,
         default_trade_size=-1.0,
         trade_size_type=TradeSizeType.PERCENTAGE,
         stop_to_be=None,
@@ -34,6 +35,7 @@ class S_base:
 
         self.initial_capital = initial_capital
         self.use_sl = use_sl
+        self.use_trailing_sl = use_trailing_sl
         self.slippage = slippage
         self.data_type = data_type
         self.params = ()
@@ -96,11 +98,9 @@ class S_base:
     # ======================================================================================== #
     def set_backtester_settings(
         self,
-        use_trailing_sl=False,
         one_trade_per_direction=True,
         trade_mode=TradeMode.HEDGE,
     ):
-        self.use_trailing_sl = use_trailing_sl
         self.one_trade_per_direction = one_trade_per_direction
         self.trade_mode = trade_mode
         self.trade_allowed = True

@@ -10,7 +10,7 @@ Doing so requires 2 simple steps:
 1. Create your custom Stop-To-BE function
 2. Pass that function to your strategy
 
-Find the full notebook [here]()
+Find the full notebook [here](https://github.com/Cultivating-Alpha/quantbt/blob/master/examples/stop-to-be/stop-to-be.ipynb)
 
 ## The Stop to BE function
 
