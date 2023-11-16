@@ -105,11 +105,6 @@ class S_base:
         self.trade_mode = trade_mode
         self.trade_allowed = True
 
-        if self.stop_to_be is not None:
-            self.stop_to_be = self.stop_to_be
-        else:
-            self.stop_to_be = None
-
     def generate_signals(self, params=()):
         print("Stub function for generating signals")
         self.entries = np.full_like(self.data.close, False)
