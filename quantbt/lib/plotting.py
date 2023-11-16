@@ -110,7 +110,6 @@ class Plotting:
         df["High"] = df["equity"]
         df["Low"] = df["equity"]
         df["Close"] = df["equity"]
-        print(df)
         df.set_index("Date", inplace=True)
 
         # subplots = self.add_line_plot(df["bnh"], panel=0, color="black")

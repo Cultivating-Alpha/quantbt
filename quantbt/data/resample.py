@@ -10,5 +10,6 @@ def resample(df, tf="1H"):
                 # "volume": "sum",
             }
         )
+        .dropna(how="all")
         .fillna(method="ffill")
     )

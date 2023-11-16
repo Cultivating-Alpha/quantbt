@@ -137,10 +137,6 @@ class TradeModule:
 
             if need_to_close:
                 self.close_trade(trade, price_data, close_reason)
-                if trade[Trade.Direction.value] == OrderDirection.LONG.value:
-                    self.active_long_trades -= 1
-                else:
-                    self.active_short_trades -= 1
         return
 
     def add_trade(

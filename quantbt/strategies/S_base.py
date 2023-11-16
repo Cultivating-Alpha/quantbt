@@ -100,10 +100,12 @@ class S_base:
         self,
         one_trade_per_direction=True,
         trade_mode=TradeMode.HEDGE,
+        use_trailing_sl=False,
     ):
         self.one_trade_per_direction = one_trade_per_direction
         self.trade_mode = trade_mode
         self.trade_allowed = True
+        self.use_trailing_sl = use_trailing_sl
 
     def generate_signals(self, params=()):
         print("Stub function for generating signals")
