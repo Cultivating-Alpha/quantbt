@@ -3,6 +3,7 @@ from prettytable import PrettyTable
 from .output_trades import output_trades
 import numpy as np
 from numba import njit
+from quantbt.core.enums import Trade
 
 
 def format_duration(duration):
@@ -13,8 +14,8 @@ def format_duration(duration):
 def losing_streak(trades):
     longest_streak = 0
     current_streak = 0
-    for trade in trades.iterrows():
-        if trade[1].PNL < 0:
+    for trade in trades.values:
+        if trade[Trade.PNL] < 0:
             current_streak += 1
             longest_streak = max(longest_streak, current_streak)
         else:
@@ -25,8 +26,8 @@ def losing_streak(trades):
 def winning_streak(trades):
     longest_streak = 0
     current_streak = 0
-    for trade in trades.iterrows():
-        if trade[1].PNL > 0:
+    for trade in trades.values:
+        if trade[Trade.PNL] > 0:
             current_streak += 1
             longest_streak = max(longest_streak, current_streak)
         else:
@@ -62,7 +63,7 @@ def calculate_dd(equity):
 
     # Calculate the maximum drawdown as a percentage
     max_drawdown_pct = max_drawdown / peak_before_max_drawdown * 100
-    return max_drawdown_pct
+    return max_drawdown_pct, max_drawdown
 
 
 def calculate_stats(
@@ -81,7 +82,7 @@ def calculate_stats(
     equity = equity
     initial_capital = initial_capital
 
-    dd = np.round(calculate_dd(equity), 2)
+    dd_prc, dd = np.round(calculate_dd(equity), 2)
 
     ROI = np.round((equity[-1] - initial_capital) / initial_capital * 100, 2)
     ROI_usd = np.round(equity[-1] - initial_capital, 1)
@@ -103,7 +104,8 @@ def calculate_stats(
 
     t.add_row(["ROI: (%)", f"{ROI}%"])
     t.add_row(["ROI: ($)", f"{ROI_usd}$"])
-    t.add_row(["DD: (%)", f"{dd}"])
+    t.add_row(["DD: (%)", f"{dd_prc}"])
+    t.add_row(["DD: ($)", f"{dd}"])
     t.add_row(["Biggest winning trade: ($)", f"{biggest_winning_trade}$"])
     t.add_row(["Biggest losing trade: ($)", f"{biggest_losing_trade}$"])
     t.add_row(["", ""])
@@ -130,7 +132,13 @@ def calculate_stats(
     if index == None:
         index = [0]
     stats = pd.DataFrame(
-        {"End Value": equity[-1], "ROI: (%)": ROI, "DD": dd, "ratio": ROI / dd},
+        {
+            "End Value": equity[-1],
+            "ROI: (%)": ROI,
+            "DD (%)": dd_prc,
+            "DD ($)": dd,
+            "ratio": ROI / dd,
+        },
         index=index,
     )
-    return stats
+    return stats, t
