@@ -79,7 +79,7 @@ class S_base:
         #     columns={"close": "Close", "high": "High", "low": "Low", "open": "Open"},
         #     inplace=True,
         # )
-        data.index = data.index.astype(int) // 10**9
+        data.index = data.index.astype(np.int64) // 10**9
         self.data = data
         self.create_backtester()
 
