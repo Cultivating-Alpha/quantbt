@@ -48,10 +48,10 @@ class TimeManip:
         return pd.to_datetime(df, unit="s")
 
     def convert_datetime_to_s(self, df):
-        return pd.to_datetime(df).astype(int) // 10**9
+        return pd.to_datetime(df).astype(np.int64) // 10**9
 
     def convert_datetime_to_ms(self, df):
-        return pd.to_datetime(df).astype(int) // 10**6
+        return pd.to_datetime(df).astype(np.int64) // 10**6
 
     def convert_duration_to_timestamp(self, df, unit="ms"):
         return pd.to_timedelta(df, unit=unit)
