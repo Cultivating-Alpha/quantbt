@@ -43,6 +43,7 @@ class PositionCloseReason(IntEnum):
     TP = 2
     TIME_SL = 3
     TSL = 4
+    BE_FAIL = 5
 
 
 # ["Index", "Direction", "EntryTime", "EntryPrice", "ExitTime", "ExitPrice", "Volume", "TP", "SL", "PNL", "Commission", "Active"]

@@ -19,6 +19,8 @@ class TimeManip:
         elif "time" in df.columns:
             row = df["time"].values
             df.drop("time", axis=1, inplace=True)
+        else:
+            row = df.index
 
         # print(type(row[0]))
         if type(row[0]) == np.int64:
@@ -28,6 +30,11 @@ class TimeManip:
             else:
                 # print("Timestamp might be in milliseconds")
                 row = time_manip.convert_ms_to_datetime(row)
+        elif type(row[0]) == np.float64:
+            # print("Timestamp is likely in datetime format")
+            row = time_manip.convert_ms_to_datetime(row)
+            df.index = row
+
         df["date"] = row
         return df
 

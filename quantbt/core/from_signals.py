@@ -48,7 +48,9 @@ class FromSignals:
             index, self.trade_module.closed_pnl, self.trade_module.floating_pnl
         )
 
-    def close_trade(self, index, trade, exit_price):
+    def close_trade(
+        self, index, trade, exit_price, close_reason=PositionCloseReason.SIGNAL.value
+    ):
         # Get the price data
         (
             current_tick,
@@ -59,9 +61,7 @@ class FromSignals:
         price_data = (current_tick, exit_price, bid, ask)
 
         # Close the trade
-        self.trade_module.close_trade(
-            trade, price_data, PositionCloseReason.SIGNAL.value
-        )
+        self.trade_module.close_trade(trade, price_data, close_reason)
 
     def create_trade(self, direction, i, entry_price, sl=0.0, tp=0.0):
         entry_size = self.data_module.get_trade_size(i)
@@ -93,8 +93,11 @@ class FromSignals:
         stop_to_be,
         one_trade_per_direction,
         trade_mode,
+        verbose,
     ):
         last_trade_index = 0
+        has_be_failed = 0
+
         for i in range(len(self.data_module.close) - 1):
             # UPDATE PNL OF TRADES
             # TODO need to change how trade exit price is taken to be able to take next open for example
@@ -171,7 +174,37 @@ class FromSignals:
                             self.close_trade(i, trade, short_exit_price[i])
 
             if stop_to_be is not None:
-                stop_to_be(self.trade_module.active_trades, self.data_module, i)
+                for trade in self.trade_module.active_trades:
+                    # Pass if we have already moved the SL to breakeven
+                    if trade[Trade.EntryPrice.value] == trade[Trade.SL.value]:
+                        continue
+
+                    if stop_to_be.stop_to_be_nb(self.data_module, trade, i):
+                        current_close = self.data_module.close[i]
+                        entry_price = trade[Trade.EntryPrice.value]
+                        if trade[Trade.Direction.value] == OrderDirection.LONG.value:
+                            if current_close > entry_price:
+                                trade[Trade.SL.value] = trade[Trade.EntryPrice.value]
+                            else:
+                                has_be_failed += 1
+                                self.close_trade(
+                                    i,
+                                    trade,
+                                    current_close,
+                                    PositionCloseReason.BE_FAIL.value,
+                                )
+
+                        if trade[Trade.Direction.value] == OrderDirection.SHORT.value:
+                            if current_close < entry_price:
+                                trade[Trade.SL.value] = trade[Trade.EntryPrice.value]
+                            else:
+                                has_be_failed += 1
+                                self.close_trade(
+                                    i,
+                                    trade,
+                                    current_close,
+                                    PositionCloseReason.BE_FAIL.value,
+                                )
 
             if trailing_sl_long[i] > 0:
                 if self.trade_module.active_long_trades > 1:
@@ -195,8 +228,14 @@ class FromSignals:
                 )
 
             if self.data_module.equity[i] < 0:
-                print("Account blown up")
+                if verbose:
+                    print("Account blown up")
                 break
 
         self.data_module.equity[-1] = self.data_module.equity[-2]
         self.trade_module.reconcile()
+
+        if has_be_failed > 1 and verbose:
+            print(
+                f"Warning: Some stop_to_be signals could not be placed {has_be_failed}/{len(self.trade_module.closed_trades)} times because they were above/below latest_close. We instead closed the position with a market order"
+            )

@@ -48,6 +48,12 @@ class S_base:
 
         self.set_backtester_settings()
 
+        """ set shortcuts to OHLC """
+        self.open = self.data.open.values
+        self.high = self.data.high.values
+        self.low = self.data.low.values
+        self.close = self.data.close.values
+
     # ======================================================================================== #
     #                                     DATA Items
     # ======================================================================================== #
@@ -113,7 +119,7 @@ class S_base:
         self.exits = np.full_like(self.data.close, False)
         return {}
 
-    def from_signals(self, params):
+    def from_signals(self, params, verbose=True):
         self.bt.reset_backtester()
         self.params = params
         vals = self.generate_signals()
@@ -135,10 +141,9 @@ class S_base:
                 vals[key] = default_values[key]
 
         vals["trade_allowed"] = self.trade_allowed
-        vals["stop_to_be"] = self.stop_to_be
         vals["one_trade_per_direction"] = self.one_trade_per_direction
         vals["trade_mode"] = self.trade_mode
-        self.bt.from_signals(**vals)
+        self.bt.from_signals(**vals, stop_to_be=self.stop_to_be, verbose=verbose)
 
     def from_trades(self, trades):
         self.bt.from_trades(trades)

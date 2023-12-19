@@ -9,3 +9,5 @@ from .save_to_csv import save_to_csv
 
 from .plot_returns_heatmap import plot_returns_heatmap, plot_heatmap, create_pivot_df
 from .plot_barchart import plot_barchart
+
+from .backtest import backtest

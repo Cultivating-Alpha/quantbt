@@ -88,6 +88,7 @@ class Backtester:
         stop_to_be=None,
         one_trade_per_direction=True,
         trade_mode=TradeMode.ONE_WAY,
+        verbose=True,
     ):
         # print("Compiling")
         # print("Preparing")
@@ -124,4 +125,5 @@ class Backtester:
             stop_to_be,
             one_trade_per_direction,
             trade_mode.value,
+            verbose,
         )
