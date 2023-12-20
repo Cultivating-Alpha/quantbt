@@ -48,12 +48,6 @@ class S_base:
 
         self.set_backtester_settings()
 
-        """ set shortcuts to OHLC """
-        self.open = self.data.open.values
-        self.high = self.data.high.values
-        self.low = self.data.low.values
-        self.close = self.data.close.values
-
     # ======================================================================================== #
     #                                     DATA Items
     # ======================================================================================== #
@@ -87,6 +81,13 @@ class S_base:
         # )
         data.index = data.index.astype(np.int64) // 10**9
         self.data = data
+
+        """ set shortcuts to OHLC """
+        self.open = self.data.open.values
+        self.high = self.data.high.values
+        self.low = self.data.low.values
+        self.close = self.data.close.values
+
         self.create_backtester()
 
     def data_days_ago(self, days=3):
