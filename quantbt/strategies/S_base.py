@@ -75,14 +75,12 @@ class S_base:
         )
 
     def update_data(self, data):
-        print(data)
         # data.rename(
         #     columns={"close": "Close", "high": "High", "low": "Low", "open": "Open"},
         #     inplace=True,
         # )
         data.index = data.index.astype(np.int64) // 10**9
         self.data = data
-        print(data)
 
         """ set shortcuts to OHLC """
         self.open = self.data.open.values

@@ -1,6 +1,5 @@
 import os
 from quantbt.lib import pd
-from helpers.log import print
 from quantbt.lib import find_files
 from quantbt.lib.time_manip import time_manip
 from quantbt.data.resample import resample
@@ -60,7 +59,6 @@ def get_local_data(
         data = time_manip.hours_ago(data, 24 * days_ago)
 
     data.set_index("date", inplace=True)
-    print("resampling")
     if resample_tf:
         data = resample(data, resample_tf)
 

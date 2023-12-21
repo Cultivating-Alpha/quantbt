@@ -1,6 +1,3 @@
-from helpers.log import print
-
-
 def backtest(
     strategy_vars=None,
     strategy=None,
