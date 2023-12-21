@@ -4,3 +4,4 @@ temp
 dist
 data/trades.parquet
 data/EURUSD.pqt
+publish.sh

@@ -8,6 +8,46 @@ from tqdm import tqdm
 from quantbt.data.resample import resample
 
 
+def optimize(
+    strategy=None,
+    data=None,
+    backtest_vars=None,
+    strategy_vars=None,
+    timeframes=[],
+    params=None,
+):
+    products = list(itertools.product(*params.values()))
+    items = []
+    for item in products:
+        items.append(
+            tuple(
+                round(value, 2) if isinstance(value, float) else value for value in item
+            )
+        )
+
+    for tf in timeframes:
+        pbar = tqdm(total=len(items), ncols=40)
+        _data = resample(data, tf)
+        st = strategy(_data, strategy_vars)
+        st.set_backtester_settings(**backtest_vars)
+        new_df = pd.DataFrame()
+        for param in items:
+            st.from_signals(param, verbose=False)
+            stats, t = st.get_stats()
+            new_df = pd.concat([new_df, stats])
+            pbar.update(1)
+
+        new_df.replace([np.inf, -np.inf], np.nan, inplace=True)
+        new_df.dropna(inplace=True)
+        print("Optimising", strategy.name, tf)
+        print()
+        print(new_df)
+
+        new_df.index = new_df.index.map(lambda x: tuple(x))
+        new_df.to_parquet(f"./optimisation/{strategy.name}-{tf}.parquet")
+        pbar.close()
+
+
 # def optimize(strategy, data, backtest_vars, strategy_vars, timeframes, params):
 #     # NUMBER_OF_CPU = multiprocessing.cpu_count() - 1
 #     NUMBER_OF_CPU = math.floor(multiprocessing.cpu_count() / 2)
@@ -108,36 +148,3 @@ from quantbt.data.resample import resample
 #         print()
 #         print(new_df)
 #         new_df.to_parquet(f"./optimisation/{strategy.name}-{tf}.parquet")
-
-
-def optimize(strategy, data, backtest_vars, strategy_vars, timeframes, params):
-    products = list(itertools.product(*params.values()))
-    items = []
-    for item in products:
-        items.append(
-            tuple(
-                round(value, 2) if isinstance(value, float) else value for value in item
-            )
-        )
-
-    for tf in timeframes:
-        pbar = tqdm(total=len(items), ncols=40)
-        _data = resample(data, tf)
-        st = strategy(_data, strategy_vars)
-        st.set_backtester_settings(**backtest_vars)
-        new_df = pd.DataFrame()
-        for param in items:
-            st.from_signals(param, verbose=False)
-            stats, t = st.get_stats()
-            new_df = pd.concat([new_df, stats])
-            pbar.update(1)
-
-        new_df.replace([np.inf, -np.inf], np.nan, inplace=True)
-        new_df.dropna(inplace=True)
-        print("Optimising", strategy.name, tf)
-        print()
-        print(new_df)
-
-        new_df.index = new_df.index.map(lambda x: tuple(x))
-        new_df.to_parquet(f"./optimisation/{strategy.name}-{tf}.parquet")
-        pbar.close()

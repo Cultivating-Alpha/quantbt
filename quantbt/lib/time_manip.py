@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+from helpers.log import print
 from datetime import datetime
 
 
@@ -22,7 +22,6 @@ class TimeManip:
         else:
             row = df.index
 
-        # print(type(row[0]))
         if type(row[0]) == np.int64:
             if row[0] < 10_000_000_000:
                 # print("Timestamp is likely in seconds")
@@ -35,6 +34,10 @@ class TimeManip:
             row = time_manip.convert_ms_to_datetime(row)
             df.index = row
 
+        row = row.tz_localize(None)
+        row = pd.to_datetime(row).astype("datetime64[ns]")
+        df["date"] = row
+        df.set_index("date", inplace=True)
         df["date"] = row
         return df
 
