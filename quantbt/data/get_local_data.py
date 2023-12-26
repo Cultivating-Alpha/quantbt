@@ -37,6 +37,7 @@ def get_local_data(
 
     ## Format Data
     data = time_manip.format_index(data)
+    print(data)
 
     data.rename(
         {

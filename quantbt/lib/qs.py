@@ -13,19 +13,19 @@ import matplotlib.colors as mcolors
 qs.extend_pandas()
 
 
-def report(bt):
-    data = bt.data.copy()
-    equity = bt.equity
+def report(data, equity):
+    # data = bt.data.copy()
+    # equity = bt.equity
 
     qs.extend_pandas()
     annual_rf_rate = 0.05
     rf_rate = (1 + annual_rf_rate) ** (1 / (252 * 60)) - 1
     # show sharpe ratio
-    prices = data.Close
-    data.reset_index(inplace=True)
-    eq = pd.Series(equity, index=data["Date"])
+    prices = data.close
+    print(data)
+    eq = pd.Series(equity, index=data["date"])
     eq.plot()
-    returns = pd.Series(equity, index=data["Date"])
+    returns = pd.Series(equity, index=data["date"])
 
     monthly_returns = returns.resample("M").ffill().pct_change()
     print(monthly_returns)
@@ -63,9 +63,9 @@ def report(bt):
 # report(bt_eth)
 
 
-df1 = pd.Series(bt_matic.equity, index=bt_matic.data.index)
-df2 = pd.Series(bt_eth.equity, index=bt_eth.data.index)
-df1 = df1.reindex(df2.index)
-df1.plot()
-df2.plot()
-plt.show()
+# df1 = pd.Series(bt_matic.equity, index=bt_matic.data.index)
+# df2 = pd.Series(bt_eth.equity, index=bt_eth.data.index)
+# df1 = df1.reindex(df2.index)
+# df1.plot()
+# df2.plot()
+# plt.show()
